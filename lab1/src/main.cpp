@@ -4,39 +4,46 @@
 
 RomiChassis chassis;
 
-enum ROBOT_STATE {ROBOT_IDLE, ROBOT_DRIVING};
+uint8_t driveTime = 2; // seconds
+
+enum ROBOT_STATE
+{
+  ROBOT_IDLE,
+  ROBOT_DRIVING
+};
 ROBOT_STATE robot_state = ROBOT_IDLE;
 
 Romi32U4ButtonA buttonA;
 
-void setup() {
-    Serial.begin(115200);
+void setup()
+{
+  Serial.begin(115200);
 }
 
-void loop() 
+void loop()
 {
-  switch(robot_state)
+  switch (robot_state)
   {
-    case ROBOT_IDLE:
-      if(buttonA.getSingleDebouncedRelease()) 
-      {
-        chassis.StartDriving(100, 100, 10000); //contains your program that the robot executes when pushbutton A is pressed
-        robot_state = ROBOT_DRIVING;
-      }
-      break;
+  case ROBOT_IDLE:
+    if (buttonA.getSingleDebouncedRelease())
+    {
+      chassis.beginDriving(10, 10, driveTime * 1000); // contains your program that the robot executes when pushbutton A is pressed
+      robot_state = ROBOT_DRIVING;
+    }
+    break;
 
-    case ROBOT_DRIVING:
-      chassis.MotorControl();
-      chassis.SerialPlotter(chassis.SpeedLeft(), chassis.EffortLeft(), chassis.SpeedRight(), chassis.EffortRight() );
-      if(chassis.CheckDriveComplete()) 
-      {
-        chassis.Stop();
-        robot_state = ROBOT_IDLE;
-      }
-      if(buttonA.getSingleDebouncedRelease()) 
-      {
-        chassis.Stop();
-        robot_state = ROBOT_IDLE;
-      }
+  case ROBOT_DRIVING:
+    chassis.updateMotorPID();
+    if (chassis.isDriveComplete())
+    {
+      chassis.stop();
+      robot_state = ROBOT_IDLE;
+      driveTime += 2;
+    }
+    if (buttonA.getSingleDebouncedRelease())
+    {
+      chassis.stop();
+      robot_state = ROBOT_IDLE;
+    }
   }
 }

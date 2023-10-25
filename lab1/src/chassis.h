@@ -3,56 +3,55 @@
 
 #include <Romi32U4.h>
 
-class RomiChassis{
-    private:
-        //Romi specific constants:
-        // !!! ATTENTION !!!
-        const float N_wheel = 1440; //how many counts equate to one wheel rotation?
-        const float R_wheel = 35; //what is the radius of a Romi wheel in [mm]
-        const float C_wheel = 2*PI*R_wheel; //circumference of wheel
+#define N_WHEEL 1440            // how many counts equate to one wheel rotation?
+#define R_WHEEL 35              // what is the radius of a Romi wheel in [mm]
+#define C_WHEEL 2 * PI *R_WHEEL // circumference of wheel
+#define PID_UPDATE_INTERVAL 50  // how often do we update the motor effort? (ms)
 
-        //declare variables for PI controller
-        float target_left = 0;
-        float target_right = 0;
-        float Kp = 0.3;
-        float Ki = 0.1;
-        float E_left = 0; //accumulated errors
-        float E_right = 0;
+class RomiChassis
+{
+private:
+    // Romi specific constants:
+    //  !!! ATTENTION !!!
 
-        //encoder and motor objects
-        Romi32U4Encoders encoders;
-        Romi32U4Motors motors;
+    // declare variables for PI controller
+    float target_left = 0;
+    float target_right = 0;
+    float Kp = 1;
+    float Ki = 0.00;
+    float cum_E_left = 0; // accumulated errors
+    float cum_E_right = 0;
 
-        //declare variables for for keeping track of counts and conversion to velocities
-        uint32_t start_time = 0;
-        uint32_t end_time = 0;
-        float interval = 50; // in [ms]
-        uint32_t last_update = 0;
-        int count_left = 0;
-        int count_right = 0;
-        int prev_count_left = 0;
-        int prev_count_right = 0;
-        float previous_time = 0;
-        int effort_left = 0;
-        int effort_right = 0; 
+    // encoder and motor objects
+    Romi32U4Encoders encoders;
+    Romi32U4Motors motors;
 
+    // declare variables for for keeping track of counts and conversion to velocities
+    uint32_t start_time = 0;
+    uint32_t end_time = 0;
+    uint32_t lastPIDUpdate = 0;
+    int prev_count_left = 0;
+    int prev_count_right = 0;
+    float previous_time = 0;
+    uint32_t previousLeftTime = 0;
+    uint32_t previousRightTime = 0;
 
-    public:
-        float SpeedLeft(void);
-        float SpeedRight(void);
-        float EffortLeft(void);
-        float EffortRight(void);
+public:
+    float getLeftSpeed(void);
+    float getRightSpeed(void);
+    float getLeftEffort(void);
+    float getRightEffort(void);
 
-        void UpdateEffortDriveWheels(int a, int b);
-        void UpdateEffortDriveWheelsP(int a, int b);
-        void UpdateEffortDriveWheelsPI(int a, int b);
+    void setDriveEffort(int a, int b);
+    void UpdateEffortDriveWheelsP(int a, int b);
+    void updateMotorEffortPI(int a, int b);
 
-        void MotorControl(void);
-        void SerialPlotter(float a, float b, float c, float d);
+    void updateMotorPID(void);
+    void printToSerial(float a, float b, float c, float d);
 
-        void StartDriving(float, float, uint32_t);
-        bool CheckDriveComplete(void);
-        void Stop(void);
+    void beginDriving(float, float, uint32_t);
+    bool isDriveComplete(void);
+    void stop(void);
 };
 
 extern RomiChassis chassis;

@@ -1,65 +1,99 @@
-#include <Romi32U4.h>
 #include "chassis.h"
 
-float RomiChassis::getLeftSpeed(void)
-{
+#include <Romi32U4.h>
+
+/**
+ * @brief Returns the current speed of the left wheel in mm/s
+ *
+ * @return float speed in mm/s
+ */
+float RomiChassis::getLeftSpeed() {
   // !!! ATTENTION !!!
   // Assignment 1
-  uint32_t currentTime = millis();
-  int16_t count_left = encoders.getCountsLeft();
-  float speed = (C_WHEEL / N_WHEEL) * ((count_left - prev_count_left) / ((currentTime - previousLeftTime) / 1000));
-  prev_count_left = count_left;
-  previousLeftTime = currentTime;
+  uint32_t time = millis();
+  int16_t count = encoders.getCountsLeft();
+  float speed = ((WHEEL_CIRCUM / COUNTS_PER_REV) * (count - prevLeftCount)) /
+                (time - prevLeftTime) * 1000;
+  prevLeftCount = count;
+  prevLeftTime = time;
   return speed;
 }
 
-float RomiChassis::getRightSpeed(void)
-{
+/**
+ * @brief Returns the current speed of the right wheel in mm/s
+ *
+ * @return float speed in mm/s
+ */
+float RomiChassis::getRightSpeed() {
   // !!! ATTENTION !!!
   // Assignment 1
-  uint32_t currentTime = millis();
-  int16_t count_right = encoders.getCountsRight();
-  float speed = (C_WHEEL / N_WHEEL) * ((count_right - prev_count_right) / ((currentTime - previousRightTime) / 1000));
-  prev_count_right = count_right;
-  previousRightTime = currentTime;
+  uint32_t time = millis();
+  int16_t count = encoders.getCountsRight();
+  float speed = ((WHEEL_CIRCUM / COUNTS_PER_REV) * (count - prevRightCount)) /
+                (time - prevRightTime) * 1000;
+  prevRightCount = count;
+  prevRightTime = time;
   return speed;
 }
 
-float RomiChassis::getLeftEffort(void)
-{
-  return OCR1B;
-}
+/**
+ * @brief Returns the current effort of the left wheel
+ *
+ * @return int16_t effort
+ */
+int16_t RomiChassis::getLeftEffort() { return lastLeftEffort; }
 
-float RomiChassis::getRightEffort(void)
-{
-  return OCR1A;
-}
+/**
+ * @brief Returns the current effort of the right wheel
+ *
+ * @return int16_t effort
+ */
+int16_t RomiChassis::getRightEffort() { return lastRightEffort; }
 
-void RomiChassis::setDriveEffort(int left, int right)
-{
+/**
+ * @brief Sets the effort of the left and right motors
+ *
+ * @param left Left motor effort (-300 to 300)
+ * @param right Right motor effort
+ */
+void RomiChassis::setDriveEffort(int left, int right) {
+  lastLeftEffort = left;
+  lastRightEffort = right;
   motors.setEfforts(left, right);
 }
 
-void RomiChassis::updateMotorEffortPI(int target_speed_left, int target_speed_right)
-{
+/**
+ * @brief Updates the motor effort using a PI controller
+ *
+ * @param deltaMs Time since the last update in milliseconds
+ */
+void RomiChassis::updateMotorEffortPI(uint32_t deltaMs) {
   // !!! ATTENTION !!!
   // Assignment 2
-  {
-    float error_Left = target_speed_left - getLeftSpeed();
-    float error_Right = target_speed_right - getRightSpeed();
+  float leftSpeed = getLeftSpeed();
+  float rightSpeed = getRightSpeed();
+  float leftError = targetSpeedLeft - leftSpeed;
+  float rightError = targetSpeedRight - rightSpeed;
 
-    cum_E_left += error_Left;
-    cum_E_right += error_Right;
+  cumErrorLeft += leftError * deltaMs / 1000;
+  cumErrorRight += rightError * deltaMs / 1000;
 
-    motors.setEfforts(Kp * error_Left + Ki * cum_E_left, Kp * error_Right + Ki * cum_E_right);
-    printToSerial(getLeftSpeed(), getLeftEffort(), getRightSpeed(), getRightEffort());
-  }
+  setDriveEffort(Kp * leftError + Ki * cumErrorLeft,
+                 Kp * rightError + Ki * cumErrorRight);
+  printToSerial(leftSpeed, getLeftEffort(), rightSpeed, getRightEffort());
 }
 
-void RomiChassis::printToSerial(float a, float b, float c, float d)
-{
+/**
+ * @brief A helper function for printing comma separated values to serial
+ *
+ * @param a First value
+ * @param b Second value
+ * @param c Third value
+ * @param d Fourth value
+ */
+void RomiChassis::printToSerial(float a, float b, float c, float d) {
   // !!! ATTENTION !!!
-  // USE this function for assignment 3!
+  // Use this function for assignment 3!
   Serial.print(a);
   Serial.print(",");
   Serial.print(b);
@@ -70,34 +104,48 @@ void RomiChassis::printToSerial(float a, float b, float c, float d)
   Serial.println();
 }
 
-void RomiChassis::updateMotorPID(void)
-{
+/**
+ * @brief Updates the motor effort using a PI controller
+ *
+ */
+void RomiChassis::updateMotorPID() {
   uint32_t now = millis();
-  if (now - lastPIDUpdate >= PID_UPDATE_INTERVAL)
-  {
-    updateMotorEffortPI(target_left, target_right);
+  if (now - lastPIDUpdate >= PID_UPDATE_INTERVAL) {
+    updateMotorEffortPI(now - lastPIDUpdate);
     lastPIDUpdate = now;
   }
 }
 
-void RomiChassis::beginDriving(float left, float right, uint32_t duration)
-{
-  target_left = left;
-  target_right = right;
-  start_time = millis();
-  lastPIDUpdate = start_time;
-  end_time = start_time + duration; // fails at rollover
-  cum_E_left = 0;
-  cum_E_right = 0;
+/**
+ * @brief Begins driving the robot at the specified speeds for the specified
+ *
+ * @param leftSpeed Target speed for the left wheel in mm/s
+ * @param rightSpeed Target speed for the right wheel in mm/s
+ * @param duration How long to drive for in milliseconds
+ */
+void RomiChassis::beginDriving(float leftSpeed, float rightSpeed,
+                               uint32_t duration) {
+  targetSpeedLeft = leftSpeed;
+  targetSpeedRight = rightSpeed;
+  uint32_t time = millis();
+  lastPIDUpdate = time;
+  endTime = time + duration;  // fails at rollover
+
+  // Use to prevent jerk when starting
+  cumErrorLeft = 0;
+  cumErrorRight = 0;
+  prevLeftCount = encoders.getCountsLeft();
+  prevRightCount = encoders.getCountsRight();
 }
 
-bool RomiChassis::isDriveComplete(void)
-{
-  return millis() >= end_time;
-}
+/**
+ * @brief Returns true if the robot has finished driving
+ *
+ */
+bool RomiChassis::isDriveComplete() { return millis() >= endTime; }
 
-void RomiChassis::stop(void)
-{
-  target_left = target_right = 0;
-  motors.setEfforts(0, 0);
-}
+/**
+ * @brief Stops the robot
+ *
+ */
+void RomiChassis::stop() { setDriveEffort(0, 0); }

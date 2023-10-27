@@ -12,7 +12,7 @@ float RomiChassis::getLeftSpeed() {
   // Assignment 1
   uint32_t time = millis();
   int16_t count = encoders.getCountsLeft();
-  float speed = (((WHEEL_CIRCUM / COUNTS_PER_REV) * (count - prevLeftCount)) * 1000) /
+  float speed = (((WHEEL_CIRCUM / COUNTS_PER_REV) * (float)(count - prevLeftCount)) * 1000.0) /
                 (time - prevLeftTime);
   prevLeftCount = count;
   prevLeftTime = time;
@@ -30,7 +30,7 @@ float RomiChassis::getRightSpeed() {
   uint32_t time = millis();
   int16_t count = encoders.getCountsRight();
   float speed = ((WHEEL_CIRCUM / COUNTS_PER_REV) * (count - prevRightCount)) /
-                (time - prevRightTime) * 1000;
+                (float)(time - prevRightTime) * 1000.0;
   prevRightCount = count;
   prevRightTime = time;
   return speed;
@@ -60,6 +60,7 @@ void RomiChassis::setDriveEffort(int left, int right) {
   lastLeftEffort = left;
   lastRightEffort = right;
   motors.setEfforts(left, right);
+  printToSerial(getLeftSpeed(), getLeftEffort(), getRightSpeed(), getRightEffort());
 }
 
 /**
@@ -111,7 +112,8 @@ void RomiChassis::printToSerial(float a, float b, float c, float d) {
 void RomiChassis::updateMotorPID() {
   uint32_t now = millis();
   if (now - lastPIDUpdate >= PID_UPDATE_INTERVAL) {
-    updateMotorEffortPI(now - lastPIDUpdate);
+   // updateMotorEffortPI(now - lastPIDUpdate);
+   setDriveEffort(100,100);
     lastPIDUpdate = now;
   }
 }

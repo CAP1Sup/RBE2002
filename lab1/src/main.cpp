@@ -5,7 +5,7 @@
 
 RomiChassis chassis;
 
-uint8_t driveTime = 5;  // seconds
+uint8_t driveTime = 10;  // seconds
 
 enum ROBOT_STATE { ROBOT_IDLE, ROBOT_DRIVING };
 ROBOT_STATE state = ROBOT_IDLE;
@@ -19,7 +19,7 @@ void loop() {
     case ROBOT_IDLE:
       if (buttonA.getSingleDebouncedRelease()) {
         chassis.beginDriving(
-            50, 50,
+            10, 10,
             driveTime * 1000);  // contains your program that the robot
                                 // executes when pushbutton A is pressed
         state = ROBOT_DRIVING;

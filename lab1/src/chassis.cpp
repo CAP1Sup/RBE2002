@@ -60,6 +60,7 @@ void RomiChassis::setDriveEffort(int left, int right) {
   lastLeftEffort = left;
   lastRightEffort = right;
   motors.setEfforts(left, right);
+  printToSerial(getLeftSpeed(), getLeftEffort(), getRightSpeed(), getRightEffort());
 }
 
 /**

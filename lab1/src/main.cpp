@@ -5,7 +5,7 @@
 
 RomiChassis chassis;
 
-uint8_t driveTime = 10;  // seconds
+uint8_t driveTime = 5;  // seconds
 
 enum ROBOT_STATE { ROBOT_IDLE, ROBOT_DRIVING };
 ROBOT_STATE state = ROBOT_IDLE;
@@ -31,7 +31,7 @@ void loop() {
       if (chassis.isDriveComplete()) {
         chassis.stop();
         state = ROBOT_IDLE;
-        driveTime += 2;
+        //driveTime += 2;
       }
       if (buttonA.getSingleDebouncedRelease()) {
         chassis.stop();

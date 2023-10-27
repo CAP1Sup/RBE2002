@@ -12,8 +12,8 @@ float RomiChassis::getLeftSpeed() {
   // Assignment 1
   uint32_t time = millis();
   int16_t count = encoders.getCountsLeft();
-  float speed = ((WHEEL_CIRCUM / COUNTS_PER_REV) * (count - prevLeftCount)) /
-                (time - prevLeftTime) * 1000;
+  float speed = (((WHEEL_CIRCUM / COUNTS_PER_REV) * (count - prevLeftCount)) * 1000) /
+                (time - prevLeftTime);
   prevLeftCount = count;
   prevLeftTime = time;
   return speed;
@@ -60,7 +60,6 @@ void RomiChassis::setDriveEffort(int left, int right) {
   lastLeftEffort = left;
   lastRightEffort = right;
   motors.setEfforts(left, right);
-  printToSerial(getLeftSpeed(), getLeftEffort(), getRightSpeed(), getRightEffort());
 }
 
 /**

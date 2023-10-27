@@ -17,7 +17,7 @@ class RomiChassis {
   float targetSpeedLeft = 0;
   float targetSpeedRight = 0;
   //float Kp = 0.5f;
-  float Kp = 0.3f;
+  float Kp = 10.0f;
   //float Ki = 15.0f;
   float Ki = 0;
   float cumErrorLeft = 0;  // accumulated errors

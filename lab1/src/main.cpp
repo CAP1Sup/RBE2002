@@ -19,7 +19,7 @@ void loop() {
     case ROBOT_IDLE:
       if (buttonA.getSingleDebouncedRelease()) {
         chassis.beginDriving(
-            10, 10,
+            50, 50,
             driveTime * 1000);  // contains your program that the robot
                                 // executes when pushbutton A is pressed
         state = ROBOT_DRIVING;
@@ -27,12 +27,11 @@ void loop() {
       break;
 
     case ROBOT_DRIVING:
-      //chassis.updateMotorPID();
-      chassis.setDriveEffort(100,100);
+      chassis.updateMotorPID();
       if (chassis.isDriveComplete()) {
         chassis.stop();
         state = ROBOT_IDLE;
-        //driveTime += 2;
+        driveTime += 2;
       }
       if (buttonA.getSingleDebouncedRelease()) {
         chassis.stop();

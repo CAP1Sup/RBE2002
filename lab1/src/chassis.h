@@ -19,7 +19,7 @@ class RomiChassis {
   //float Kp = 0.5f;
   float Kp = 0.3f;
   //float Ki = 15.0f;
-  float Ki = 0.1;
+  float Ki = 0.0;
   float cumErrorLeft = 0;  // accumulated errors
   float cumErrorRight = 0;
 

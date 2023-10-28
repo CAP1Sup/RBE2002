@@ -5,7 +5,7 @@
 
 RomiChassis chassis;
 
-uint8_t driveTime = 5;  // seconds
+uint8_t driveTime = 10;  // seconds
 
 enum ROBOT_STATE { ROBOT_IDLE, ROBOT_DRIVING };
 ROBOT_STATE state = ROBOT_IDLE;

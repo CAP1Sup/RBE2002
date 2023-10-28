@@ -12,11 +12,10 @@ class RomiChassis {
  private:
   // Romi specific constants:
   //  !!! ATTENTION !!!
-
   // declare variables for PI controller
   float targetSpeedLeft = 0;
   float targetSpeedRight = 0;
-  float Kp = 1.3f;
+  float Kp = 1.30f;
   float Ki = 11.5f;
   float cumErrorLeft = 0;  // accumulated errors
   float cumErrorRight = 0;

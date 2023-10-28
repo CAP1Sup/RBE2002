@@ -16,10 +16,8 @@ class RomiChassis {
   // declare variables for PI controller
   float targetSpeedLeft = 0;
   float targetSpeedRight = 0;
-  //float Kp = 0.5f;
-  float Kp = 0.3f;
-  //float Ki = 15.0f;
-  float Ki = 0.0f;
+  float Kp = 1.2f;
+  float Ki = 15.0f;
   float cumErrorLeft = 0;  // accumulated errors
   float cumErrorRight = 0;
 

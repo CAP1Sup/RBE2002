@@ -60,7 +60,7 @@ void RomiChassis::setDriveEffort(int left, int right) {
   lastLeftEffort = left;
   lastRightEffort = right;
   motors.setEfforts(left, right);
-  printToSerial(getLeftSpeed(), getLeftEffort(), getRightSpeed(), getRightEffort());
+  //printToSerial(getLeftSpeed(), getLeftEffort(), getRightSpeed(), getRightEffort());
 }
 
 /**
@@ -112,8 +112,7 @@ void RomiChassis::printToSerial(float a, float b, float c, float d) {
 void RomiChassis::updateMotorPID() {
   uint32_t now = millis();
   if (now - lastPIDUpdate >= PID_UPDATE_INTERVAL) {
-    //updateMotorEffortPI(now - lastPIDUpdate);
-    chassis.setDriveEffort(100,100);
+    updateMotorEffortPI(now - lastPIDUpdate);
     lastPIDUpdate = now;
   }
 }

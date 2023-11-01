@@ -73,7 +73,7 @@ class Chassis {
    * @param left Left motor effort (-300 to 300)
    * @param right Right motor effort
    */
-  void setDriveEffort(int a, int b);
+  void setDriveEffort(int16_t leftEffort, int16_t rightEffort);
 
   /**
    * @brief Updates the motor effort using the PID controller

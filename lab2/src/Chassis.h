@@ -10,9 +10,30 @@
 #define WHEEL_CIRCUM (float)PI* WHEEL_DIA  // circumference of wheel (mm)
 #define PID_UPDATE_INTERVAL 50  // how often do we update the motor effort? (ms)
 
-#define PID_KP 0.0
-#define PID_KI 0.0
+// Robot selection
+#define CURRENT_ROBOT 1  // 1-4
+
+#if (CURRENT_ROBOT == 1)
+#define PID_KP 1.15f
+#define PID_KI 12.5f
 #define PID_KD 0.0
+
+#elif (CURRENT_ROBOT == 2)
+#define PID_KP 1.15f
+#define PID_KI 12.5f
+#define PID_KD 0.0
+
+#elif (CURRENT_ROBOT == 3)
+#define PID_KP 1.15f
+#define PID_KI 12.5f
+#define PID_KD 0.0
+
+#elif (CURRENT_ROBOT == 4)
+#define PID_KP 1.15f
+#define PID_KI 12.5f
+#define PID_KD 0.0
+
+#endif
 
 class Chassis {
  private:

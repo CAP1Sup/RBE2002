@@ -25,7 +25,7 @@ void setup() { sensor.init(); }
 void loop() {
 #ifdef SENSOR_TESTING
   sensor.printDistance();
-#elif WALL_FOLLOWING
+#elif defined(WALL_FOLLOWING)
   switch (robot_state) {
     case ROBOT_IDLE:
       if (buttonA.getSingleDebouncedRelease()) robot_state = ROBOT_DRIVING;

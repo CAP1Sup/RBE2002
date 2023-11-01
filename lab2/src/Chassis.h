@@ -5,13 +5,10 @@
 #include "Encoders.h"
 #include "PIDController.h"
 
-#define COUNTS_PER_REV 1440  // how many counts equate to one wheel rotation?
-#define WHEEL_DIA 70         // what is the radius of a Romi wheel in (mm)
-#define WHEEL_CIRCUM (float)PI* WHEEL_DIA  // circumference of wheel (mm)
-#define PID_UPDATE_INTERVAL 50  // how often do we update the motor effort? (ms)
+#define PID_UPDATE_INTERVAL 50 // how often do we update the motor effort? (ms)
 
 // Robot selection
-#define CURRENT_ROBOT 1  // 1-4
+#define CURRENT_ROBOT 1 // 1-4
 
 #if (CURRENT_ROBOT == 1)
 #define PID_KP 1.15f
@@ -36,7 +33,7 @@
 #endif
 
 class Chassis {
- private:
+private:
   // Basic variables
   float targetSpeedLeft = 0;
   float targetSpeedRight = 0;
@@ -49,10 +46,10 @@ class Chassis {
   PIDController leftPID = PIDController(PID_KP, PID_KI, PID_KD);
   PIDController rightPID = PIDController(PID_KP, PID_KI, PID_KD);
   Encoders encoders;
-  Romi32U4Motors motors;  // No need to init, automatically done on first call
-                          // to setEfforts()
+  Romi32U4Motors motors; // No need to init, automatically done on first call
+                         // to setEfforts()
 
- public:
+public:
   /**
    * @brief Returns the current effort of the left wheel
    *

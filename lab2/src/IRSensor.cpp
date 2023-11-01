@@ -4,6 +4,8 @@
 
 void IRSensor::init() { pinMode(IR_PIN, INPUT); }
 
+uint16_t IRSensor::getRawADC() { return analogRead(IR_PIN); }
+
 float IRSensor::adcToDist(uint16_t adc) {
   // Loop through the table to find the correct range
   for (int i = 0; i < IR_TABLE_SIZE; i++) {
@@ -25,8 +27,7 @@ float IRSensor::getDistance() {
   // assignment 1.1
   // read out and calibrate your IR sensor, to convert readouts to distance in
   // [cm]
-  // TODO: Write this
-  return analogRead(IR_PIN);
+  return adcToDist(getRawADC());
 }
 
 void IRSensor::printDistance() { Serial.println(getDistance()); }

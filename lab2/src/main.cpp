@@ -4,10 +4,19 @@
 #include "Chassis.h"
 #include "IRSensor.h"
 #include "PIDController.h"
+#include "SonarSensor.h"
 
 // Mode of operation
-#define SENSOR_TESTING
-// #define WALL_FOLLOWING
+#define IR_SENSOR_TESTING
+// #define SONAR_SENSOR_TESTING
+//  #define WALL_FOLLOWING
+
+// Sanity checker
+#if (defined(IR_SENSOR_TESTING) + defined(SONAR_SENSOR_TESTING) + \
+         defined(WALL_FOLLOWING) !=                               \
+     1)
+#error "Please select exactly one mode of operation"
+#endif
 
 #define TARGET_DISTANCE 10.0f  // TODO: TUNE LATER
 #define MAX_PID_OUTPUT 25.0f   // TODO: TUNE LATER
@@ -17,14 +26,33 @@ ROBOT_STATE robot_state = ROBOT_IDLE;
 
 Romi32U4ButtonA buttonA;
 Chassis chassis;
+#ifdef IR_SENSOR_TESTING
 IRSensor sensor;
+#elif defined(SONAR_SENSOR_TESTING)
+SonarSensor sensor;
+#endif
+
 PIDController wallFollowPID(7.0f, 2.0f, 0);
 
-void setup() { sensor.init(); }
+void setup() {
+  sensor.init();
+
+#if defined(IR_SENSOR_TESTING) || defined(SONAR_SENSOR_TESTING)
+  Serial.begin(9600);
+#endif
+}
 
 void loop() {
-#ifdef SENSOR_TESTING
-  sensor.printDistance();
+#ifdef IR_SENSOR_TESTING
+  Serial.print("ADC Value:");
+  Serial.println(sensor.getRawADC());
+  delay(100);
+
+#elif defined(SONAR_SENSOR_TESTING)
+  Serial.print("Echo duration:");
+  Serial.println(sensor.getDuration());
+  delay(100);
+
 #elif defined(WALL_FOLLOWING)
   switch (robot_state) {
     case ROBOT_IDLE:

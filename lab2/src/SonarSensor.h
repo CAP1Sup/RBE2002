@@ -16,6 +16,13 @@ class SonarSensor {
   void init();
 
   /**
+   * @brief Measures the duration of the echo pulse
+   *
+   * @return uint32_t duration in [us]
+   */
+  uint32_t getDuration();
+
+  /**
    * @brief Calculates the distance measured by the sonar sensor
    *
    * @return float distance in [cm]

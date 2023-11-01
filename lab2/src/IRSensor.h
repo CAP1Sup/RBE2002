@@ -20,6 +20,13 @@ class IRSensor {
   void init();
 
   /**
+   * @brief Reads the raw ADC value from the IR sensor
+   *
+   * @return uint16_t raw ADC value
+   */
+  uint16_t getRawADC();
+
+  /**
    * @brief Calculates the distance measured by the IR sensor
    *
    * @return float distance in [cm]

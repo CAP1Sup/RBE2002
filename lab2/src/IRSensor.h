@@ -5,12 +5,26 @@
 #define IR_PIN A0
 #define IR_TABLE_SIZE 2
 
+#define ADC_MAX_VALUE 1023.0f
+
+enum IR_INTERP_VALUES { VOLTAGE = 0, DIST = 1 };
+
 class IRSensor {
  private:
-  // In format {adc, distance in cm}
-  // MUST BE IN ASCENDING ORDER
+  // In format {voltage, distance in cm}
+  // MUST BE IN DESCENDING ORDER
+  // First and last value should be doubled... minor hack to prevent
+  // interpolation beyond the range of the table
   float interpTable[IR_TABLE_SIZE][2] = {{0, 0}, {0, 0}};
-  float adcToDist(uint16_t adc);
+
+  /**
+   * @brief Linearly interpolates the input voltage to a distance from the IR
+   * sensor
+   *
+   * @param voltage voltage from the IR sensor
+   * @return float distance in [cm]
+   */
+  float voltageToDist(float voltage);
 
  public:
   /**
@@ -20,11 +34,11 @@ class IRSensor {
   void init();
 
   /**
-   * @brief Reads the raw ADC value from the IR sensor
+   * @brief Reads the raw voltage from the IR sensor
    *
-   * @return uint16_t raw ADC value
+   * @return uint16_t raw voltage
    */
-  uint16_t getRawADC();
+  float getRawVoltage();
 
   /**
    * @brief Calculates the distance measured by the IR sensor

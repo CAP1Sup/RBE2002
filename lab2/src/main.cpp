@@ -44,8 +44,8 @@ void setup() {
 
 void loop() {
 #ifdef IR_SENSOR_TESTING
-  Serial.print("ADC Value:");
-  Serial.println(sensor.getRawADC());
+  Serial.print("Voltage:");
+  Serial.println(sensor.getRawVoltage());
   delay(100);
 
 #elif defined(SONAR_SENSOR_TESTING)

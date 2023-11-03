@@ -7,8 +7,8 @@
 #include "SonarSensor.h"
 
 // Mode of operation
-//#define IR_SENSOR_TESTING
- #define SONAR_SENSOR_TESTING
+#define IR_SENSOR_TESTING
+ //#define SONAR_SENSOR_TESTING
 //  #define WALL_FOLLOWING
 
 // Sanity checker
@@ -46,7 +46,7 @@ void loop() {
 #ifdef IR_SENSOR_TESTING
   Serial.print("Voltage:");
   Serial.println(sensor.getRawVoltage(), 8);
-  delay(100);
+  delay(300);
 
 #elif defined(SONAR_SENSOR_TESTING)
   Serial.print("Echo duration:");

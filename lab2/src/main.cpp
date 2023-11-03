@@ -7,8 +7,8 @@
 #include "SonarSensor.h"
 
 // Mode of operation
-#define IR_SENSOR_TESTING
-// #define SONAR_SENSOR_TESTING
+//#define IR_SENSOR_TESTING
+ #define SONAR_SENSOR_TESTING
 //  #define WALL_FOLLOWING
 
 // Sanity checker

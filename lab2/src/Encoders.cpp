@@ -17,7 +17,7 @@ float Encoders::getRightSpeed() {
   float speed = (((WHEEL_CIRCUM / COUNTS_PER_REV) *
                   (float)(encoders.getCountsAndResetRight())) *
                  1000.0) /
-                (time - prevLeftTime);
+                (time - prevRightTime);
   prevRightTime = time;
   return speed;
 }

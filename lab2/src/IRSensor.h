@@ -4,13 +4,14 @@
 
 #define IR_PIN A0
 #define IR_TABLE_SIZE 37
+#define IR_AVG_SAMPLES 100
 
 #define ADC_MAX_VALUE 1023.0f
 
 enum IR_INTERP_VALUES { VOLTAGE = 0, DIST = 1 };
 
 class IRSensor {
- private:
+private:
   // In format {voltage, distance in cm}
   // MUST BE IN DESCENDING ORDER
   // First and last value should be doubled... minor hack to prevent
@@ -54,6 +55,11 @@ class IRSensor {
                                          {0.26881721, 72},
                                          {0.24926686, 74}};
 
+  float distValues[IR_AVG_SAMPLES];
+  float distValueSum = 0;
+  uint8_t distIndex = 0;
+  uint8_t totalDistValues = 0;
+
   /**
    * @brief Linearly interpolates the input voltage to a distance from the IR
    * sensor
@@ -63,7 +69,7 @@ class IRSensor {
    */
   float voltageToDist(float voltage);
 
- public:
+public:
   /**
    * @brief Initializes the IR sensor
    *
@@ -83,6 +89,18 @@ class IRSensor {
    * @return float distance in [cm]
    */
   float getDistance();
+
+  /**
+   * @brief Calculates the average distance measured by the IR sensor
+   *
+   */
+  float getAvgDistance();
+
+  /**
+   * @brief Resets the distance averaging
+   *
+   */
+  void resetDistAvg();
 
   /**
    * @brief Prints the distance measured by the IR sensor

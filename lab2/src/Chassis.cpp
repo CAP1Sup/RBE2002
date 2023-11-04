@@ -15,7 +15,6 @@ void Chassis::setDriveEffort(int16_t left, int16_t right) {
 void Chassis::updateMotorEffort(uint32_t deltaMs) {
   float leftError = targetSpeedLeft - encoders.getLeftSpeed();
   float rightError = targetSpeedRight - encoders.getRightSpeed();
-
   setDriveEffort(leftPID.calculate(leftError, deltaMs / 1000.0f),
                  rightPID.calculate(rightError, deltaMs / 1000.0f));
 }
@@ -47,7 +46,7 @@ void Chassis::beginDriving(float leftSpeed, float rightSpeed,
   targetSpeedRight = rightSpeed;
   uint32_t time = millis();
   lastPIDUpdate = time;
-  endTime = time + duration;  // fails at rollover
+  endTime = time + duration; // fails at rollover
 
   // Use to prevent jerk when starting
   leftPID.reset();

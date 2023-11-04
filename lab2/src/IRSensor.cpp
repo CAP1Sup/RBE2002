@@ -34,3 +34,36 @@ float IRSensor::getDistance() {
 }
 
 void IRSensor::printDistance() { Serial.println(getDistance()); }
+
+float IRSensor::getAvgDistance() {
+
+  // Add the value to the array
+  distValueSum -= distValues[distIndex];
+  distValues[distIndex] = getDistance();
+  distValueSum += distValues[distIndex];
+
+  // Increment the index
+  distIndex++;
+
+  // If we have filled the array, reset the index
+  if (distIndex >= IR_AVG_SAMPLES) {
+    distIndex = 0;
+  }
+
+  // Increment the total number of values
+  if (totalDistValues < IR_AVG_SAMPLES) {
+    totalDistValues++;
+  }
+
+  // Return the average
+  return distValueSum / totalDistValues;
+}
+
+void IRSensor::resetDistAvg() {
+  distValueSum = 0;
+  distIndex = 0;
+  totalDistValues = 0;
+  for (int i = 0; i < IR_AVG_SAMPLES; i++) {
+    distValues[i] = 0;
+  }
+}

@@ -46,7 +46,7 @@ void loop() {
 #ifdef IR_SENSOR_TESTING
   Serial.print("Voltage:");
   Serial.println(sensor.getRawVoltage(), 8);
-  delay(300);
+  delay(150);
 
 #elif defined(SONAR_SENSOR_TESTING)
   Serial.print("Echo duration:");

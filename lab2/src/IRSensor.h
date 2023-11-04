@@ -17,9 +17,7 @@ private:
   // First and last value should be doubled... minor hack to prevent
   // interpolation beyond the range of the table
   // after 74 cm away, voltage picks back up, data is not useful
-  float interpTable[IR_TABLE_SIZE][2] = {{340 * 5.0f / 1023.0f, 2},
-                                         {625 * 5.0f / 1023.0f, 4},
-                                         {625 * 5.0f / 1023.0f, 6},
+  float interpTable[IR_TABLE_SIZE][2] = {{625 * 5.0f / 1023.0f, 6},
                                          {570 * 5.0f / 1023.0f, 8},
                                          {480 * 5.0f / 1023.0f, 10},
                                          {410 * 5.0f / 1023.0f, 12},

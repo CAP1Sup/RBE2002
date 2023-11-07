@@ -1,10 +1,9 @@
 #include <Arduino.h>
+#include <Chassis.h>
+#include <IRSensor.h>
+#include <PIDController.h>
 #include <Romi32U4.h>
-
-#include "Chassis.h"
-#include "IRSensor.h"
-#include "PIDController.h"
-#include "SonarSensor.h"
+#include <SonarSensor.h>
 
 // Mode of operation
 // #define IR_SENSOR_TESTING
@@ -12,8 +11,8 @@
 #define WALL_FOLLOWING
 
 // Sanity checker
-#if (defined(IR_SENSOR_TESTING) + defined(SONAR_SENSOR_TESTING) +              \
-         defined(WALL_FOLLOWING) !=                                            \
+#if (defined(IR_SENSOR_TESTING) + defined(SONAR_SENSOR_TESTING) + \
+         defined(WALL_FOLLOWING) !=                               \
      1)
 #error "Please select exactly one mode of operation"
 #endif
@@ -55,38 +54,38 @@ void loop() {
 
 #elif defined(WALL_FOLLOWING)
   switch (robot_state) {
-  case ROBOT_IDLE:
-    if (buttonA.getSingleDebouncedRelease()) {
-      robot_state = ROBOT_DRIVING;
-      chassis.beginDriving();
-      wallFollowPID.reset();
-      sensor.resetDistAvg();
-    }
-    break;
+    case ROBOT_IDLE:
+      if (buttonA.getSingleDebouncedRelease()) {
+        robot_state = ROBOT_DRIVING;
+        chassis.beginDriving();
+        wallFollowPID.reset();
+        sensor.resetDistAvg();
+      }
+      break;
 
-  case ROBOT_DRIVING:
+    case ROBOT_DRIVING:
 
-    // Calculate the PID output
-    float avgDist = sensor.getAvgDistance();
-    float pidOut = wallFollowPID.calculate(TARGET_DISTANCE - avgDist);
-    Serial.print("Avg dist: ");
-    Serial.println(avgDist);
+      // Calculate the PID output
+      float avgDist = sensor.getAvgDistance();
+      float pidOut = wallFollowPID.calculate(TARGET_DISTANCE - avgDist);
+      Serial.print("Avg dist: ");
+      Serial.println(avgDist);
 
-    // Constrain the output
-    pidOut = constrain(pidOut, -MAX_PID_OUTPUT, MAX_PID_OUTPUT);
+      // Constrain the output
+      pidOut = constrain(pidOut, -MAX_PID_OUTPUT, MAX_PID_OUTPUT);
 
-    // Set the target speeds
-    chassis.setTargetSpeeds(DRIVE_SPEED + pidOut, DRIVE_SPEED - pidOut);
+      // Set the target speeds
+      chassis.setTargetSpeeds(DRIVE_SPEED + pidOut, DRIVE_SPEED - pidOut);
 
-    // Update the PID (if needed)
-    chassis.updateMotorPID();
+      // Update the PID (if needed)
+      chassis.updateMotorPID();
 
-    // E-stop
-    if (buttonA.getSingleDebouncedRelease()) {
-      chassis.stop();
-      robot_state = ROBOT_IDLE;
-    }
-    break;
+      // E-stop
+      if (buttonA.getSingleDebouncedRelease()) {
+        chassis.stop();
+        robot_state = ROBOT_IDLE;
+      }
+      break;
   }
 #endif
 }

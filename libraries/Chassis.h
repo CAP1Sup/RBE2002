@@ -5,10 +5,10 @@
 #include "Encoders.h"
 #include "PIDController.h"
 
-#define PID_UPDATE_INTERVAL 50 // how often do we update the motor effort? (ms)
+#define PID_UPDATE_INTERVAL 50  // how often do we update the motor effort? (ms)
 
 // Robot selection
-#define CURRENT_ROBOT 1 // 1-4
+#define CURRENT_ROBOT 1  // 1-4
 
 #if (CURRENT_ROBOT == 1)
 #define PID_KP 1.15f
@@ -33,7 +33,7 @@
 #endif
 
 class Chassis {
-private:
+ private:
   // Basic variables
   float targetSpeedLeft = 0;
   float targetSpeedRight = 0;
@@ -46,10 +46,10 @@ private:
   PIDController leftPID = PIDController(PID_KP, PID_KI, PID_KD);
   PIDController rightPID = PIDController(PID_KP, PID_KI, PID_KD);
   Encoders encoders;
-  Romi32U4Motors motors; // No need to init, automatically done on first call
-                         // to setEfforts()
+  Romi32U4Motors motors;  // No need to init, automatically done on first call
+                          // to setEfforts()
 
-public:
+ public:
   /**
    * @brief Returns the current effort of the left wheel
    *
@@ -135,3 +135,5 @@ public:
 };
 
 extern Chassis chassis;
+
+#include "Chassis.cpp"

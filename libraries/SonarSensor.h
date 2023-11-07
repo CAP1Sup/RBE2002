@@ -35,3 +35,5 @@ class SonarSensor {
    */
   void printDistance();
 };
+
+#include "SonarSensor.cpp"

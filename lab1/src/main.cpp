@@ -1,9 +1,8 @@
 #include <Arduino.h>
+#include <Chassis.h>
 #include <Romi32U4.h>
 
-#include "chassis.h"
-
-RomiChassis chassis;
+Chassis chassis;
 
 uint8_t driveTime = 2;  // seconds
 

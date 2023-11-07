@@ -41,3 +41,5 @@ class Encoders {
    */
   void reset();
 };
+
+#include "Encoders.cpp"

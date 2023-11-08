@@ -57,7 +57,7 @@ void loop() {
     case ROBOT_IDLE:
       if (buttonA.getSingleDebouncedRelease()) {
         robot_state = ROBOT_DRIVING;
-        chassis.beginDriving();
+        chassis.resetDrivePID();
         wallFollowPID.reset();
         sensor.resetDistAvg();
       }

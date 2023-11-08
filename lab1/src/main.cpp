@@ -5,6 +5,7 @@
 Chassis chassis;
 
 uint8_t driveTime = 2;  // seconds
+uint32_t startDriveTime = 0;
 
 enum ROBOT_STATE { ROBOT_IDLE, ROBOT_DRIVING };
 ROBOT_STATE state = ROBOT_IDLE;
@@ -17,17 +18,16 @@ void loop() {
   switch (state) {
     case ROBOT_IDLE:
       if (buttonA.getSingleDebouncedRelease()) {
-        chassis.beginDriving(
-            10, 10,
-            driveTime * 1000);  // contains your program that the robot
-                                // executes when pushbutton A is pressed
+        chassis.resetDrivePID();
+        chassis.setTargetSpeeds(10, 10);
+        startDriveTime = millis();
         state = ROBOT_DRIVING;
       }
       break;
 
     case ROBOT_DRIVING:
       chassis.updateMotorPID();
-      if (chassis.isDriveComplete()) {
+      if (millis() - startDriveTime >= driveTime * 1000) {
         chassis.stop();
         state = ROBOT_IDLE;
         driveTime += 2;

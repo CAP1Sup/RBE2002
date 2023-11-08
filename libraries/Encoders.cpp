@@ -4,22 +4,48 @@
 
 float Encoders::getLeftSpeed() {
   uint32_t time = millis();
+  int16_t currentCount = encoders.getCountsLeft();
   float speed = (((WHEEL_CIRCUM / COUNTS_PER_REV) *
-                  (float)(encoders.getCountsAndResetLeft())) *
+                  (float)(currentCount - prevLeftCount)) *
                  1000.0) /
                 (time - prevLeftTime);
+  prevLeftCount = currentCount;
   prevLeftTime = time;
   return speed;
 }
 
+void Encoders::setDesiredLeftCount(int16_t count) { desiredLeftCount = count; }
+
+void Encoders::setDesiredLeftDist(float distance) {
+  desiredLeftCount = (int16_t)(distance / WHEEL_CIRCUM * COUNTS_PER_REV);
+}
+
+bool Encoders::isLeftAtPos() {
+  return abs(desiredLeftCount - encoders.getCountsLeft()) < POS_COUNT_TOL;
+}
+
 float Encoders::getRightSpeed() {
   uint32_t time = millis();
+  int16_t currentCount = encoders.getCountsRight();
   float speed = (((WHEEL_CIRCUM / COUNTS_PER_REV) *
-                  (float)(encoders.getCountsAndResetRight())) *
+                  (float)(currentCount - prevRightCount)) *
                  1000.0) /
                 (time - prevRightTime);
+  prevRightCount = currentCount;
   prevRightTime = time;
   return speed;
+}
+
+void Encoders::setDesiredRightCount(int16_t count) {
+  desiredRightCount = count;
+}
+
+void Encoders::setDesiredRightDist(float distance) {
+  desiredRightCount = (int16_t)(distance / WHEEL_CIRCUM * COUNTS_PER_REV);
+}
+
+bool Encoders::isRightAtPos() {
+  return abs(desiredRightCount - encoders.getCountsRight()) < POS_COUNT_TOL;
 }
 
 void Encoders::printSpeeds() {

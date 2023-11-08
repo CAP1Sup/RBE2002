@@ -1,29 +1,41 @@
 #include "MedianFilter.h"
 
-void MedianFilter::Init(void) {
-  // no initialization required, but good practice
+template <typename T>
+MedianFilter<T>::MedianFilter(const uint8_t size) {
+  values = new T[size];
+  totalValues = size;
 }
 
-void MedianFilter::Sort(int index_a, int index_b) {
-  if (array[index_a] < array[index_b]) {
-    int temp = array[index_a];
-    array[index_a] = array[index_b];
-    array[index_b] = temp;
+template <typename T>
+void MedianFilter<T>::addValue(T value) {
+  values[currentIndex] = value;
+  currentIndex++;
+  if (currentIndex >= totalValues) {
+    currentIndex = 0;
+  }
+  if (readings < totalValues) {
+    readings++;
   }
 }
 
-int MedianFilter::Filter(int measurement) {
-  array[0] = measurement;
-  for (int i = 4; i > 0; i--) array[i] = array[i - 1];
-
-  Sort(0, 1);
-  Sort(3, 4);
-  Sort(0, 2);
-  Sort(1, 2);
-  Sort(0, 3);
-  Sort(2, 3);
-  Sort(1, 4);
-  Sort(1, 2);
-
-  return array[2];
+template <typename T>
+T MedianFilter<T>::getMedian() {
+  T tempValues[readings];
+  for (uint8_t i = 0; i < readings; i++) {
+    tempValues[i] = values[i];
+  }
+  for (uint8_t i = 0; i < readings; i++) {
+    for (uint8_t j = i + 1; j < readings; j++) {
+      if (tempValues[j] < tempValues[i]) {
+        T temp = tempValues[i];
+        tempValues[i] = tempValues[j];
+        tempValues[j] = temp;
+      }
+    }
+  }
+  if (readings % 2 == 0) {
+    return (tempValues[readings / 2] + tempValues[readings / 2 - 1]) / 2;
+  } else {
+    return tempValues[readings / 2];
+  }
 }

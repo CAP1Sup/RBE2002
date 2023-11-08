@@ -2,16 +2,36 @@
 
 #include <Romi32U4.h>
 
-#define MEDIAN_FILTER_SIZE 5
-
+template <typename T>
 class MedianFilter {
  private:
-  int array[MEDIAN_FILTER_SIZE] = {0};
+  T* values;
+  uint8_t totalValues;
+  uint8_t readings = 0;
+  uint8_t currentIndex = 0;
 
  public:
-  void Sort(int, int);
-  void Init(void);
-  int Filter(int);
+  /**
+   * @brief Constructs a new Median Filter object with a given type and size
+   * Size must be <= 255!
+   *
+   * @param size
+   */
+  MedianFilter<T>(const uint8_t size);
+
+  /**
+   * @brief Adds a value to the filter
+   *
+   * @param value The value to add to the filter
+   */
+  void addValue(T value);
+
+  /**
+   * @brief Returns the median value of the filter
+   *
+   * @return T The median value
+   */
+  T getMedian();
 };
 
 #include "MedianFilter.cpp"

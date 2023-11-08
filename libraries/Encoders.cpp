@@ -2,6 +2,8 @@
 
 #include <Romi32U4.h>
 
+int16_t Encoders::getLeftCount() { return encoders.getCountsLeft(); }
+
 float Encoders::getLeftSpeed() {
   uint32_t time = millis();
   int16_t currentCount = encoders.getCountsLeft();
@@ -23,6 +25,8 @@ void Encoders::setDesiredLeftDist(float distance) {
 bool Encoders::isLeftAtPos() {
   return abs(desiredLeftCount - encoders.getCountsLeft()) < POS_COUNT_TOL;
 }
+
+int16_t Encoders::getRightCount() { return encoders.getCountsRight(); }
 
 float Encoders::getRightSpeed() {
   uint32_t time = millis();

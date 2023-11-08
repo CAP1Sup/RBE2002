@@ -5,12 +5,12 @@
 #include "Encoders.h"
 #include "PIDController.h"
 
-#define PID_UPDATE_INTERVAL 50  // how often do we update the motor effort? (ms)
-#define BASE_DIA 147.0f         // distance between wheels (mm)
+#define PID_UPDATE_INTERVAL 50 // how often do we update the motor effort? (ms)
+#define BASE_DIA 147.0f        // distance between wheels (mm)
 
 // Robot selection
 #ifndef CURRENT_ROBOT
-#define CURRENT_ROBOT 1  // 1-4
+#define CURRENT_ROBOT 1 // 1-4
 #endif
 
 #if (CURRENT_ROBOT == 1)
@@ -38,7 +38,7 @@
 typedef enum { LEFT = 1, RIGHT = -1 } TURN_DIR;
 
 class Chassis {
- private:
+private:
   // Basic variables
   float targetSpeedLeft = 0;
   float targetSpeedRight = 0;
@@ -55,15 +55,12 @@ class Chassis {
   PIDController leftPID = PIDController(PID_KP, PID_KI, PID_KD);
   PIDController rightPID = PIDController(PID_KP, PID_KI, PID_KD);
   Encoders encoders;
-  Romi32U4Motors motors;  // No need to init, automatically done on first call
-                          // to setEfforts()
+  Romi32U4Motors motors; // No need to init, automatically done on first call
+                         // to setEfforts()
 
-  template <typename T>
-  int sgn(T val) {
-    return (T(0) < val) - (val < T(0));
-  }
+  template <typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
 
- public:
+public:
   /**
    * @brief Returns the current effort of the left wheel
    *
@@ -72,11 +69,25 @@ class Chassis {
   int16_t getLeftEffort();
 
   /**
+   * @brief Get the current count of the left wheel's encoder
+   *
+   * @return int16_t count of the left wheel
+   */
+  int16_t getLeftCount();
+
+  /**
    * @brief Returns the current effort of the right wheel
    *
    * @return int16_t effort
    */
   int16_t getRightEffort();
+
+  /**
+   * @brief Get the current count of the right wheel's encoder
+   *
+   * @return int16_t count of the right wheel
+   */
+  int16_t getRightCount();
 
   /**
    * @brief Sets the effort of the left and right motors
@@ -121,14 +132,11 @@ class Chassis {
    * @brief Begins driving the robot at the specified speeds. Should be called
    * after resetDrivePID().
    *
-   * @param leftSpeed Target speed for the left wheel in mm/s. Sign doesn't
-   * matter
-   * @param rightSpeed Target speed for the right wheel in mm/s. Sign doesn't
-   * matter
+   * @param speed Target speed for the wheels in mm/s. Sign doesn't matter
    * @param distance Distance to drive in mm. Negatives will make robot drive
    * backwards
    */
-  void drive(float leftSpeed, float rightSpeed, float distance);
+  void drive(float speed, float distance);
 
   /**
    * @brief Sets the target speeds for the left and right wheels
@@ -145,6 +153,15 @@ class Chassis {
    * @param speed Speed of the turn in deg/s
    */
   void pointTurn(float angle, float speed);
+
+  /**
+   * @brief
+   *
+   * @param angle Degrees to turn (left/CCW is positive, right/CW is negative)
+   * @param speed Speed of the turn in deg/s
+   * @param pivotWheel Which wheel to pivot around
+   */
+  void swingTurn(float angle, float speed, TURN_DIR pivotWheel);
 
   /**
    * @brief Returns if the robot is done moving

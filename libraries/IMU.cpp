@@ -22,6 +22,8 @@ void IMU::init(uint16_t maxUpdateRate, uint8_t filterSize) {
   // Possibly redundant?
   imu.setFullScaleAcc(imu.ACC_FS2);
   imu.enableDefault();
+  imu.setAccDataOutputRate(imu.ODR166k);
+  imu.setGyroDataOutputRate(imu.ODR166k);
 
   // Initialize the median filters
   XAccelFilter = MedianFilter<int16_t>(filterSize);
@@ -55,12 +57,14 @@ bool IMU::hadCollision(float threshold) {
   return ((abs(aX) > threshold) || (abs(aY) > threshold));
 }
 
-void IMU::printAccel(void) {
-  imu.readAcc();
-  Serial.print("Ax: ");
-  Serial.print(imu.a.x);
+void IMU::printAccel() {
+  updateIfNeeded();
+  Serial.print("T: ");
+  Serial.print(millis());
+  Serial.print(" Ax: ");
+  Serial.print(XAccelFilter.getMedian());
   Serial.print(" Ay: ");
-  Serial.print(imu.a.y);
+  Serial.print(YAccelFilter.getMedian());
   Serial.print(" Az: ");
-  Serial.println(imu.a.z);
+  Serial.println(ZAccelFilter.getMedian());
 }

@@ -1,11 +1,15 @@
 #include "Chassis.h"
 
-#include <Encoders.h>  // For COUNTS_PER_REV and WHEEL_CIRCUM
+#include <Encoders.h> // For COUNTS_PER_REV and WHEEL_CIRCUM
 #include <Romi32U4.h>
 
 int16_t Chassis::getLeftEffort() { return lastLeftEffort; }
 
+int16_t Chassis::getLeftCount() { return encoders.getLeftCount(); }
+
 int16_t Chassis::getRightEffort() { return lastRightEffort; }
+
+int16_t Chassis::getRightCount() { return encoders.getRightCount(); }
 
 void Chassis::setDriveEffort(int16_t left, int16_t right) {
   lastLeftEffort = left;
@@ -69,11 +73,11 @@ void Chassis::resetDrivePID() {
   trackMove = false;
 }
 
-void Chassis::drive(float leftSpeed, float rightSpeed, float distance) {
+void Chassis::drive(float speed, float distance) {
   // Save the target speeds
   // Ignore the sign of the speed and use the distance's sign
-  setTargetSpeeds(abs(leftSpeed) * sgn(distance),
-                  abs(rightSpeed) * sgn(distance));
+  speed = abs(speed) * sgn(distance);
+  setTargetSpeeds(speed, speed);
 
   // Calculate the new desired counts
   encoders.setDesiredLeftDist(distance);
@@ -112,6 +116,32 @@ void Chassis::pointTurn(float angle, float speed) {
 
   // Begin driving
   setTargetSpeeds(turnSpeed, -turnSpeed);
+}
+
+void Chassis::swingTurn(float angle, float speed, TURN_DIR pivotWheel) {
+  // Convert from deg/s to mm/s
+  float turnSpeed = speed / 360.0f * 2.0f * BASE_DIA * PI;
+
+  // If the angle is negative, turn right
+  if (angle < 0) {
+    turnSpeed = -turnSpeed;
+  }
+
+  // Calculate the desired encoder counts
+  int16_t counts =
+      (angle / 360.0f) * COUNTS_PER_REV * BASE_DIA / (WHEEL_DIA / 2.0f);
+
+  // Set the desired counts
+  if (pivotWheel == RIGHT) {
+    encoders.setDesiredLeftCount(counts);
+    encoders.setDesiredRightCount(0);
+    setTargetSpeeds(turnSpeed, 0);
+  } else {
+    encoders.setDesiredRightCount(counts);
+    encoders.setDesiredLeftCount(0);
+    setTargetSpeeds(0, turnSpeed);
+  }
+  trackMove = true;
 }
 
 bool Chassis::isMotionComplete() {

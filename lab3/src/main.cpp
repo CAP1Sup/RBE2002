@@ -6,8 +6,8 @@
 
 // Op modes
 // #define PRINT_ENCODER_COUNTS
-#define ACCEL_TESTING
-// #define STATE_MACHINE
+//#define ACCEL_TESTING
+ #define STATE_MACHINE
 
 #if defined(PRINT_ENCODER_COUNTS) && defined(STATE_MACHINE)
 #error "Only one of PRINT_ENCODER_COUNTS or STATE_MACHINE can be defined"
@@ -15,9 +15,9 @@
 
 #define IMU_UPDATE_RATE 50      // Hz
 #define MEDIAN_READINGS 15      // number of readings to use for median filter
-#define COLLISION_THRESHOLD 100 // mg
-#define PICKUP_THRESHOLD 1500   // mg
-#define DRIVE_SPEED 100         // mm/s
+#define COLLISION_THRESHOLD 1200 // mg
+#define PICKUP_THRESHOLD 1350   // mg
+#define DRIVE_SPEED 50         // mm/s
 #define REVERSE_DIST 100        // mm
 #define TURN_ANGLE 90           // deg
 #define TURN_SPEED 90           // deg/s
@@ -73,7 +73,9 @@ void loop() {
   }
 
   case DRIVE: {
+    chassis.updateMotorPID();
     if (imu.beingPickedUp(PICKUP_THRESHOLD)) {
+      Serial.print("in picked up");
       robotState = IDLE;
       chassis.stop();
     } else if (imu.hadCollision(COLLISION_THRESHOLD)) {

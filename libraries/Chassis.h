@@ -5,40 +5,19 @@
 #include "Encoders.h"
 #include "PIDController.h"
 
-#define PID_UPDATE_INTERVAL 50 // how often do we update the motor effort? (ms)
-#define BASE_DIA 147.0f        // distance between wheels (mm)
+#define PID_UPDATE_INTERVAL \
+  50                     // how often do we update the motor target speeds? (ms)
+#define BASE_DIA 147.0f  // distance between wheels (mm)
 
-// Robot selection
-#ifndef CURRENT_ROBOT
-#define CURRENT_ROBOT 1 // 1-4
-#endif
-
-#if (CURRENT_ROBOT == 1)
-#define PID_KP 1.15f
-#define PID_KI 12.5f
-#define PID_KD 0.0
-
-#elif (CURRENT_ROBOT == 2)
-#define PID_KP 1.15f
-#define PID_KI 12.5f
-#define PID_KD 0.0
-
-#elif (CURRENT_ROBOT == 3)
-#define PID_KP 1.15f
-#define PID_KI 12.5f
-#define PID_KD 0.0
-
-#elif (CURRENT_ROBOT == 4)
-#define PID_KP 1.15f
-#define PID_KI 12.5f
-#define PID_KD 0.0
-
-#endif
+// Motor PID constants
+#define PID_KP 0.5f
+#define PID_KI 5.0f
+#define PID_KD 0.0f
 
 typedef enum { LEFT = 1, RIGHT = -1 } TURN_DIR;
 
-class Chassis {
-private:
+class Chassis : public Encoders {
+ private:
   // Basic variables
   float targetSpeedLeft = 0;
   float targetSpeedRight = 0;
@@ -54,13 +33,15 @@ private:
   // Objects
   PIDController leftPID = PIDController(PID_KP, PID_KI, PID_KD);
   PIDController rightPID = PIDController(PID_KP, PID_KI, PID_KD);
-  Encoders encoders;
-  Romi32U4Motors motors; // No need to init, automatically done on first call
-                         // to setEfforts()
+  Romi32U4Motors motors;  // No need to init, automatically done on first call
+                          // to setEfforts()
 
-  template <typename T> int sgn(T val) { return (T(0) < val) - (val < T(0)); }
+  template <typename T>
+  int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+  }
 
-public:
+ public:
   /**
    * @brief Returns the current effort of the left wheel
    *

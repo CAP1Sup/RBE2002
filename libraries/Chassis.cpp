@@ -1,15 +1,11 @@
 #include "Chassis.h"
 
-#include <Encoders.h> // For COUNTS_PER_REV and WHEEL_CIRCUM
+#include <Encoders.h>  // For COUNTS_PER_REV and WHEEL_CIRCUM
 #include <Romi32U4.h>
 
 int16_t Chassis::getLeftEffort() { return lastLeftEffort; }
 
-int16_t Chassis::getLeftCount() { return encoders.getLeftCount(); }
-
 int16_t Chassis::getRightEffort() { return lastRightEffort; }
-
-int16_t Chassis::getRightCount() { return encoders.getRightCount(); }
 
 void Chassis::setDriveEffort(int16_t left, int16_t right) {
   lastLeftEffort = left;
@@ -26,8 +22,8 @@ void Chassis::updateMotorEffort(uint32_t deltaMs) {
       return;
     }
   }
-  float leftError = targetSpeedLeft - encoders.getLeftSpeed();
-  float rightError = targetSpeedRight - encoders.getRightSpeed();
+  float leftError = targetSpeedLeft - getLeftSpeed();
+  float rightError = targetSpeedRight - getRightSpeed();
   setDriveEffort(leftPID.calculate(leftError, deltaMs / 1000.0f),
                  rightPID.calculate(rightError, deltaMs / 1000.0f));
 }
@@ -55,7 +51,7 @@ void Chassis::resetDrivePID() {
   // Use to prevent jerk when starting
   leftPID.reset();
   rightPID.reset();
-  encoders.reset();
+  reset();
 
   // Set the target speeds to 0
   // Forces caller to use setTargetSpeeds() or drive()
@@ -80,8 +76,8 @@ void Chassis::drive(float speed, float distance) {
   setTargetSpeeds(speed, speed);
 
   // Calculate the new desired counts
-  encoders.setDesiredLeftDist(distance);
-  encoders.setDesiredRightDist(distance);
+  setDesiredLeftDist(distance);
+  setDesiredRightDist(distance);
 
   // Enable move tracking
   trackMove = true;
@@ -109,8 +105,8 @@ void Chassis::pointTurn(float angle, float speed) {
                    (WHEEL_DIA / 2.0f);
 
   // Set the desired counts
-  encoders.setDesiredLeftCount(counts);
-  encoders.setDesiredRightCount(-counts);
+  setDesiredLeftCount(counts);
+  setDesiredRightCount(-counts);
 
   trackMove = true;
 
@@ -133,19 +129,17 @@ void Chassis::swingTurn(float angle, float speed, TURN_DIR pivotWheel) {
 
   // Set the desired counts
   if (pivotWheel == RIGHT) {
-    encoders.setDesiredLeftCount(counts);
-    encoders.setDesiredRightCount(0);
+    setDesiredLeftCount(counts);
+    setDesiredRightCount(0);
     setTargetSpeeds(turnSpeed, 0);
   } else {
-    encoders.setDesiredRightCount(counts);
-    encoders.setDesiredLeftCount(0);
+    setDesiredRightCount(counts);
+    setDesiredLeftCount(0);
     setTargetSpeeds(0, turnSpeed);
   }
   trackMove = true;
 }
 
-bool Chassis::isMotionComplete() {
-  return encoders.isLeftAtPos() && encoders.isRightAtPos();
-}
+bool Chassis::isMotionComplete() { return isLeftAtPos() && isRightAtPos(); }
 
 void Chassis::stop() { setDriveEffort(0, 0); }

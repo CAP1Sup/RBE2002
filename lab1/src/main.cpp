@@ -7,34 +7,34 @@ Chassis chassis;
 uint8_t driveTime = 2;  // seconds
 uint32_t startDriveTime = 0;
 
-enum ROBOT_STATE { ROBOT_IDLE, ROBOT_DRIVING };
-ROBOT_STATE state = ROBOT_IDLE;
+enum ROBOT_STATE { IDLE, DRIVING };
+ROBOT_STATE state = IDLE;
 
 Romi32U4ButtonA buttonA;
 
-void setup() { Serial.begin(115200); }
+void setup() { Serial.begin(9600); }
 
 void loop() {
   switch (state) {
-    case ROBOT_IDLE:
+    case IDLE:
       if (buttonA.getSingleDebouncedRelease()) {
         chassis.resetDrivePID();
         chassis.setTargetSpeeds(10, 10);
         startDriveTime = millis();
-        state = ROBOT_DRIVING;
+        state = DRIVING;
       }
       break;
 
-    case ROBOT_DRIVING:
+    case DRIVING:
       chassis.updateMotorPID();
       if (millis() - startDriveTime >= driveTime * 1000) {
         chassis.stop();
-        state = ROBOT_IDLE;
+        state = IDLE;
         driveTime += 2;
       }
       if (buttonA.getSingleDebouncedRelease()) {
         chassis.stop();
-        state = ROBOT_IDLE;
+        state = IDLE;
       }
   }
 }

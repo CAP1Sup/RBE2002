@@ -56,6 +56,13 @@ class Chassis : public Encoders {
    */
   int16_t getRightEffort();
 
+/**
+ * @brief 
+ * resets encoder count 
+ */
+void resetEncoderCount();
+
+
   /**
    * @brief Sets the effort of the left and right motors
    *

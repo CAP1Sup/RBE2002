@@ -7,6 +7,9 @@ int16_t Chassis::getLeftEffort() { return lastLeftEffort; }
 
 int16_t Chassis::getRightEffort() { return lastRightEffort; }
 
+void Chassis::resetEncoderCount() { reset(); }
+
+
 void Chassis::setDriveEffort(int16_t left, int16_t right) {
   lastLeftEffort = left;
   lastRightEffort = right;

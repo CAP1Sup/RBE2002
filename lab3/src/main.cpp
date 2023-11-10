@@ -17,7 +17,7 @@
 #define MEDIAN_READINGS 50     // number of readings to use for median filter
 #define COLLISION_THRESHOLD 15 // mg
 #define PICKUP_THRESHOLD 980   // mg
-#define DRIVE_SPEED 350        // mm/s
+#define DRIVE_SPEED 150        // mm/s
 #define REVERSE_DIST 100       // mm
 #define TURN_ANGLE 90          // deg
 #define TURN_SPEED 90          // deg/s
@@ -91,6 +91,7 @@ void loop() {
 
   case REVERSE: {
     chassis.resetDrivePID();
+    chassis.resetEncoderCount();
     delay(10);
     Serial.print("Reverse");
     chassis.drive(-DRIVE_SPEED, -REVERSE_DIST);

@@ -6,25 +6,25 @@
 
 // Op modes
 // #define PRINT_ENCODER_COUNTS
-//#define ACCEL_TESTING
- #define STATE_MACHINE
+// #define ACCEL_TESTING
+#define STATE_MACHINE
 
 #if defined(PRINT_ENCODER_COUNTS) && defined(STATE_MACHINE)
 #error "Only one of PRINT_ENCODER_COUNTS or STATE_MACHINE can be defined"
 #endif
 
-#define IMU_UPDATE_RATE 50      // Hz
-#define MEDIAN_READINGS 15      // number of readings to use for median filter
-#define COLLISION_THRESHOLD 1200 // mg
-#define PICKUP_THRESHOLD 1350   // mg
-#define DRIVE_SPEED 50         // mm/s
+#define IMU_UPDATE_RATE 100     // Hz
+#define MEDIAN_READINGS 50      // number of readings to use for median filter
+#define COLLISION_THRESHOLD 50  // mg
+#define PICKUP_THRESHOLD -850   // mg
+#define DRIVE_SPEED 150         // mm/s
 #define REVERSE_DIST 100        // mm
 #define TURN_ANGLE 90           // deg
 #define TURN_SPEED 90           // deg/s
 
 // Robot states
 enum ROBOT_STATE { IDLE, DRIVE, REVERSE, TURN };
-ROBOT_STATE robotState = IDLE; // initial state: IDLE
+ROBOT_STATE robotState = IDLE;  // initial state: IDLE
 
 // Sensors
 IMU imu;
@@ -39,6 +39,7 @@ void setup() {
   Serial.begin(9600);
 #elif defined(ACCEL_TESTING)
   imu.init(IMU_UPDATE_RATE, MEDIAN_READINGS);
+  chassis.resetDrivePID();
   chassis.setTargetSpeeds(DRIVE_SPEED, DRIVE_SPEED);
 #elif defined(STATE_MACHINE)
   imu.init(IMU_UPDATE_RATE, MEDIAN_READINGS);
@@ -60,54 +61,57 @@ void loop() {
 
 #elif defined(STATE_MACHINE)
   switch (robotState) {
-  case IDLE: {
-    // Time to start driving
-    if (buttonA.getSingleDebouncedRelease()) {
-      robotState = DRIVE;
-      chassis.setTargetSpeeds(DRIVE_SPEED, DRIVE_SPEED);
-    } else {
-      // Stop by default
-      chassis.stop();
+    case IDLE: {
+      // Time to start driving
+      if (buttonA.getSingleDebouncedRelease()) {
+        robotState = DRIVE;
+        chassis.resetDrivePID();
+        chassis.setTargetSpeeds(DRIVE_SPEED, DRIVE_SPEED);
+      } else {
+        // Stop by default
+        chassis.stop();
+      }
+      break;
     }
-    break;
-  }
 
-  case DRIVE: {
-    chassis.updateMotorPID();
-    if (imu.beingPickedUp(PICKUP_THRESHOLD)) {
-      Serial.print("in picked up");
-      robotState = IDLE;
-      chassis.stop();
-    } else if (imu.hadCollision(COLLISION_THRESHOLD)) {
-      robotState = REVERSE;
-      chassis.resetDrivePID();
-      chassis.drive(DRIVE_SPEED, REVERSE_DIST);
+    case DRIVE: {
+      chassis.updateMotorPID();
+      if (imu.beingPickedUp(PICKUP_THRESHOLD)) {
+        Serial.print("Being picked up");
+        robotState = IDLE;
+        chassis.stop();
+      } else if (imu.hadCollision(COLLISION_THRESHOLD)) {
+        robotState = REVERSE;
+        chassis.resetDrivePID();
+        chassis.drive(DRIVE_SPEED, -REVERSE_DIST);
+      }
+      break;
     }
-    break;
-  }
 
-  case REVERSE: {
-    if (imu.beingPickedUp(PICKUP_THRESHOLD)) {
-      robotState = IDLE;
-      chassis.stop();
-    } else if (chassis.isMotionComplete()) {
-      robotState = TURN;
-      chassis.resetDrivePID();
-      chassis.pointTurn(TURN_ANGLE, TURN_SPEED);
+    case REVERSE: {
+      if (imu.beingPickedUp(PICKUP_THRESHOLD)) {
+        robotState = IDLE;
+        chassis.stop();
+      } else if (chassis.isMotionComplete()) {
+        robotState = TURN;
+        chassis.resetDrivePID();
+        chassis.pointTurn(TURN_ANGLE, TURN_SPEED);
+      }
+      break;
     }
-    break;
-  }
 
-  case TURN: {
-    if (imu.beingPickedUp(PICKUP_THRESHOLD)) {
-      robotState = IDLE;
-      chassis.stop();
-    } else if (chassis.isMotionComplete()) {
-      robotState = DRIVE;
-      chassis.setTargetSpeeds(DRIVE_SPEED, DRIVE_SPEED);
+    case TURN: {
+      if (imu.beingPickedUp(PICKUP_THRESHOLD)) {
+        robotState = IDLE;
+        chassis.stop();
+      } else if (chassis.isMotionComplete()) {
+        robotState = DRIVE;
+        chassis.resetDrivePID();
+        chassis.setTargetSpeeds(DRIVE_SPEED, DRIVE_SPEED);
+      }
+      break;
     }
-    break;
   }
-  }
+  imu.printAccel();
 #endif
 }

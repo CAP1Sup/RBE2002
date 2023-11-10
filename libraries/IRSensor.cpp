@@ -36,23 +36,25 @@ float IRSensor::getDistance() {
 void IRSensor::printDistance() { Serial.println(getDistance()); }
 
 float IRSensor::getAvgDistance() {
+  // Take a new sample if it's time
+  if (millis() - lastDistSampleTime >= IR_MIN_SAMPLE_PERIOD) {
+    // Add the value to the array
+    distValueSum -= distValues[distIndex];
+    distValues[distIndex] = getDistance();
+    distValueSum += distValues[distIndex];
 
-  // Add the value to the array
-  distValueSum -= distValues[distIndex];
-  distValues[distIndex] = getDistance();
-  distValueSum += distValues[distIndex];
+    // Increment the index
+    distIndex++;
 
-  // Increment the index
-  distIndex++;
+    // If we have filled the array, reset the index
+    if (distIndex >= IR_AVG_SAMPLES) {
+      distIndex = 0;
+    }
 
-  // If we have filled the array, reset the index
-  if (distIndex >= IR_AVG_SAMPLES) {
-    distIndex = 0;
-  }
-
-  // Increment the total number of values
-  if (totalDistValues < IR_AVG_SAMPLES) {
-    totalDistValues++;
+    // Increment the total number of values
+    if (totalDistValues < IR_AVG_SAMPLES) {
+      totalDistValues++;
+    }
   }
 
   // Return the average

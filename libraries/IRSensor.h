@@ -4,7 +4,8 @@
 
 #define IR_PIN A0
 #define IR_TABLE_SIZE 37
-#define IR_AVG_SAMPLES 100
+#define IR_AVG_SAMPLES 50
+#define IR_MIN_SAMPLE_PERIOD 10
 
 #define ADC_MAX_VALUE 1023.0f
 
@@ -57,10 +58,11 @@ class IRSensor {
   float distValueSum = 0;
   uint8_t distIndex = 0;
   uint8_t totalDistValues = 0;
+  uint32_t lastDistSampleTime = 0;
 
   /**
-   * @brief Linearly interpolates the input voltage to a distance from the IR
-   * sensor
+   * @brief Linearly interpolates the input voltage to a distance from the
+   * IR sensor
    *
    * @param voltage voltage from the IR sensor
    * @return float distance in [cm]

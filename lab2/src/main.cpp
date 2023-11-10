@@ -17,12 +17,15 @@
 #error "Please select exactly one mode of operation"
 #endif
 
-#define TARGET_DISTANCE 30.0f
-#define MAX_PID_OUTPUT 50.0f
-#define DRIVE_SPEED 75.0f
+// Wall following constants
+#define DIST_PID_UPDATE_INTERVAL 50  // ms
+#define TARGET_DISTANCE 30.0f        // mm
+#define MAX_PID_OUTPUT 50.0f         // mm/s
+#define DRIVE_SPEED 75.0f            // mm/s
 
-enum ROBOT_STATE { ROBOT_IDLE, ROBOT_DRIVING };
-ROBOT_STATE robot_state = ROBOT_IDLE;
+enum ROBOT_STATE { IDLE, DRIVING };
+ROBOT_STATE robot_state = IDLE;
+uint32_t lastPIDUpdate = 0;
 
 Romi32U4ButtonA buttonA;
 Chassis chassis;
@@ -54,36 +57,42 @@ void loop() {
 
 #elif defined(WALL_FOLLOWING)
   switch (robot_state) {
-    case ROBOT_IDLE:
+    case IDLE:
       if (buttonA.getSingleDebouncedRelease()) {
-        robot_state = ROBOT_DRIVING;
+        robot_state = DRIVING;
         chassis.resetDrivePID();
         wallFollowPID.reset();
         sensor.resetDistAvg();
       }
       break;
 
-    case ROBOT_DRIVING:
+    case DRIVING:
 
-      // Calculate the PID output
+      // Get the average distance
+      // Also updates the average distance if needed
       float avgDist = sensor.getAvgDistance();
-      float pidOut = wallFollowPID.calculate(TARGET_DISTANCE - avgDist);
-      Serial.print("Avg dist: ");
-      Serial.println(avgDist);
 
-      // Constrain the output
-      pidOut = constrain(pidOut, -MAX_PID_OUTPUT, MAX_PID_OUTPUT);
+      // Calculate the wall distance PID output if needed
+      if (millis() - lastPIDUpdate >= DIST_PID_UPDATE_INTERVAL) {
+        lastPIDUpdate = millis();
+        float pidOut = wallFollowPID.calculate(TARGET_DISTANCE - avgDist);
+        Serial.print("Avg dist: ");
+        Serial.println(avgDist);
 
-      // Set the target speeds
-      chassis.setTargetSpeeds(DRIVE_SPEED + pidOut, DRIVE_SPEED - pidOut);
+        // Constrain the output
+        pidOut = constrain(pidOut, -MAX_PID_OUTPUT, MAX_PID_OUTPUT);
 
-      // Update the PID (if needed)
+        // Set the target speeds
+        chassis.setTargetSpeeds(DRIVE_SPEED + pidOut, DRIVE_SPEED - pidOut);
+      }
+
+      // Update the chassis PID (if needed)
       chassis.updateMotorPID();
 
       // E-stop
       if (buttonA.getSingleDebouncedRelease()) {
         chassis.stop();
-        robot_state = ROBOT_IDLE;
+        robot_state = IDLE;
       }
       break;
   }

@@ -2,13 +2,13 @@
 
 #include <Romi32U4.h>
 
-#define COUNTS_PER_REV 1440  // how many counts equate to one wheel rotation?
-#define WHEEL_DIA 70         // what is the radius of a Romi wheel in (mm)
-#define WHEEL_CIRCUM (float)PI *WHEEL_DIA  // circumference of wheel (mm)
-#define POS_COUNT_TOL 5                    // how close to target position (mm)
+#define COUNTS_PER_REV 1440 // how many counts equate to one wheel rotation?
+#define WHEEL_DIA 70        // what is the radius of a Romi wheel in (mm)
+#define WHEEL_CIRCUM (float)PI *WHEEL_DIA // circumference of wheel (mm)
+#define POS_COUNT_TOL 10 // how close to target position (counts)
 
 class Encoders {
- private:
+private:
   // Speed tracking
   uint32_t prevLeftTime = 0;
   uint32_t prevRightTime = 0;
@@ -21,7 +21,7 @@ class Encoders {
 
   Romi32U4Encoders encoders;
 
- public:
+public:
   /**
    * @brief Get the current count of the left wheel
    *
@@ -43,6 +43,13 @@ class Encoders {
    * @param count The desired count for the left wheel
    */
   void setDesiredLeftCount(int16_t count);
+
+  /**
+   * @brief Get the desired count for the left wheel
+   *
+   * @return int16_t The desired count for the left wheel
+   */
+  int16_t getDesiredLeftCount();
 
   /**
    * @brief Set the desired distance for the left wheel

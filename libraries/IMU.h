@@ -5,7 +5,7 @@
 #include "MedianFilter.h"
 
 class IMU {
- private:
+private:
   // IMU
   LSM6 imu;
 
@@ -15,13 +15,20 @@ class IMU {
   uint32_t lastUpdate = 0;
   uint32_t minUpdatePeriod = 0;
 
+  int16_t xAccelBias = 0;
+  int16_t yAccelBias = 0;
+  int16_t zAccelBias = 0;
+  int16_t flipZAccel = 1; // -1 if inverted, 1 if not
+
   /**
    * @brief Updates the IMU and filters if enough time has passed
    *
    */
   void updateIfNeeded();
 
- public:
+  void updateAccel();
+
+public:
   /**
    * @brief Initializes the IMU and filters
    *

@@ -15,10 +15,10 @@
 
 #define IMU_UPDATE_RATE 100    // Hz
 #define MEDIAN_READINGS 50     // number of readings to use for median filter
-#define COLLISION_THRESHOLD 15 // mg
-#define PICKUP_THRESHOLD 980   // mg
+#define COLLISION_THRESHOLD 25 // mg
+#define PICKUP_THRESHOLD -750  // mg
 #define DRIVE_SPEED 150        // mm/s
-#define REVERSE_DIST 100       // mm
+#define REVERSE_DIST 50        // mm
 #define TURN_ANGLE 90          // deg
 #define TURN_SPEED 90          // deg/s
 
@@ -84,17 +84,12 @@ void loop() {
       robotState = REVERSE;
       Serial.print("Collision");
       chassis.resetDrivePID();
-      // chassis.drive(DRIVE_SPEED, -REVERSE_DIST);
+      chassis.drive(-DRIVE_SPEED, -REVERSE_DIST);
     }
     break;
   }
 
   case REVERSE: {
-    chassis.resetDrivePID();
-    chassis.resetEncoderCount();
-    delay(10);
-    Serial.print("Reverse");
-    chassis.drive(-DRIVE_SPEED, -REVERSE_DIST);
     chassis.updateMotorPID();
     if (imu.beingPickedUp(PICKUP_THRESHOLD)) {
       robotState = IDLE;

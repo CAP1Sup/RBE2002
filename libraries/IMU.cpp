@@ -46,8 +46,7 @@ void IMU::updateIfNeeded() {
 
 bool IMU::beingPickedUp(float threshold) {
   updateIfNeeded();
-  float aZ = ZAccelFilter.getMedian() * imu.mg;
-  return (aZ > threshold);
+  return ((ZAccelFilter.getMedian() * imu.mg) > threshold);
 }
 
 bool IMU::hadCollision(float threshold) {
@@ -62,9 +61,9 @@ void IMU::printAccel() {
   Serial.print("T: ");
   Serial.print(millis());
   Serial.print(" Ax: ");
-  Serial.print(XAccelFilter.getMedian());
+  Serial.print(XAccelFilter.getMedian() * imu.mg);
   Serial.print(" Ay: ");
-  Serial.print(YAccelFilter.getMedian());
+  Serial.print(YAccelFilter.getMedian() * imu.mg);
   Serial.print(" Az: ");
-  Serial.println(ZAccelFilter.getMedian());
+  Serial.println(ZAccelFilter.getMedian() * imu.mg);
 }

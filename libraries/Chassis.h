@@ -50,25 +50,11 @@ class Chassis : public Encoders {
   int16_t getLeftEffort();
 
   /**
-   * @brief Get the current count of the left wheel's encoder
-   *
-   * @return int16_t count of the left wheel
-   */
-  int16_t getLeftCount();
-
-  /**
    * @brief Returns the current effort of the right wheel
    *
    * @return int16_t effort
    */
   int16_t getRightEffort();
-
-  /**
-   * @brief Get the current count of the right wheel's encoder
-   *
-   * @return int16_t count of the right wheel
-   */
-  int16_t getRightCount();
 
   /**
    * @brief Sets the effort of the left and right motors

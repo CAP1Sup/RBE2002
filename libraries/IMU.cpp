@@ -46,7 +46,7 @@ void IMU::updateIfNeeded() {
 
 bool IMU::beingPickedUp(float threshold) {
   updateIfNeeded();
-  return ((ZAccelFilter.getMedian() * imu.mg) > threshold);
+  return ((abs(ZAccelFilter.getMedian() * imu.mg)) > threshold);
 }
 
 bool IMU::hadCollision(float threshold) {

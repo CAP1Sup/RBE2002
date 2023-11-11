@@ -19,15 +19,15 @@ float Encoders::getLeftSpeed() {
 void Encoders::setDesiredLeftCount(int16_t count) { desiredLeftCount = count; }
 
 void Encoders::setDesiredLeftDist(float distance) {
-  Serial.print("Setting desired left distance to: ");
-  Serial.println(distance);
-  Serial.print("Wheel circumference: ");
-  Serial.println(WHEEL_CIRCUM);
-  Serial.print("Counts per rev: ");
-  Serial.print(COUNTS_PER_REV);
-  desiredLeftCount = (int32_t)((distance / WHEEL_CIRCUM) * COUNTS_PER_REV);
-  Serial.print("Desired left count: ");
-  Serial.println(desiredLeftCount);
+  // Serial.print("Setting desired left distance to: ");
+  // Serial.println(distance);
+  // Serial.print("Wheel circumference: ");
+  // Serial.println(WHEEL_CIRCUM);
+  // Serial.print("Counts per rev: ");
+  // Serial.print(COUNTS_PER_REV);
+  desiredLeftCount = ((distance / 219.8) * 1440);
+  //Serial.print("Desired left count: ");
+  //Serial.println(desiredLeftCount);
 }
 
 int16_t Encoders::getDesiredLeftCount() { return desiredLeftCount; }
@@ -36,11 +36,13 @@ bool Encoders::isLeftAtPos() {
   int32_t error = desiredLeftCount - encoders.getCountsLeft();
   error = error < 0 ? -error : error;
 
-  Serial.print("Error: ");
-  Serial.println(desiredLeftCount);
-  // Serial.println(abs(desiredLeftCount - encoders.getCountsLeft()));
+//  Serial.print("Error: ");
+   // Serial.println(desiredLeftCount);
+//    Serial.println(abs((desiredLeftCount)) - abs(encoders.getCountsLeft()));
+//    Serial.print("Left count: ");
+//    Serial.println(encoders.getCountsLeft());
 
-  return abs(desiredLeftCount - encoders.getCountsLeft()) < POS_COUNT_TOL;
+  return abs((desiredLeftCount) - abs(encoders.getCountsLeft())) < 10;
 }
 
 int16_t Encoders::getRightCount() { return encoders.getCountsRight(); }
@@ -62,11 +64,14 @@ void Encoders::setDesiredRightCount(int16_t count) {
 }
 
 void Encoders::setDesiredRightDist(float distance) {
-  desiredRightCount = (int16_t)(distance / WHEEL_CIRCUM * COUNTS_PER_REV);
+  desiredRightCount = (distance / 219.8 * 1440);
 }
 
 bool Encoders::isRightAtPos() {
-  return abs(desiredRightCount - encoders.getCountsRight()) < POS_COUNT_TOL;
+  // Serial.println(encoders.getCountsRight());
+  // Serial.println(".....");
+  // Serial.println(abs((desiredRightCount) - (encoders.getCountsRight())));
+  return abs((desiredRightCount) - (encoders.getCountsRight())) < POS_COUNT_TOL;
 }
 
 void Encoders::printSpeeds() {

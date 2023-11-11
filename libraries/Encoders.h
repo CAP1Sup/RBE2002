@@ -3,8 +3,8 @@
 #include <Romi32U4.h>
 
 #define COUNTS_PER_REV 1440 // how many counts equate to one wheel rotation?
-#define WHEEL_DIA 70        // what is the radius of a Romi wheel in (mm)
-#define WHEEL_CIRCUM (float)PI *WHEEL_DIA // circumference of wheel (mm)
+#define WHEEL_DIA 70.0        // what is the radius of a Romi wheel in (mm)
+#define WHEEL_CIRCUM PI *WHEEL_DIA // circumference of wheel (mm)
 #define POS_COUNT_TOL 10 // how close to target position (counts)
 
 class Encoders {
@@ -16,8 +16,8 @@ private:
   int16_t prevRightCount = 0;
 
   // Position tracking
-  int16_t desiredLeftCount = 0;
-  int16_t desiredRightCount = 0;
+  int32_t desiredLeftCount = 0;
+  int32_t desiredRightCount = 0;
 
   Romi32U4Encoders encoders;
 

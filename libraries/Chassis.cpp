@@ -21,7 +21,7 @@ void Chassis::updateMotorEffort(uint32_t deltaMs) {
     if (isMotionComplete()) {
       // Stop the motors
       stop();
-      return;
+      //return;
     }
   }
   float leftError = targetSpeedLeft - getLeftSpeed();
@@ -72,6 +72,7 @@ void Chassis::resetDrivePID() {
 }
 
 void Chassis::drive(float speed, float distance) {
+  resetDrivePID();
   // Save the target speeds
   // Ignore the sign of the speed and use the distance's sign
   speed = abs(speed) * sgn(distance);
@@ -80,6 +81,8 @@ void Chassis::drive(float speed, float distance) {
   // Calculate the new desired counts
   setDesiredLeftDist(distance);
   setDesiredRightDist(distance);
+
+
 
   // Enable move tracking
   trackMove = true;
@@ -142,6 +145,6 @@ void Chassis::swingTurn(float angle, float speed, TURN_DIR pivotWheel) {
   trackMove = true;
 }
 
-bool Chassis::isMotionComplete() { return isLeftAtPos() && isRightAtPos(); }
+bool Chassis::isMotionComplete() { return isLeftAtPos() ||isRightAtPos(); }
 
 void Chassis::stop() { setDriveEffort(0, 0); }

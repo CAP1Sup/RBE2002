@@ -5,13 +5,12 @@
 #include "Encoders.h"
 #include "PIDController.h"
 
-#define PID_UPDATE_INTERVAL \
-  50                     // how often do we update the motor target speeds? (ms)
-#define BASE_DIA 147.0f  // distance between wheels (mm)
+#define PID_UPDATE_INTERVAL 50                     // how often do we update the motor target speeds? (ms)
+#define BASE_DIA 140.0f  // distance between wheels (mm)
 
 // Motor PID constants
 #define PID_KP 0.5f
-#define PID_KI 5.0f
+#define PID_KI 10.0f
 #define PID_KD 0.0f
 
 typedef enum { LEFT = 1, RIGHT = -1 } TURN_DIR;

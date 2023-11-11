@@ -14,13 +14,13 @@
 #endif
 
 #define IMU_UPDATE_RATE 100    // Hz
-#define MEDIAN_READINGS 25     // number of readings to use for median filter
-#define COLLISION_THRESHOLD 37// mg
+#define MEDIAN_READINGS 50     // number of readings to use for median filter
+#define COLLISION_THRESHOLD 30 // mg
 #define PICKUP_THRESHOLD 7500  // mg
-#define DRIVE_SPEED 200        // mm/s
-#define REVERSE_DIST 50        // mm
+#define DRIVE_SPEED 100        // mm/s
+#define REVERSE_DIST 20        // mm
 #define TURN_ANGLE 90          // deg
-#define TURN_SPEED 90          // deg/s
+#define TURN_SPEED 40          // deg/s
 
 // Robot states
 enum ROBOT_STATE { IDLE, DRIVE, REVERSE, TURN };
@@ -43,6 +43,7 @@ void setup() {
   chassis.setTargetSpeeds(DRIVE_SPEED, DRIVE_SPEED);
 #elif defined(STATE_MACHINE)
   imu.init(IMU_UPDATE_RATE, MEDIAN_READINGS);
+  chassis.resetDrivePID();
 #endif
 }
 
@@ -75,18 +76,16 @@ void loop() {
   }
 
   case DRIVE: {
-    imu.printAccel();
     chassis.updateMotorPID();
     if (imu.beingPickedUp(PICKUP_THRESHOLD)) {
       Serial.print("Being picked up");
       robotState = IDLE;
       chassis.stop();
     } else if (imu.hadCollision(COLLISION_THRESHOLD)) {
-      robotState = IDLE;
+      robotState = REVERSE;
       Serial.print("Collision");
       chassis.resetDrivePID();
-      chassis.setDriveEffort(0, 0);
-      //chassis.drive(-DRIVE_SPEED, -REVERSE_DIST);
+      chassis.drive(DRIVE_SPEED, (-1) * REVERSE_DIST);
     }
     break;
   }
@@ -107,8 +106,6 @@ void loop() {
   }
 
   case TURN: {
-    chassis.resetDrivePID();
-    chassis.pointTurn(-90, TURN_SPEED);
     chassis.updateMotorPID();
     if (imu.beingPickedUp(PICKUP_THRESHOLD)) {
       robotState = IDLE;
@@ -120,11 +117,9 @@ void loop() {
       chassis.resetDrivePID();
       chassis.setTargetSpeeds(DRIVE_SPEED, DRIVE_SPEED);
     }
-    Serial.print("break");
     break;
   }
   }
-  //imu.printAccel();
-  imu.updateIfNeeded();
+    imu.printAccel();
 #endif
 }

@@ -6,7 +6,7 @@
 
 // Op modes
 // #define PRINT_ENCODER_COUNTS
-// #define ACCEL_TESTING
+//#define ACCEL_TESTING
 #define STATE_MACHINE
 
 #if defined(PRINT_ENCODER_COUNTS) && defined(STATE_MACHINE)
@@ -14,10 +14,10 @@
 #endif
 
 #define IMU_UPDATE_RATE 100    // Hz
-#define MEDIAN_READINGS 50     // number of readings to use for median filter
-#define COLLISION_THRESHOLD 25 // mg
-#define PICKUP_THRESHOLD -750  // mg
-#define DRIVE_SPEED 150        // mm/s
+#define MEDIAN_READINGS 25     // number of readings to use for median filter
+#define COLLISION_THRESHOLD 37// mg
+#define PICKUP_THRESHOLD 7500  // mg
+#define DRIVE_SPEED 200        // mm/s
 #define REVERSE_DIST 50        // mm
 #define TURN_ANGLE 90          // deg
 #define TURN_SPEED 90          // deg/s
@@ -75,16 +75,18 @@ void loop() {
   }
 
   case DRIVE: {
+    imu.printAccel();
     chassis.updateMotorPID();
     if (imu.beingPickedUp(PICKUP_THRESHOLD)) {
       Serial.print("Being picked up");
       robotState = IDLE;
       chassis.stop();
     } else if (imu.hadCollision(COLLISION_THRESHOLD)) {
-      robotState = REVERSE;
+      robotState = IDLE;
       Serial.print("Collision");
       chassis.resetDrivePID();
-      chassis.drive(-DRIVE_SPEED, -REVERSE_DIST);
+      chassis.setDriveEffort(0, 0);
+      //chassis.drive(-DRIVE_SPEED, -REVERSE_DIST);
     }
     break;
   }
@@ -122,6 +124,7 @@ void loop() {
     break;
   }
   }
-  imu.printAccel();
+  //imu.printAccel();
+  imu.updateIfNeeded();
 #endif
 }

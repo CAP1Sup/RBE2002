@@ -81,7 +81,7 @@ bool IMU::hadCollision(float threshold) {
 }
 
 void IMU::printAccel() {
-  updateIfNeeded();
+  //updateIfNeeded();
   Serial.print("T: ");
   Serial.print(millis());
   Serial.print(" Ax: ");

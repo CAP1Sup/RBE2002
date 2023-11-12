@@ -4,7 +4,8 @@
 
 #include "MedianFilter.h"
 
-class IMU {
+class IMU
+{
 private:
   // IMU
   LSM6 imu;
@@ -29,7 +30,7 @@ private:
   void updateAccel();
 
 public:
- /**
+  /**
    * @brief Updates the IMU and filters if enough time has passed
    *
    */

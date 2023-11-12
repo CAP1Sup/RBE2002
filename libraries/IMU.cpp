@@ -10,10 +10,13 @@ MedianFilter<int16_t> XAccelFilter(5);
 MedianFilter<int16_t> YAccelFilter(5);
 MedianFilter<int16_t> ZAccelFilter(5);
 
-void IMU::init(uint16_t maxUpdateRate, uint8_t filterSize) {
+void IMU::init(uint16_t maxUpdateRate, uint8_t filterSize)
+{
   Wire.begin();
-  if (!imu.init()) {
-    while (true) {
+  if (!imu.init())
+  {
+    while (true)
+    {
       Serial.println("Failed to detect the LSM6.");
       delay(100);
     }
@@ -34,19 +37,34 @@ void IMU::init(uint16_t maxUpdateRate, uint8_t filterSize) {
   minUpdatePeriod = 1000 / maxUpdateRate;
 
   // Call the update function to fill the filter
-  for (int i = 0; i < filterSize; i++) {
+  for (int i = 0; i < filterSize; i++)
+  {
     updateAccel();
   }
 
   // Check if the Z axis is inverted
-  if (ZAccelFilter.getMedian() > 0) {
+  if (ZAccelFilter.getMedian() > 0)
+  {
     flipZAccel = -1;
   }
 
+  int medianSampleSize = 25;
+  MedianFilter<int16_t> XMedianValues(medianSampleSize);
+  MedianFilter<int16_t> YMedianValues(medianSampleSize);
+  MedianFilter<int16_t> ZMedianValues(medianSampleSize);
+
+  for (int i = 0; i < medianSampleSize; i++)
+  {
+    updateAccel();
+    XMedianValues.addValue(XAccelFilter.getMedian());
+    YMedianValues.addValue(YAccelFilter.getMedian());
+    ZMedianValues.addValue(ZAccelFilter.getMedian());
+  }
+
   // Save the biases
-  xAccelBias = XAccelFilter.getMedian();
-  yAccelBias = YAccelFilter.getMedian();
-  zAccelBias = 1000.0 / imu.mg + (flipZAccel * ZAccelFilter.getMedian());
+  xAccelBias = XMedianValues.getAverage();
+  yAccelBias = YMedianValues.getAverage();
+  zAccelBias = -1000.0 / imu.mg - ZMedianValues.getAverage() * -1;
 
   // Re-initialize the median filters
   XAccelFilter = MedianFilter<int16_t>(filterSize);
@@ -54,40 +72,58 @@ void IMU::init(uint16_t maxUpdateRate, uint8_t filterSize) {
   ZAccelFilter = MedianFilter<int16_t>(filterSize);
 }
 
-void IMU::updateIfNeeded() {
-  if (millis() - lastUpdate > minUpdatePeriod) {
+void IMU::updateIfNeeded()
+{
+  if (millis() - lastUpdate > minUpdatePeriod)
+  {
     updateAccel();
     lastUpdate = millis();
   }
 }
 
-void IMU::updateAccel() {
+void IMU::updateAccel()
+{
   imu.readAcc();
+  /* XAccelFilter.addValue(imu.a.x );
+   */
   XAccelFilter.addValue(imu.a.x - xAccelBias);
   YAccelFilter.addValue(imu.a.y - yAccelBias);
-  ZAccelFilter.addValue(flipZAccel * imu.a.z - zAccelBias);
+  ZAccelFilter.addValue(imu.a.z * flipZAccel - zAccelBias);
 }
 
-bool IMU::beingPickedUp(float threshold) {
+bool IMU::beingPickedUp(float threshold)
+{
   updateIfNeeded();
   return (ZAccelFilter.getMedian() * imu.mg > threshold);
 }
 
-bool IMU::hadCollision(float threshold) {
+bool IMU::hadCollision(float threshold)
+{
   updateIfNeeded();
   float aX = XAccelFilter.getMedian() * imu.mg;
   float aY = YAccelFilter.getMedian() * imu.mg;
   return ((abs(aX) > threshold) || (abs(aY) > threshold));
 }
 
-void IMU::printAccel() {
-  //updateIfNeeded();
-  Serial.print("T: ");
+void IMU::printAccel()
+{
+  // updateIfNeeded();
+  // Serial.print("T: ");
   Serial.print(millis());
-  Serial.print(" Ax: ");
+  Serial.print(",");
   Serial.print(XAccelFilter.getMedian() * imu.mg);
-  Serial.print(" Ay: ");
+  Serial.print(",");
   Serial.print(YAccelFilter.getMedian() * imu.mg);
-  Serial.print(" Az: ");
+  Serial.print(",");
   Serial.println(ZAccelFilter.getMedian() * imu.mg);
+
+  // Serial.println(ZAccelFilter.getMedian() * imu.mg);
+  //  Serial.print("T: ");
+  /*  Serial.print(millis());
+   Serial.print(",");
+   Serial.print(imu.a.x * imu.mg);
+   Serial.print(",");
+   Serial.print(imu.a.y * imu.mg);
+   Serial.print(",");
+   Serial.println(imu.a.z * imu.mg); */
 }

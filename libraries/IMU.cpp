@@ -48,7 +48,7 @@ void IMU::init(uint16_t maxUpdateRate, uint8_t filterSize)
     flipZAccel = -1;
   }
 
-  int medianSampleSize = 25;
+  int medianSampleSize = filterSize * 10;
   MedianFilter<int16_t> XMedianValues(medianSampleSize);
   MedianFilter<int16_t> YMedianValues(medianSampleSize);
   MedianFilter<int16_t> ZMedianValues(medianSampleSize);
@@ -86,6 +86,7 @@ void IMU::updateAccel()
   imu.readAcc();
   /* XAccelFilter.addValue(imu.a.x );
    */
+
   XAccelFilter.addValue(imu.a.x - xAccelBias);
   YAccelFilter.addValue(imu.a.y - yAccelBias);
   ZAccelFilter.addValue(imu.a.z * flipZAccel - zAccelBias);
@@ -102,28 +103,23 @@ bool IMU::hadCollision(float threshold)
   updateIfNeeded();
   float aX = XAccelFilter.getMedian() * imu.mg;
   float aY = YAccelFilter.getMedian() * imu.mg;
-  return ((abs(aX) > threshold) || (abs(aY) > threshold));
+
+  // Add weight to X axis collisions because X is more reliable in telling collisions
+  // Serial.println(aX * -0.8 + aY * -0.2);
+  return (aX * -0.8 + aY * -0.2 < -threshold);
+  // return ((abs(aX) > threshold) || (abs(aY) > threshold));
 }
 
 void IMU::printAccel()
 {
-  // updateIfNeeded();
-  // Serial.print("T: ");
+  float aX = -XAccelFilter.getMedian() * imu.mg;
+  float aY = -YAccelFilter.getMedian() * imu.mg;
+  float aZ = -ZAccelFilter.getMedian() * imu.mg;
   Serial.print(millis());
   Serial.print(",");
-  Serial.print(XAccelFilter.getMedian() * imu.mg);
+  Serial.print(aX);
   Serial.print(",");
-  Serial.print(YAccelFilter.getMedian() * imu.mg);
+  Serial.print(aY);
   Serial.print(",");
-  Serial.println(ZAccelFilter.getMedian() * imu.mg);
-
-  // Serial.println(ZAccelFilter.getMedian() * imu.mg);
-  //  Serial.print("T: ");
-  /*  Serial.print(millis());
-   Serial.print(",");
-   Serial.print(imu.a.x * imu.mg);
-   Serial.print(",");
-   Serial.print(imu.a.y * imu.mg);
-   Serial.print(",");
-   Serial.println(imu.a.z * imu.mg); */
+  Serial.println(aZ);
 }

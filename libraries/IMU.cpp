@@ -84,9 +84,6 @@ void IMU::updateIfNeeded()
 void IMU::updateAccel()
 {
   imu.readAcc();
-  /* XAccelFilter.addValue(imu.a.x );
-   */
-
   XAccelFilter.addValue(imu.a.x - xAccelBias);
   YAccelFilter.addValue(imu.a.y - yAccelBias);
   ZAccelFilter.addValue(imu.a.z * flipZAccel - zAccelBias);
@@ -95,7 +92,8 @@ void IMU::updateAccel()
 bool IMU::beingPickedUp(float threshold)
 {
   updateIfNeeded();
-  return (ZAccelFilter.getMedian() * imu.mg > threshold);
+  // Serial.println(1000.0 - abs(ZAccelFilter.getMedian() * imu.mg));
+  return (1000.0 - abs(ZAccelFilter.getMedian() * imu.mg) > threshold);
 }
 
 bool IMU::hadCollision(float threshold)

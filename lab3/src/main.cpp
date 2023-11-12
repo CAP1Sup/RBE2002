@@ -16,7 +16,7 @@
 #define IMU_UPDATE_RATE 100     // Hz
 #define MEDIAN_READINGS 31      // number of readings to use for median filter
 #define COLLISION_THRESHOLD 9.8 // mg
-#define PICKUP_THRESHOLD 7500   // mg
+#define PICKUP_THRESHOLD 60     // mg
 #define DRIVE_SPEED 100         // mm/s
 #define REVERSE_DIST 20         // mm
 #define TURN_ANGLE 90           // deg
@@ -93,20 +93,18 @@ void loop()
   case DRIVE:
   {
     chassis.updateMotorPID();
-    imu.printAccel();
+    // imu.printAccel();
     if (imu.beingPickedUp(PICKUP_THRESHOLD))
     {
-      Serial.print("Being picked up");
+      Serial.print("Being picked up, ");
       robotState = IDLE;
       chassis.stop();
     }
     else if (imu.hadCollision(COLLISION_THRESHOLD))
     {
       robotState = REVERSE;
-      // robotState = IDLE;
-      Serial.print("Collision");
-      chassis.resetDrivePID();
-      chassis.drive(DRIVE_SPEED, (-1) * REVERSE_DIST);
+      Serial.print("Collision, ");
+      chassis.drive(-DRIVE_SPEED, -REVERSE_DIST);
     }
     break;
   }
@@ -117,14 +115,14 @@ void loop()
     if (imu.beingPickedUp(PICKUP_THRESHOLD))
     {
       robotState = IDLE;
-      Serial.print("in idle");
+      Serial.print("Picked Up, ");
       chassis.stop();
     }
     else if (chassis.isMotionComplete())
     {
       robotState = TURN;
-      Serial.print("in turn");
-      chassis.resetDrivePID();
+      Serial.print("To turn, ");
+    
       chassis.pointTurn(TURN_ANGLE, TURN_SPEED);
     }
     break;
@@ -136,19 +134,19 @@ void loop()
     if (imu.beingPickedUp(PICKUP_THRESHOLD))
     {
       robotState = IDLE;
-      Serial.print("in idle from turn");
+      Serial.print("Picked up from turn, ");
       chassis.stop();
     }
     else if (chassis.isMotionComplete())
     {
       robotState = DRIVE;
-      Serial.print("in drive");
-      chassis.resetDrivePID();
+      Serial.print("Go to drive, ");
       chassis.setTargetSpeeds(DRIVE_SPEED, DRIVE_SPEED);
+      delay(100);
     }
     break;
   }
   }
-  // imu.printAccel();
+ 
 #endif
 }

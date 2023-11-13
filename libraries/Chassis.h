@@ -5,7 +5,8 @@
 #include "Encoders.h"
 #include "PIDController.h"
 
-#define PID_UPDATE_INTERVAL 50                     // how often do we update the motor target speeds? (ms)
+#define PID_UPDATE_INTERVAL \
+  50                     // how often do we update the motor target speeds? (ms)
 #define BASE_DIA 140.0f  // distance between wheels (mm)
 
 // Motor PID constants
@@ -54,13 +55,6 @@ class Chassis : public Encoders {
    * @return int16_t effort
    */
   int16_t getRightEffort();
-
-/**
- * @brief 
- * resets encoder count 
- */
-void resetEncoderCount();
-
 
   /**
    * @brief Sets the effort of the left and right motors
@@ -112,7 +106,8 @@ void resetEncoderCount();
   void drive(float speed, float distance);
 
   /**
-   * @brief Sets the target speeds for the left and right wheels
+   * @brief Sets the target speeds for the left and right wheels.
+   * resetDrivePID() should be called before!
    *
    * @param leftSpeed Target speed for the left wheel in mm/s
    * @param rightSpeed Target speed for the right wheel in mm/s

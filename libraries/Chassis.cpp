@@ -1,13 +1,11 @@
 #include "Chassis.h"
 
-#include <Encoders.h> // For COUNTS_PER_REV and WHEEL_CIRCUM
+#include <Encoders.h>  // For COUNTS_PER_REV and WHEEL_CIRCUM
 #include <Romi32U4.h>
 
 int16_t Chassis::getLeftEffort() { return lastLeftEffort; }
 
 int16_t Chassis::getRightEffort() { return lastRightEffort; }
-
-void Chassis::resetEncoderCount() { reset(); }
 
 void Chassis::setDriveEffort(int16_t left, int16_t right) {
   lastLeftEffort = left;
@@ -21,7 +19,7 @@ void Chassis::updateMotorEffort(uint32_t deltaMs) {
     if (isMotionComplete()) {
       // Stop the motors
       stop();
-      //return;
+      // return;
     }
   }
   float leftError = targetSpeedLeft - getLeftSpeed();
@@ -53,7 +51,6 @@ void Chassis::resetDrivePID() {
   // Use to prevent jerk when starting
   leftPID.reset();
   rightPID.reset();
-  reset();
 
   // Set the target speeds to 0
   // Forces caller to use setTargetSpeeds() or drive()
@@ -72,7 +69,11 @@ void Chassis::resetDrivePID() {
 }
 
 void Chassis::drive(float speed, float distance) {
+  // Reset the PID controllers to prevent jerk
+  // Also reset the encoder counts for proper distance tracking
   resetDrivePID();
+  resetEncoderCounts();
+
   // Save the target speeds
   // Ignore the sign of the speed and use the distance's sign
   speed = abs(speed) * sgn(distance);
@@ -81,8 +82,6 @@ void Chassis::drive(float speed, float distance) {
   // Calculate the new desired counts
   setDesiredLeftDist(distance);
   setDesiredRightDist(distance);
-
-
 
   // Enable move tracking
   trackMove = true;
@@ -109,6 +108,10 @@ void Chassis::pointTurn(float angle, float speed) {
   int16_t counts = (angle / 360.0f) * COUNTS_PER_REV * (BASE_DIA / 2.0f) /
                    (WHEEL_DIA / 2.0f);
 
+  // Reset the PID and encoder counts
+  resetDrivePID();
+  resetEncoderCounts();
+
   // Set the desired counts
   setDesiredLeftCount(counts);
   setDesiredRightCount(-counts);
@@ -132,6 +135,10 @@ void Chassis::swingTurn(float angle, float speed, TURN_DIR pivotWheel) {
   int16_t counts =
       (angle / 360.0f) * COUNTS_PER_REV * BASE_DIA / (WHEEL_DIA / 2.0f);
 
+  // Reset the PID and encoder counts
+  resetDrivePID();
+  resetEncoderCounts();
+
   // Set the desired counts
   if (pivotWheel == RIGHT) {
     setDesiredLeftCount(counts);
@@ -145,6 +152,6 @@ void Chassis::swingTurn(float angle, float speed, TURN_DIR pivotWheel) {
   trackMove = true;
 }
 
-bool Chassis::isMotionComplete() { return isLeftAtPos() ||isRightAtPos(); }
+bool Chassis::isMotionComplete() { return isLeftAtPos() || isRightAtPos(); }
 
 void Chassis::stop() { setDriveEffort(0, 0); }

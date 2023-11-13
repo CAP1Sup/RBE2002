@@ -4,9 +4,8 @@
 
 #include "MedianFilter.h"
 
-class IMU
-{
-private:
+class IMU {
+ private:
   // IMU
   LSM6 imu;
 
@@ -19,7 +18,6 @@ private:
   int16_t xAccelBias = 0;
   int16_t yAccelBias = 0;
   int16_t zAccelBias = 0;
-  int16_t flipZAccel = 1; // -1 if inverted, 1 if not
 
   // /**
   //  * @brief Updates the IMU and filters if enough time has passed
@@ -29,7 +27,7 @@ private:
 
   void updateAccel();
 
-public:
+ public:
   /**
    * @brief Updates the IMU and filters if enough time has passed
    *
@@ -64,6 +62,12 @@ public:
    *
    */
   void printAccel();
+
+  /**
+   * @brief Resets the filters to eliminate outdated data
+   *
+   */
+  void purgeFilters();
 };
 
 #include "IMU.cpp"

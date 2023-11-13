@@ -3,15 +3,14 @@
 #include <Romi32U4.h>
 
 template <typename T>
-class MedianFilter
-{
-private:
+class MedianFilter {
+ private:
   T *values;
   uint8_t totalValues;
   uint8_t readings = 0;
   uint8_t currentIndex = 0;
 
-public:
+ public:
   /**
    * @brief Constructs a new Median Filter object with a given type and size
    * Size must be <= 255!
@@ -40,6 +39,19 @@ public:
    * @return T The median value
    */
   T getMedian();
+
+  /**
+   * @brief Clears the filter
+   *
+   */
+  void purge();
+
+  /**
+   * @brief Checks if the filter is full
+   *
+   * @return is the filter full?
+   */
+  bool isFull();
 };
 
 #include "MedianFilter.cpp"

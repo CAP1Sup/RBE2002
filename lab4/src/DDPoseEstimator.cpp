@@ -19,7 +19,7 @@ void DDPoseEstimator::update(float leftSpeed, float rightSpeed) {
     if (abs(leftSpeed - rightSpeed) <= sameSpeedThreshold) {  // moving straight
 
       // Calculate the average speed
-      float avgSpeed = (leftSpeed + rightSpeed) / 2;
+      float avgSpeed = (leftSpeed + rightSpeed) / 2.0f;
 
       // Convert to X and Y components
       float xSpeed = avgSpeed * cos(theta);
@@ -34,6 +34,7 @@ void DDPoseEstimator::update(float leftSpeed, float rightSpeed) {
                sameSpeedThreshold) {  // point turning
 
       // Calculate the angular speed of the robot
+      // Note that this expression takes the average of the two wheel speeds
       float omega = (rightSpeed - leftSpeed) / wheelWidth;
 
       // Add the change in theta to the current pose
@@ -43,7 +44,7 @@ void DDPoseEstimator::update(float leftSpeed, float rightSpeed) {
     } else {  // swing turning
 
       // Calculate ICC parameters
-      float R = (wheelWidth / 2) *
+      float R = (wheelWidth / 2.0f) *
                 ((leftSpeed + rightSpeed) / (rightSpeed - leftSpeed));
       float omega = (rightSpeed - leftSpeed) / wheelWidth;
 

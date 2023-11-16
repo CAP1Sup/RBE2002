@@ -2,7 +2,6 @@
 
 #include <Romi32U4.h>
 
-#define SAME_SPEED_THRESHOLD 3  // units/s... in this case, mm
 #define M_TO_MM 1000
 
 class DDPoseEstimator {
@@ -14,12 +13,25 @@ class DDPoseEstimator {
   // This equals 142.875 mm... Lewin's library uses 147 mm for the wheel width
   const float wheelWidth = 0.142875 * M_TO_MM;
 
+  float sameSpeedThreshold = 0;
+  uint32_t poseUpdateInterval = 0;
+
  public:
   struct pose {
     float X;
     float Y;
     float THETA;
   };
+
+  /**
+   * @brief Creates a new pose estimator
+   *
+   * @param poseUpdateInterval The interval at which the pose estimator should
+   * update the pose (in ms)
+   * @param sameSpeedThreshold The threshold for the robot to be considered
+   * moving straight or point turning. Same unit as wheel speeds
+   */
+  DDPoseEstimator(uint32_t poseUpdateInterval, float sameSpeedThreshold);
 
   /**
    * @brief Reset the pose estimator

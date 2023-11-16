@@ -7,6 +7,10 @@
 // Op mode
 #define QUESTION_NUM 1
 
+// General settings
+#define SAME_SPEED_THRESHOLD 3   // mm/s
+#define POSE_UPDATE_INTERVAL 50  // ms
+
 // Constants
 #define MM_TO_CM 0.1
 
@@ -36,7 +40,7 @@ enum ROBOT_STATE { IDLE, SLOW_CIRCLE };
 // Initial state will always be IDLE
 ROBOT_STATE state = IDLE;  // initial state: IDLE
 
-DDPoseEstimator poseEstimator;
+DDPoseEstimator poseEstimator(POSE_UPDATE_INTERVAL, SAME_SPEED_THRESHOLD);
 Romi32U4ButtonA buttonA;
 Chassis chassis;
 

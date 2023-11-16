@@ -1,6 +1,10 @@
 #include "DDPoseEstimator.h"
 
-#define POSE_UPDATE_INTERVAL 50  // ms
+DDPoseEstimator::DDPoseEstimator(uint32_t poseUpdateInterval,
+                                 float sameSpeedThreshold) {
+  this->poseUpdateInterval = poseUpdateInterval;
+  this->sameSpeedThreshold = sameSpeedThreshold;
+}
 
 void DDPoseEstimator::reset() {
   x = 0;
@@ -10,10 +14,9 @@ void DDPoseEstimator::reset() {
 
 void DDPoseEstimator::update(float leftSpeed, float rightSpeed) {
   uint32_t currentTime = millis();
-  if (currentTime - lastPoseUpdate >= POSE_UPDATE_INTERVAL) {
+  if (currentTime - lastPoseUpdate >= poseUpdateInterval) {
     // Check if the robot is moving straight or turning
-    if (abs(leftSpeed - rightSpeed) <=
-        SAME_SPEED_THRESHOLD) {  // moving straight
+    if (abs(leftSpeed - rightSpeed) <= sameSpeedThreshold) {  // moving straight
 
       // Calculate the average speed
       float avgSpeed = (leftSpeed + rightSpeed) / 2;
@@ -28,7 +31,7 @@ void DDPoseEstimator::update(float leftSpeed, float rightSpeed) {
       // No change in theta
 
     } else if (abs(leftSpeed + rightSpeed) <=
-               SAME_SPEED_THRESHOLD) {  // point turning
+               sameSpeedThreshold) {  // point turning
 
       // Calculate the angular speed of the robot
       float omega = (rightSpeed - leftSpeed) / wheelWidth;

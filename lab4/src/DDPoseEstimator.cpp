@@ -16,7 +16,7 @@ void DDPoseEstimator::update(float leftSpeed, float rightSpeed) {
   uint32_t currentTime = millis();
   if (currentTime - lastPoseUpdate >= poseUpdateInterval) {
     // Check if the robot is moving straight or turning
-    if (abs(leftSpeed - rightSpeed) <= sameSpeedThreshold) {  // moving straight
+    if (abs(leftSpeed - rightSpeed) <= sameSpeedThreshold) { // moving straight
 
       // Calculate the average speed
       float avgSpeed = (leftSpeed + rightSpeed) / 2.0f;
@@ -31,7 +31,7 @@ void DDPoseEstimator::update(float leftSpeed, float rightSpeed) {
       // No change in theta
 
     } else if (abs(leftSpeed + rightSpeed) <=
-               sameSpeedThreshold) {  // point turning
+               sameSpeedThreshold) { // point turning
 
       // Calculate the angular speed of the robot
       // Note that this expression takes the average of the two wheel speeds
@@ -41,7 +41,7 @@ void DDPoseEstimator::update(float leftSpeed, float rightSpeed) {
       theta += omega * (currentTime - lastPoseUpdate) / 1000.0f;
       // No change in x or y
 
-    } else {  // swing turning
+    } else { // swing turning
 
       // Calculate ICC parameters
       float R = (wheelWidth / 2.0f) *
@@ -53,7 +53,7 @@ void DDPoseEstimator::update(float leftSpeed, float rightSpeed) {
       y += R * cos(theta);
 
       // Now change the theta by the omega times the time interval
-      theta += omega * (currentTime - lastPoseUpdate);
+      theta += omega * (currentTime - lastPoseUpdate) / 1000.0f;
 
       // Now add the change in pose with the new theta
       x += R * sin(theta);
@@ -68,9 +68,11 @@ void DDPoseEstimator::update(float leftSpeed, float rightSpeed) {
 DDPoseEstimator::pose DDPoseEstimator::getPose() { return {x, y, theta}; }
 
 void DDPoseEstimator::printPose() {
+  Serial.print(millis());
+  Serial.print(',');
   Serial.print(x);
-  Serial.print('\t');
+  Serial.print(',');
   Serial.print(y);
-  Serial.print('\t');
-  Serial.println(theta);
+  Serial.print(',');
+  Serial.println(theta, 5);
 }

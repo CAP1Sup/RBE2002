@@ -5,18 +5,18 @@
 #define M_TO_MM 1000
 
 class DDPoseEstimator {
- private:
+private:
   float x, y, theta = 0;
-  uint32_t lastPoseUpdate = 0;  // ms
+  uint32_t lastPoseUpdate = 0; // ms
 
   // FORMERLY KNOWN AS 'l'.. change for the lab
   // This equals 142.875 mm... Lewin's library uses 147 mm for the wheel width
-  const float wheelWidth = 0.142875 * M_TO_MM;
+  const float wheelWidth = 0.140 * M_TO_MM;
 
   float sameSpeedThreshold = 0;
   uint32_t poseUpdateInterval = 0;
 
- public:
+public:
   struct pose {
     float X;
     float Y;

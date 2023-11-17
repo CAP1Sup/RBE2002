@@ -19,15 +19,7 @@ float Encoders::getLeftSpeed() {
 void Encoders::setDesiredLeftCount(int16_t count) { desiredLeftCount = count; }
 
 void Encoders::setDesiredLeftDist(float distance) {
-  // Serial.print("Setting desired left distance to: ");
-  // Serial.println(distance);
-  // Serial.print("Wheel circumference: ");
-  // Serial.println(WHEEL_CIRCUM);
-  // Serial.print("Counts per rev: ");
-  // Serial.print(COUNTS_PER_REV);
   desiredLeftCount = ((distance / 219.8) * 1440);
-  // Serial.print("Desired left count: ");
-  // Serial.println(desiredLeftCount);
 }
 
 int16_t Encoders::getDesiredLeftCount() { return desiredLeftCount; }
@@ -36,11 +28,6 @@ bool Encoders::isLeftAtPos() {
   int32_t error = desiredLeftCount - encoders.getCountsLeft();
   error = error < 0 ? -error : error;
 
-  //  Serial.print("Error: ");
-  // Serial.println(desiredLeftCount);
-  //    Serial.println(abs((desiredLeftCount)) - abs(encoders.getCountsLeft()));
-  //    Serial.print("Left count: ");
-  //    Serial.println(encoders.getCountsLeft());
 
   return abs((desiredLeftCount)-abs(encoders.getCountsLeft())) < 10;
 }

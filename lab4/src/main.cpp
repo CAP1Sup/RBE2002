@@ -36,8 +36,8 @@ enum ROBOT_STATE { IDLE, DRIVE_STRAIGHT, SLOW_TURN };
 #elif QUESTION_NUM == 3
 enum ROBOT_STATE { IDLE, SLOW_CIRCLE };
 #define DRIVE_TIME 30000 // ms
-#define DRIVE_SPEED 70   // mm/s
-#define TURN_SPEED 16    // deg/s (1 rotation in DRIVE_TIME)
+#define DRIVE_SPEED 50   // mm/s
+#define TURN_SPEED 14    // deg/s (1 rotation in DRIVE_TIME)
 #endif
 
 // Initial state will always be IDLE

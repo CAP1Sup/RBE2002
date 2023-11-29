@@ -41,7 +41,7 @@ void blinkLED(uint8_t pin, uint8_t frequency) {
   }
 }
 
-uint8_t findAprilTags() {
+void loop() {
   uint8_t tagCount = camera.getTagCount();
   if (tagCount) {
     Serial.println(tagCount);
@@ -83,11 +83,4 @@ uint8_t findAprilTags() {
   } else {
     chassis.setTwist(0, SEARCH_RATE);
   }
-
-  return tagCount;
-}
-
-void loop() {
-  delay(1); // calm things down for a msec...
-  findAprilTags();
 }

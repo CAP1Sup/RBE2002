@@ -4,7 +4,7 @@
 #include <Wire.h>
 #include <openmv.h>
 
-#define PRINT_TAG_DATA
+// #define PRINT_TAG_DATA
 
 #define TARGET_WIDTH 40     // px
 #define FRAME_WIDTH 160     // px
@@ -12,7 +12,7 @@
 #define TURN_KP 1           // (deg/s)/px
 #define DRIVE_THRESHOLD 0.5 // cm/s
 #define TURN_THRESHOLD 1    // deg/s
-#define SEARCH_RATE 15      // deg/s
+#define SEARCH_RATE 1       // deg/s
 
 OpenMV camera;
 Chassis chassis;
@@ -63,7 +63,7 @@ uint8_t findAprilTags() {
       Serial.println(F("]"));
 #endif
       // Check for ID 4
-      if (tag.id == 4) {
+      if (tag.id == 0) {
         // Follow the tag
         float driveEffort = DRIVE_KP * (TARGET_WIDTH - tag.w);
         float turnEffort = TURN_KP * ((FRAME_WIDTH / 2) - tag.cx);

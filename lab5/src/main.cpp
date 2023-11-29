@@ -6,13 +6,14 @@
 
 #define PRINT_TAG_DATA
 
-#define TARGET_WIDTH 40     // px
+#define TARGET_WIDTH 25     // px
 #define FRAME_WIDTH 160     // px
-#define DRIVE_KP 1          // (cm/s)/px
-#define TURN_KP 1           // (deg/s)/px
+#define DRIVE_KP 2.0f       // (cm/s)/px
+#define TURN_KP 2.0f        // (deg/s)/px
 #define DRIVE_THRESHOLD 0.5 // cm/s
 #define TURN_THRESHOLD 1    // deg/s
-#define SEARCH_RATE 15      // deg/s
+#define SEARCH_RATE 20      // deg/s
+#define HALF_FRAME 80
 
 OpenMV camera;
 Chassis chassis;
@@ -40,7 +41,6 @@ void blinkLED(uint8_t pin, uint8_t frequency) {
     lastUpdateTime = millis();
   }
 }
-
 void loop() {
   uint8_t tagCount = camera.getTagCount();
   if (tagCount) {
@@ -63,24 +63,34 @@ void loop() {
       Serial.println(F("]"));
 #endif
       // Check for ID 4
-      if (tag.id == 4) {
+      if (tag.id == 3) {
         // Follow the tag
-        float driveEffort = DRIVE_KP * (TARGET_WIDTH - tag.w);
-        float turnEffort = TURN_KP * ((FRAME_WIDTH / 2) - tag.cx);
+        float driveEffort = DRIVE_KP * (float(TARGET_WIDTH) - tag.w);
+        float turnEffort = TURN_KP * ((float(FRAME_WIDTH) / 2) - tag.cx);
+  
+        //float turnEffort = turnError * TURN_KP;
         if (abs(driveEffort) < DRIVE_THRESHOLD) {
           driveEffort = 0;
         }
         if (abs(turnEffort) < TURN_THRESHOLD) {
           turnEffort = 0;
+    
         }
+  
+
+        Serial.print("drive effort: ");
+        Serial.println(driveEffort);
         chassis.setTwist(driveEffort, turnEffort);
       } else {
         // Blink red LED at 1 Hz for other tags
+        Serial.print("here");
         blinkLED(redLEDPin, 1);
         chassis.idle();
       }
     }
   } else {
+    Serial.println(F("No tags found."));
     chassis.setTwist(0, SEARCH_RATE);
   }
+  delay(50);
 }

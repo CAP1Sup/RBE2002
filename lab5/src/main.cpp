@@ -6,10 +6,10 @@
 
 #define PRINT_TAG_DATA
 
-#define TARGET_WIDTH 25     // px
+#define TARGET_WIDTH 40     // px
 #define FRAME_WIDTH 160     // px
-#define DRIVE_KP 2.0f       // (cm/s)/px
-#define TURN_KP 2.0f        // (deg/s)/px
+#define DRIVE_KP 3.0f       // (cm/s)/px
+#define TURN_KP 2.5f        // (deg/s)/px
 #define DRIVE_THRESHOLD 0.5 // cm/s
 #define TURN_THRESHOLD 1    // deg/s
 #define SEARCH_RATE 20      // deg/s
@@ -63,7 +63,7 @@ void loop() {
       Serial.println(F("]"));
 #endif
       // Check for ID 4
-      if (tag.id == 3) {
+      if (tag.id == 1) {
         // Follow the tag
         float driveEffort = DRIVE_KP * (float(TARGET_WIDTH) - tag.w);
         float turnEffort = TURN_KP * ((float(FRAME_WIDTH) / 2) - tag.cx);

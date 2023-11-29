@@ -4,13 +4,26 @@
 #include <Wire.h>
 #include <openmv.h>
 
+#define PRINT_TAG_DATA
+
+#define TARGET_WIDTH 40     // px
+#define FRAME_WIDTH 160     // px
+#define DRIVE_KP 1          // (cm/s)/px
+#define TURN_KP 1           // (deg/s)/px
+#define DRIVE_THRESHOLD 0.5 // cm/s
+#define TURN_THRESHOLD 1    // deg/s
+#define SEARCH_RATE 15      // deg/s
+
 OpenMV camera;
+Chassis chassis;
 
 const uint16_t redLEDPin = 13; // red LED connected to pin 13
 uint32_t lastUpdateTime = 0;
 bool isLEDOn = false;
 
 void setup() {
+  chassis.init();
+
   Serial.begin(115200);
   delay(1000);
 
@@ -34,6 +47,7 @@ uint8_t findAprilTags() {
     Serial.println(tagCount);
     AprilTagDatum tag;
     if (camera.readTag(tag)) {
+#ifdef PRINT_TAG_DATA
       Serial.print(F("Tag [cx="));
       Serial.print(tag.cx);
       Serial.print(F(", cy="));
@@ -47,21 +61,27 @@ uint8_t findAprilTags() {
       Serial.print(F(", rot="));
       Serial.print(tag.rot);
       Serial.println(F("]"));
-
-      // Check for Tag25h9 with ID 4
-      if (tag.family == "Tag25h9" && tag.id == 4) {
-        // Follow the tag (add your code for following the tag here)
+#endif
+      // Check for ID 4
+      if (tag.id == 4) {
+        // Follow the tag
+        float driveEffort = DRIVE_KP * (TARGET_WIDTH - tag.w);
+        float turnEffort = TURN_KP * ((FRAME_WIDTH / 2) - tag.cx);
+        if (abs(driveEffort) < DRIVE_THRESHOLD) {
+          driveEffort = 0;
+        }
+        if (abs(turnEffort) < TURN_THRESHOLD) {
+          turnEffort = 0;
+        }
+        chassis.setTwist(driveEffort, turnEffort);
       } else {
-        // Blink red LED at 1 Hz for other Tag25h9 tags
+        // Blink red LED at 1 Hz for other tags
         blinkLED(redLEDPin, 1);
-      }
-
-      // Check for Tag36h11 or Tag16h5
-      if (tag.family == "Tag36h11" || tag.family == "Tag16h5") {
-        // Blink red LED at 10 Hz for Tag36h11 or Tag16h5 tags
-        blinkLED(redLEDPin, 10);
+        chassis.idle();
       }
     }
+  } else {
+    chassis.setTwist(0, SEARCH_RATE);
   }
 
   return tagCount;

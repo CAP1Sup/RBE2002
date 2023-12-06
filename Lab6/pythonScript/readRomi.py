@@ -6,29 +6,36 @@ MQTT_PORT = 1883
 MQTT_USER = "team8"
 MQTT_PASSWORD = "mons0892"
 
-# Topics
-TOPIC_Z_ACCELERATION = "team8/z_acceleration"
-TOPIC_IR_SENSOR = "team8/ir_sensor"
-TOPIC_SONAR = "team8/sonar"
+# Topics 
+TOPIC_Z_ACCELERATION = "team8/imuZ"
+TOPIC_IR_SENSOR = "team8/irDist"
+TOPIC_SONAR = "team8/usDist"
+TOPIC_X_POSITION = "team8/positionX"
+TOPIC_Y_POSITION = "team8/positionY"
 
 # Callback when the client receives a CONNACK response from the server
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
     
     # Subscribe to multiple topics
-    client.subscribe([(TOPIC_Z_ACCELERATION, 0), (TOPIC_IR_SENSOR, 0), (TOPIC_SONAR, 0)])
+    client.subscribe([(TOPIC_Z_ACCELERATION, 0), (TOPIC_IR_SENSOR, 0), (TOPIC_SONAR, 0), (TOPIC_X_POSITION, 0), (TOPIC_Y_POSITION, 0))])
 
 # Callback when a PUBLISH message is received from the server
 def on_message(client, userdata, msg):
     message = msg.payload.decode()
-    print(f"Received message '{message}' on topic '{msg.topic}'")
+    #print(f"Received message '{message}' on topic '{msg.topic}'")
 
     if msg.topic == TOPIC_Z_ACCELERATION:
         print(f"Z Acceleration Data: {message}")
-    elif msg.topic == TOPIC_IR_SENSOR:
+    if msg.topic == TOPIC_IR_SENSOR:
         print(f"IR Sensor Data: {message}")
-    elif msg.topic == TOPIC_SONAR:
+    if msg.topic == TOPIC_SONAR:
         print(f"Sonar Data: {message}")
+    if msg.topic == TOPIC_X_POSITION:
+        print(f"X Position Data: {message}")
+    if msg.topic == TOPIC_Y_POSITION:
+        print(f"Y Position Data: {message}")
+    
 
 # Create MQTT client 
 client = mqtt.Client()

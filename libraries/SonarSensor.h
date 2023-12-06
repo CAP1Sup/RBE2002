@@ -2,8 +2,8 @@
 
 #include <Romi32U4.h>
 
-#define TRIG_PIN 0
-#define ECHO_PIN 1
+#define TRIG_PIN 8
+#define ECHO_PIN 7
 
 #define SPEED_OF_SOUND_CM_PER_US 0.0343f
 

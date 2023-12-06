@@ -42,6 +42,13 @@ class IMU {
   void init(uint16_t maxUpdateRate, uint8_t filterSize);
 
   /**
+   * @brief Returns the acceleration in the z direction
+   *
+   * @return The acceleration in the z direction
+   */
+  float getZAccel();
+
+  /**
    * @brief Returns if the robot is being picked up
    *
    * @param threshold The threshold for being picked up (in mgs)

@@ -75,6 +75,11 @@ void IMU::updateAccel() {
   ZAccelFilter.addValue(abs(imu.a.z - zAccelBias));
 }
 
+float IMU::getZAccel() {
+  updateIfNeeded();
+  return ZAccelFilter.getMedian() * imu.mg;
+}
+
 bool IMU::beingPickedUp(float threshold) {
   updateIfNeeded();
 

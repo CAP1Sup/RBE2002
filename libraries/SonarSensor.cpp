@@ -14,7 +14,7 @@ uint32_t SonarSensor::getDuration() {
   digitalWrite(TRIG_PIN, LOW);
 
   // Measure the echo
-  return pulseIn(ECHO_PIN, HIGH);
+  return pulseIn(ECHO_PIN, HIGH, 1000000);
 }
 
 float SonarSensor::getDistance() {

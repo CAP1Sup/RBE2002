@@ -8,6 +8,7 @@
 #include "zombieRomi.h"
 #include <Arduino.h>
 #include <Chassis.h>
+#include <PIDcontroller.h>
 #include <Romi32U4.h>
 #include <Wire.h>
 #include <math.h>

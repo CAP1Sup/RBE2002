@@ -13,6 +13,8 @@
 IRSensor IR_Left;
 IRSensor IR_Right;
 SonarSensor sonar;
+LineSensor lineSensor;
+zombieRomi romi(&IR_Left, &IR_Right, &sonar, &lineSensor, &chassis);
 PIDController wallFollowPID(4.0f, 0.0f, 0.0f);
 #elif defined(Runner)
 

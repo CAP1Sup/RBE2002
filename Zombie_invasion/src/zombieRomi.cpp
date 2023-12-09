@@ -18,16 +18,15 @@ void ZombieRomi::receiveTargetCoordinates(float x, float y) {
   // Implementation for receiving coordinates
   lastKnownX = x;
   lastKnownY = y;
-}
-
-// Update the zombie's current target
-void ZombieRomi::updateTarget() {
-  // Logic to update target
+  isOnLastKnownPosition = false;
 }
 
 // Follow a line
-void ZombieRomi::followLine() {
-  // Line following logic
+void zombieRomi::followLine() {
+  // Calculate the difference between readings from the two line sensors
+  int difference =
+      lineSensor->getLeftLineValue() - lineSensor->getRightLineValue();
+  chassis->setTwist(SEEKING_FWD_SPEED * IN_CH, LINE_P * difference);
 }
 
 // Detect survivor's position
@@ -38,6 +37,11 @@ void ZombieRomi::detectSurvivorPosition() {
 // Pursue the survivor
 void ZombieRomi::pursueSurvivor() {
   // Logic to pursue survivor
+}
+
+bool zombieRomi::getOnLastKnownPosition() {
+  // Logic to determine if the robot is on target
+  return isOnLastKnownPosition;
 }
 
 // Move to the last known survivor's location
@@ -66,3 +70,25 @@ float ZombieRomi::getIRRightDistance() {
 }
 
 // Additional implementation details as needed...
+void zombieRomi::moveToLastKnownLocation() {
+  bool isOnIntersection = onIntersection();
+  bool wallAhead = getSonarDistance() < 30.0f;
+  bool wallLeft = getIRLeftDistance() < WALL_DIS_THRESHOLD;
+  bool wallRight = getIRRightDistance() < WALL_DIS_THRESHOLD;
+  bool onTargetX = abs(currentX - lastKnownX) > 0.5f;
+  bool onTargetY = abs(currentY - lastKnownY) > 0.5f;
+
+  if (onTargetX && onTargetY) {
+    isOnLastKnownPosition = true;
+  }
+}
+
+int zombieRomi::getIntersectionCount() {
+  // Logic to get intersection count
+  return intersectionCount;
+}
+
+zombieRomi::turnDirection zombieRomi::getTurnDirection() {
+  // Logic to determine which direction to turn
+  return zombieRomi::turnDirection::STRAIGHT;
+}

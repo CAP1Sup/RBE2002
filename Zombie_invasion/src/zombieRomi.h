@@ -10,6 +10,12 @@
 
 // Assuming necessary libraries for MQTT, networking, and sensor input are
 // included
+#define WALL_DIS_THRESHOLD 30.0 // mm
+#define SEEKING_FWD_SPEED 25    // in/s
+#define TURN_SPEED 150          // deg/s
+#define SEARCH_EFFORT 80        // Motor effort
+#define IN_CH 2.54              // Inch to Centimeter conversion
+#define LINE_P 0.2              // Line P value
 
 class ZombieRomi {
 public:
@@ -18,9 +24,6 @@ public:
 
   // Function to receive target coordinates from MQTT server
   void receiveTargetCoordinates(float x, float y);
-
-  // Function to update the zombie's current target
-  void updateTarget();
 
   // Function to follow a line
   void followLine();
@@ -34,19 +37,33 @@ public:
   // Function to move to the last known survivor's location
   void moveToLastKnownLocation();
 
+  bool getOnLastKnownPosition();
+
+  int getIntersectionCount();
+
 private:
   // Private member variables
   float lastKnownX;
   float lastKnownY;
 
-  typedef enum { STRAIGHT = 0, LEFT = -1, RIGHT = 1 } survivorPosition;
-
+  float currentX;
   // Private member objects
+
   IRSensor irSensorLeft;
   IRSensor irSensorRight;
   SonarSensor sonarSensor;
   Chassis chassis;
   LineSensor lineSensor;
+
+  // Private member variables
+  float currentY;
+  float currentTheta;
+
+  bool isOnLastKnownPosition = false;
+
+  int intersectionCount = 0;
+
+  typedef enum { STRAIGHT, LEFT, RIGHT } turnDirection;
 
   // Private member functions
   float getSonarDistance();
@@ -56,4 +73,6 @@ private:
   float getIRRightDistance();
 
   bool onIntersection();
+
+  turnDirection getTurnDirection();
 };

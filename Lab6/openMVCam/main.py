@@ -47,18 +47,6 @@ sensor.skip_frames(time = 2000)
 uart = UART(3, 115200)
 
 # Helper Stuff
-
-def checksum(data):
-    checksum = 0
-    for i in range(0, len(data), 2):
-        checksum += ((data[i+1] & 0xFF) << 8) | ((data[i+0] & 0xFF) << 0)
-    return checksum & 0xFFFF
-
-def to_object_block_format(tag):
-    angle = int((tag.rotation() * 180) / math.pi)
-    temp = struct.pack("<hhhhhh", tag.id(), tag.cx(), tag.cy(), tag.w(), tag.h(), angle)
-    return struct.pack("<hh12s", 0xAA56, checksum(temp), temp)
-
 # Main Loop
 
 clock = time.clock()
@@ -72,8 +60,8 @@ while(True):
         # sort biggest to smallest
         tagIndex = 0
         for tag in sorted(tags, key = lambda x: x.h() * x.w(), reverse = True)[0:max_blocks]:
-            img.draw_rectangle(tag.rect())
-            img.draw_cross(tag.cx(), tag.cy())
+            #img.draw_rectangle(tag.rect())
+            #img.draw_cross(tag.cx(), tag.cy())
             uart.write("tag" + str(tagIndex) + "/id:" + str(tag.id()) + "\n")
             uart.write("tag" + str(tagIndex) + "/x:" + str(tag.cx()) + "\n")
             uart.write("tag" + str(tagIndex) + "/y:" + str(tag.cy()) + "\n")
@@ -81,8 +69,3 @@ while(True):
             uart.write("tag" + str(tagIndex) + "/h:" + str(tag.h()) + "\n")
             uart.write("tag" + str(tagIndex) + "/rot:" + str((tag.rotation() * 180) / math.pi) + "\n")
             tagIndex = tagIndex + 1
-
-
-
-    num_tags = min(len(tags), max_blocks)
-    print("%d tags(s) found - FPS %f" % (num_tags, clock.fps()))

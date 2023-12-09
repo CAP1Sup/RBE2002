@@ -1,14 +1,20 @@
 #pragma once
-#include "include.h"
+
+#include "../../libraries/IRSensor.h"
+#include "../../libraries/LineSensor.h"
+#include "../../libraries/SonarSensor.h"
+#include <Arduino.h>
+#include <Chassis.h>
+#include <Romi32U4.h>
+#include <Wire.h>
 
 // Assuming necessary libraries for MQTT, networking, and sensor input are
 // included
 
-class zombieRomi {
+class ZombieRomi {
 public:
   // Constructor with sensor, controller, and chassis pointers
-  zombieRomi(IRSensor *irl, IRSensor *irr, SonarSensor *sonar,
-             LineSensor *lineSensor, Chassis *chassis);
+  ZombieRomi();
 
   // Function to receive target coordinates from MQTT server
   void receiveTargetCoordinates(float x, float y);
@@ -36,11 +42,11 @@ private:
   typedef enum { STRAIGHT = 0, LEFT = -1, RIGHT = 1 } survivorPosition;
 
   // Private member objects
-  IRSensor *irSensorLeft;
-  IRSensor *irSensorRight;
-  SonarSensor *sonarSensor;
-  Chassis *chassis;
-  LineSensor *lineSensor;
+  IRSensor irSensorLeft;
+  IRSensor irSensorRight;
+  SonarSensor sonarSensor;
+  Chassis chassis;
+  LineSensor lineSensor;
 
   // Private member functions
   float getSonarDistance();

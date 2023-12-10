@@ -12,7 +12,7 @@
 enum IR_INTERP_VALUES { VOLTAGE = 0, DIST = 1 };
 
 class IRSensor {
- private:
+private:
   // In format {voltage, distance in cm}
   // MUST BE IN DESCENDING ORDER
   // First and last value should be doubled... minor hack to prevent
@@ -69,12 +69,14 @@ class IRSensor {
    */
   float voltageToDist(float voltage);
 
- public:
+public:
   /**
    * @brief Initializes the IR sensor
    *
    */
   void init();
+
+  void init(const uint8_t pin);
 
   /**
    * @brief Reads the raw voltage from the IR sensor

@@ -1,8 +1,8 @@
 #include "main.h"
 
 // Mode of operation
-// #define Zombie
-#define Runner
+#define Zombie
+// #define Runner
 
 // Sanity checker
 #if (defined(Zombie) + defined(Runner) != 1)
@@ -10,34 +10,36 @@
 #endif
 
 #ifdef Zombie
-IRSensor IR_Left;
-IRSensor IR_Right;
-SonarSensor sonar;
-LineSensor lineSensor;
-zombieRomi romi(&IR_Left, &IR_Right, &sonar, &lineSensor, &chassis);
+zombieRomi romi = zombieRomi();
 PIDController wallFollowPID(4.0f, 0.0f, 0.0f);
+Romi32U4ButtonA buttonA;
+
+enum ROBOSTATE { IDLE, SEEKING, CHASING, TURNING, STOPPED };
+ROBOSTATE state = IDLE;
+
 #elif defined(Runner)
-
+IRSensor IR;
+SonarSensor sonar;
 #endif
 
-void setup() {
-  sonar.init();
-  IR.init();
+void setup() { Serial.begin(9600); }
 
-  Serial.begin(9600);
-}
-
-void loop() {}
-
-#elif defined(Zombie)
-switch (robot_state) {
-case LOST:
-  if (buttonA.getSingleDebouncedRelease()) {
-    robot_state = DRIVING;
-    chassis.resetDrivePID();
-    wallFollowPID.reset();
-    sensor.resetDistAvg();
+void loop() {
+#ifdef Zombie
+  switch (state) {
+  case IDLE:
+    if (buttonA.getSingleDebouncedRelease()) {
+      state = SEEKING;
+    }
+    break;
+  case SEEKING:
+    romi.followLine();
+    romi.detectSurvivorPosition();
+    if (romi.getOnLastKnownPosition()) {
+      state = CHASING;
+    }
+    break;
   }
-  break;
-}
+#elif defined(Runner)
 #endif
+}

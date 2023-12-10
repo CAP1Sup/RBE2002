@@ -1,20 +1,18 @@
 #include "zombieRomi.h"
 
 // Constructor implementation
-ZombieRomi::ZombieRomi() {
+zombieRomi::zombieRomi() {
   // Constructor body
   chassis.init();
-  irSensorLeft.init();
-  irSensorRight.init();
+  irSensorLeft.init(A0);
+  irSensorRight.init(A1);
   sonarSensor.init();
-  // TODO: Should this be here?
-  // lineSensor.init();
 
   // Initialize member variables, set up sensors, networking, etc.
 }
 
 // Receive target coordinates from MQTT server
-void ZombieRomi::receiveTargetCoordinates(float x, float y) {
+void zombieRomi::receiveTargetCoordinates(float x, float y) {
   // Implementation for receiving coordinates
   lastKnownX = x;
   lastKnownY = y;
@@ -25,17 +23,17 @@ void ZombieRomi::receiveTargetCoordinates(float x, float y) {
 void zombieRomi::followLine() {
   // Calculate the difference between readings from the two line sensors
   int difference =
-      lineSensor->getLeftLineValue() - lineSensor->getRightLineValue();
-  chassis->setTwist(SEEKING_FWD_SPEED * IN_CH, LINE_P * difference);
+      lineSensor.getLeftLineValue() - lineSensor.getRightLineValue();
+  chassis.setTwist(SEEKING_FWD_SPEED * IN_CH, LINE_P * difference);
 }
 
 // Detect survivor's position
-void ZombieRomi::detectSurvivorPosition() {
+void zombieRomi::detectSurvivorPosition() {
   // Implementation for detecting survivor's position
 }
 
 // Pursue the survivor
-void ZombieRomi::pursueSurvivor() {
+void zombieRomi::pursueSurvivor() {
   // Logic to pursue survivor
 }
 
@@ -44,27 +42,22 @@ bool zombieRomi::getOnLastKnownPosition() {
   return isOnLastKnownPosition;
 }
 
-// Move to the last known survivor's location
-void ZombieRomi::moveToLastKnownLocation() {
-  // Logic to move to last known location
-}
-
-bool ZombieRomi::onIntersection() {
+bool zombieRomi::onIntersection() {
   // Logic to determine if the robot is on an intersection
   return lineSensor.onCross();
 }
 
-float ZombieRomi::getSonarDistance() {
+float zombieRomi::getSonarDistance() {
   // Logic to get distance from sonar sensor
   return sonarSensor.getDistance();
 }
 
-float ZombieRomi::getIRLeftDistance() {
+float zombieRomi::getIRLeftDistance() {
   // Logic to get distance from left IR sensor
   return irSensorLeft.getDistance();
 }
 
-float ZombieRomi::getIRRightDistance() {
+float zombieRomi::getIRRightDistance() {
   // Logic to get distance from right IR sensor
   return irSensorRight.getDistance();
 }

@@ -3,6 +3,7 @@
 #include <Romi32U4.h>
 
 void IRSensor::init() { pinMode(IR_PIN, INPUT); }
+void IRSensor::init(const uint8_t pin) { pinMode(pin, INPUT); }
 
 float IRSensor::getRawVoltage() {
   return (5.0f * analogRead(IR_PIN)) / ADC_MAX_VALUE;

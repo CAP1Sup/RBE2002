@@ -1,5 +1,4 @@
 #pragma once
-
 #include "../../libraries/IRSensor.h"
 #include "../../libraries/LineSensor.h"
 #include "../../libraries/SonarSensor.h"
@@ -17,10 +16,10 @@
 #define IN_CH 2.54              // Inch to Centimeter conversion
 #define LINE_P 0.2              // Line P value
 
-class ZombieRomi {
+class zombieRomi {
 public:
   // Constructor with sensor, controller, and chassis pointers
-  ZombieRomi();
+  zombieRomi();
 
   // Function to receive target coordinates from MQTT server
   void receiveTargetCoordinates(float x, float y);
@@ -45,17 +44,15 @@ private:
   // Private member variables
   float lastKnownX;
   float lastKnownY;
-
-  float currentX;
   // Private member objects
-
+  Chassis chassis;
+  LineSensor lineSensor;
   IRSensor irSensorLeft;
   IRSensor irSensorRight;
   SonarSensor sonarSensor;
-  Chassis chassis;
-  LineSensor lineSensor;
 
   // Private member variables
+  float currentX;
   float currentY;
   float currentTheta;
 

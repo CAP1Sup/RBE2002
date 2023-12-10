@@ -33,6 +33,7 @@ void loop() {
 #ifdef Zombie
   switch (state) {
   case IDLE:
+    romi.printAllSensor();
     if (buttonA.getSingleDebouncedRelease()) {
       state = SEEKING;
     }

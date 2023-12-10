@@ -10,8 +10,8 @@
 #define ECHO_PIN 7
 #define LEFT_LINE_PIN A0
 #define RIGHT_LINE_PIN A1
-#define LEFT_IR_PIN A0
-#define RIGHT_IR_PIN A1
+#define LEFT_IR_PIN A4
+#define RIGHT_IR_PIN A3
 
 // Assuming necessary libraries for MQTT, networking, and sensor input are
 // included
@@ -52,6 +52,8 @@ public:
 
   bool survivorInfected();
 
+  void printAllSensor();
+
 private:
   // Private member variables
   float lastKnownX;
@@ -82,6 +84,10 @@ private:
   float getIRLeftDistance();
 
   float getIRRightDistance();
+
+  float getLeftLineValue();
+
+  float getRightLineValue();
 
   bool onIntersection();
 

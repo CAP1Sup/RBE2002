@@ -51,17 +51,27 @@ bool zombieRomi::onIntersection() {
 
 float zombieRomi::getSonarDistance() {
   // Logic to get distance from sonar sensor
-  return 0; // sonarSensor.getDistance();
+  return rangefinder->getDistance();
 }
 
 float zombieRomi::getIRLeftDistance() {
   // Logic to get distance from left IR sensor
-  return 0; // irSensorLeft.getDistance();
+  return irSensorLeft.getDistance();
 }
 
 float zombieRomi::getIRRightDistance() {
   // Logic to get distance from right IR sensor
-  return 0; // irSensorRight.getDistance();
+  return irSensorRight.getDistance();
+}
+
+void zombieRomi::printAllSensor() {
+  Serial.println("Sonar: " + String(getSonarDistance()));
+  Serial.println("IR Left: " + String(getIRLeftDistance()));
+  Serial.println("IR Right: " + String(getIRRightDistance()));
+  Serial.println("Line Left: " + String(getLeftLineValue()));
+  Serial.println("Line Right: " + String(getRightLineValue()));
+
+  // Logic to print all sensor readings
 }
 
 // Additional implementation details as needed...
@@ -102,3 +112,7 @@ bool zombieRomi::survivorInfected() {
   // Logic to determine if the survivor is infected
   return false;
 }
+
+float zombieRomi::getLeftLineValue() { return lineSensor.getLeftLineValue(); }
+
+float zombieRomi::getRightLineValue() { return lineSensor.getRightLineValue(); }

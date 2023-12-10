@@ -1,33 +1,16 @@
 #include "zombieRomi.h"
 
-// Constructor implementation
-zombieRomi::zombieRomi() {
-  // chassis.init();
-  //  rangefinder.init();
-  lineSensor.init();
-
+zombieRomi::zombieRomi(Chassis *chassis, Rangefinder *rangefinder) {
   // Constructor body
-  // chassis.init();
-  // irSensorLeft = IRDecoder(LEFT_IR_PIN);
-  // irSensorLeft.init();
-  // irSensorRight = IRDecoder(RIGHT_IR_PIN);
-  // irSensorRight.init();
-  // sonarSensor = Rangefinder(TRIG_PIN, ECHO_PIN);
-  // sonarSensor.init();
-}
 
-zombieRomi::zombieRomi(Chassis *chassis) {
-  // Constructor body
-  // chassis.init();
-  // irSensorLeft = IRDecoder(LEFT_IR_PIN);
-  // irSensorLeft.init();
-  // irSensorRight = IRDecoder(RIGHT_IR_PIN);
-  // irSensorRight.init();chassis
-  // sonarSensor = Rangefinder(TRIG_PIN, ECHO_PIN);
-  // sonarSensor.init();
-
-  lineSensor.init();
+  this->rangefinder = rangefinder;
   this->chassis = chassis;
+
+  irSensorLeft.init(LEFT_IR_PIN);
+  irSensorRight.init(RIGHT_IR_PIN);
+  rangefinder->init();
+  chassis->init();
+  lineSensor.init();
 }
 
 // Receive target coordinates from MQTT server

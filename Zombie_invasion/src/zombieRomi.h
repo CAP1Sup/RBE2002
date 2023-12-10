@@ -1,6 +1,8 @@
 #pragma once
+#include "IRSensor.h"
 #include "LineSensor.h"
 #include <Chassis.h>
+#include <IRdecoder.h>
 #include <Rangefinder.h>
 
 // Range finder pins
@@ -23,9 +25,7 @@
 class zombieRomi {
 public:
   // Constructor with sensor, controller, and chassis pointers
-  zombieRomi();
-
-  zombieRomi(Chassis *chassis);
+  zombieRomi(Chassis *chassis, Rangefinder *rangefinder);
 
   // Function to receive target coordinates from MQTT server
   void receiveTargetCoordinates(float x, float y);
@@ -61,10 +61,12 @@ private:
   float currentY;
 
   Chassis *chassis;
+  Rangefinder *rangefinder;
 
-  // Chassis bob = Chassis();
   // Rangefinder rangefinder = Rangefinder(TRIG_PIN, ECHO_PIN);
   LineSensor lineSensor = LineSensor(LEFT_LINE_PIN, RIGHT_LINE_PIN);
+  IRSensor irSensorLeft;
+  IRSensor irSensorRight;
 
   float currentTheta;
 

@@ -1,18 +1,18 @@
 #pragma once
-#include <Romi32U4.h>
+#include <Arduino.h>
 
-#define L_LINE_PIN A2 // Left line pin location
-#define R_LINE_PIN A3 // right line pin location
 #define WHT_THRES 500 // Value when sensor sees black
 
 class LineSensor {
+  uint8_t leftPin = 1;
+  uint8_t rightPin = 1;
+
   // Type definitions for turning direction
-  typedef enum { LEFT = 1, RIGHT = -1 } TURN_DIRECTION;
-  int leftLineValue, rightLineValue;
   bool onLine;
 
 public:
-  LineSensor();
+  LineSensor(uint8_t line1, uint8_t line2);
+  void init();
   int getLeftLineValue();
   int getRightLineValue();
   bool onCross();

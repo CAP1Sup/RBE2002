@@ -1,11 +1,15 @@
 #pragma once
-#include "../../libraries/IRSensor.h"
-#include "../../libraries/LineSensor.h"
-#include "../../libraries/SonarSensor.h"
-#include <Arduino.h>
+#include "LineSensor.h"
 #include <Chassis.h>
-#include <Romi32U4.h>
-#include <Wire.h>
+#include <Rangefinder.h>
+
+// Range finder pins
+#define TRIG_PIN 8
+#define ECHO_PIN 7
+#define LEFT_LINE_PIN A0
+#define RIGHT_LINE_PIN A1
+#define LEFT_IR_PIN A0
+#define RIGHT_IR_PIN A1
 
 // Assuming necessary libraries for MQTT, networking, and sensor input are
 // included
@@ -21,8 +25,7 @@ public:
   // Constructor with sensor, controller, and chassis pointers
   zombieRomi();
 
-  /* zombieRomi(Chassis *chassis, LineSensor *lineSensor, IRSensor
-   *irSensorLeft, IRSensor *irSensorRight, SonarSensor *sonarSensor); */
+  zombieRomi(Chassis *chassis);
 
   // Function to receive target coordinates from MQTT server
   void receiveTargetCoordinates(float x, float y);
@@ -54,21 +57,15 @@ private:
   float lastKnownX;
   float lastKnownY;
   // Private member objects
-  Chassis chassis;
-  LineSensor lineSensor;
-  IRSensor irSensorLeft;
-  IRSensor irSensorRight;
-  SonarSensor sonarSensor;
-
-  /* Chassis *chassis;
-  LineSensor *lineSensor;
-  IRSensor *irSensorLeft;
-  IRSensor *irSensorRight;
-  SonarSensor *sonarSensor; */
-
-  // Private member variables
   float currentX;
   float currentY;
+
+  Chassis *chassis;
+
+  // Chassis bob = Chassis();
+  // Rangefinder rangefinder = Rangefinder(TRIG_PIN, ECHO_PIN);
+  LineSensor lineSensor = LineSensor(LEFT_LINE_PIN, RIGHT_LINE_PIN);
+
   float currentTheta;
 
   bool isOnLastKnownPosition = false;

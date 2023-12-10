@@ -1,4 +1,5 @@
-#include "main.h"
+#include "zombieRomi.h"
+#include <Romi32U4.h>
 
 // Mode of operation
 #define Zombie
@@ -10,16 +11,10 @@
 #endif
 
 #ifdef Zombie
-PIDController wallFollowPID(4.0f, 0.0f, 0.0f);
-Romi32U4ButtonA buttonA;
-zombieRomi romi = zombieRomi();
-/* IRSensor leftIR;
-IRSensor rightIR;
-SonarSensor sonar;
-LineSensor lineSensor;
+// PIDController wallFollowPID(4.0f, 0.0f, 0.0f);
 Chassis chassis;
-zombieRomi romi = zombieRomi(&chassis, &lineSensor, &leftIR, &rightIR, &sonar);
-*/
+Romi32U4ButtonA buttonA;
+zombieRomi romi = zombieRomi(&chassis);
 enum ROBOSTATE { IDLE, SEEKING, CHASING, STOP };
 ROBOSTATE state = IDLE;
 
@@ -43,8 +38,8 @@ void loop() {
     }
     break;
   case SEEKING:
-    romi.followLine();
-    romi.detectSurvivorPosition();
+    romi.receiveTargetCoordinates(0, 0); // Add time delay here
+    romi.moveToLastKnownLocation();
     if (romi.survivorFound()) {
       state = CHASING;
     }
@@ -53,6 +48,8 @@ void loop() {
     romi.pursueSurvivor();
     if (romi.survivorInfected()) {
       state = STOP;
+    } else if (!romi.survivorFound()) {
+      state = SEEKING;
     }
     break;
   case STOP:

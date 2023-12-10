@@ -18,4 +18,4 @@ class LineSensor {
   bool onCross();
 };
 
-// #include "LineSensor.cpp"
+#include "LineSensor.cpp"

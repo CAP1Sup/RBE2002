@@ -1,20 +1,49 @@
-#include "zombieRomi.h"
+#include "Zombie.h"
 
-zombieRomi::zombieRomi(Chassis *chassis, Rangefinder *rangefinder) {
+#ifdef ZOMBIE
+
+Chassis chassis;
+
+Zombie::Zombie() {
   // Constructor body
-
-  this->rangefinder = rangefinder;
-  this->chassis = chassis;
-
   irSensorLeft.init(LEFT_IR_PIN);
   irSensorRight.init(RIGHT_IR_PIN);
-  rangefinder->init();
-  chassis->init();
+  sonar.init(TRIG_PIN, ECHO_PIN);
+  lineSensor = LineSensor(LEFT_LINE_PIN, RIGHT_LINE_PIN);
   lineSensor.init();
+  chassis.init();
+}
+
+void Zombie::run() {
+  switch (state) {
+    case IDLE:
+      if (buttonA.getSingleDebouncedRelease()) {
+        state = SEEKING;
+      }
+      break;
+    case SEEKING:
+      receiveTargetCoordinates(0, 0);  // Add time delay here
+      moveToLastKnownLocation();
+      if (survivorFound()) {
+        state = CHASING;
+      }
+      break;
+    case CHASING:
+      pursueSurvivor();
+      if (survivorInfected()) {
+        state = STOP;
+      } else if (!survivorFound()) {
+        state = SEEKING;
+      }
+      break;
+    case STOP:
+      stop();
+      break;
+  }
 }
 
 // Receive target coordinates from MQTT server
-void zombieRomi::receiveTargetCoordinates(float x, float y) {
+void Zombie::receiveTargetCoordinates(float x, float y) {
   // Implementation for receiving coordinates
   lastKnownX = x;
   lastKnownY = y;
@@ -22,49 +51,49 @@ void zombieRomi::receiveTargetCoordinates(float x, float y) {
 }
 
 // Follow a line
-void zombieRomi::followLine() {
+void Zombie::followLine() {
   // Calculate the difference between readings from the two line sensors
   int difference =
       lineSensor.getLeftLineValue() - lineSensor.getRightLineValue();
-  chassis->setTwist(SEEKING_FWD_SPEED * IN_CH, LINE_P * difference);
+  chassis.setTwist(SEEKING_FWD_SPEED * IN_CH, LINE_P * difference);
 }
 
 // Detect survivor's position
-void zombieRomi::detectSurvivorPosition() {
+void Zombie::detectSurvivorPosition() {
   // Implementation for detecting survivor's position
 }
 
 // Pursue the survivor
-void zombieRomi::pursueSurvivor() {
+void Zombie::pursueSurvivor() {
   // Logic to pursue survivor
 }
 
-bool zombieRomi::getOnLastKnownPosition() {
+bool Zombie::getOnLastKnownPosition() {
   // Logic to determine if the robot is on target
   return isOnLastKnownPosition;
 }
 
-bool zombieRomi::onIntersection() {
+bool Zombie::onIntersection() {
   // Logic to determine if the robot is on an intersection
   return lineSensor.onCross();
 }
 
-float zombieRomi::getSonarDistance() {
+float Zombie::getSonarDistance() {
   // Logic to get distance from sonar sensor
-  return rangefinder->getDistance();
+  return sonar.getDistance();
 }
 
-float zombieRomi::getIRLeftDistance() {
+float Zombie::getIRLeftDistance() {
   // Logic to get distance from left IR sensor
   return irSensorLeft.getDistance();
 }
 
-float zombieRomi::getIRRightDistance() {
+float Zombie::getIRRightDistance() {
   // Logic to get distance from right IR sensor
   return irSensorRight.getDistance();
 }
 
-void zombieRomi::printAllSensor() {
+void Zombie::printAllSensor() {
   Serial.println("Sonar: " + String(getSonarDistance()));
   Serial.println("IR Left: " + String(getIRLeftDistance()));
   Serial.println("IR Right: " + String(getIRRightDistance()));
@@ -75,7 +104,7 @@ void zombieRomi::printAllSensor() {
 }
 
 // Additional implementation details as needed...
-void zombieRomi::moveToLastKnownLocation() {
+void Zombie::moveToLastKnownLocation() {
   // bool isOnIntersection = onIntersection();
   // bool wallAhead = getSonarDistance() < 30.0f;
   // bool wallLeft = getIRLeftDistance() < WALL_DIS_THRESHOLD;
@@ -88,31 +117,33 @@ void zombieRomi::moveToLastKnownLocation() {
   }
 }
 
-int zombieRomi::getIntersectionCount() {
+int Zombie::getIntersectionCount() {
   // Logic to get intersection count
   return intersectionCount;
 }
 
-zombieRomi::turnDirection zombieRomi::getTurnDirection() {
+Zombie::turnDirection Zombie::getTurnDirection() {
   // Logic to determine which direction to turn
-  return zombieRomi::turnDirection::STRAIGHT;
+  return Zombie::turnDirection::STRAIGHT;
 }
 
-void zombieRomi::stop() {
+void Zombie::stop() {
   // Logic to stop the robot
-  chassis->setTwist(0.0f, 0.0f);
+  chassis.setTwist(0.0f, 0.0f);
 }
 
-bool zombieRomi::survivorFound() {
+bool Zombie::survivorFound() {
   // Logic to determine if the survivor has been found
   return false;
 }
 
-bool zombieRomi::survivorInfected() {
+bool Zombie::survivorInfected() {
   // Logic to determine if the survivor is infected
   return false;
 }
 
-float zombieRomi::getLeftLineValue() { return lineSensor.getLeftLineValue(); }
+float Zombie::getLeftLineValue() { return lineSensor.getLeftLineValue(); }
 
-float zombieRomi::getRightLineValue() { return lineSensor.getRightLineValue(); }
+float Zombie::getRightLineValue() { return lineSensor.getRightLineValue(); }
+
+#endif

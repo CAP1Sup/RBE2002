@@ -1,62 +1,22 @@
-#include "zombieRomi.h"
+#include "main.h"
 
-// Mode of operation
-#define Zombie
-// #define Runner
-
-// Sanity checker
-#if (defined(Zombie) + defined(Runner) != 1)
-#error "Please select exactly one mode of operation"
-#endif
-
-#ifdef Zombie
-// PIDController wallFollowPID(4.0f, 0.0f, 0.0f);
-Chassis chassis;
-Rangefinder rangefinder = Rangefinder(TRIG_PIN, ECHO_PIN);
-Romi32U4ButtonA buttonA;
-zombieRomi romi = zombieRomi(&chassis, &rangefinder);
-enum ROBOSTATE { IDLE, SEEKING, CHASING, STOP };
-ROBOSTATE state = IDLE;
-
-#elif defined(Runner)
-IRSensor IR;
-SonarSensor sonar;
+#ifdef ZOMBIE
+#include "Zombie.h"
+Zombie zombie = Zombie();
+#elif defined(SURVIVOR)
+#include "Survivor.h"
+Survivor survivor = Survivor();
 #endif
 
 void setup() {
-#ifdef Zombie
-#endif
-  Serial.begin(9600);
+  // No need to call init methods, constructors will do that
+  // Serial.begin(9600);
 }
 
 void loop() {
-#ifdef Zombie
-  switch (state) {
-  case IDLE:
-    if (buttonA.getSingleDebouncedRelease()) {
-      state = SEEKING;
-    }
-    break;
-  case SEEKING:
-    romi.receiveTargetCoordinates(0, 0); // Add time delay here
-    romi.moveToLastKnownLocation();
-    if (romi.survivorFound()) {
-      state = CHASING;
-    }
-    break;
-  case CHASING:
-    romi.pursueSurvivor();
-    if (romi.survivorInfected()) {
-      state = STOP;
-    } else if (!romi.survivorFound()) {
-      state = SEEKING;
-    }
-    break;
-  case STOP:
-    romi.stop();
-    break;
-  }
-
-#elif defined(Runner)
+#ifdef ZOMBIE
+  zombie.run();
+#elif defined(SURVIVOR)
+  survivor.run();
 #endif
 }

@@ -1,5 +1,4 @@
 #include "zombieRomi.h"
-#include <Romi32U4.h>
 
 // Mode of operation
 #define Zombie

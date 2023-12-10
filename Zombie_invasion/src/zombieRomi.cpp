@@ -10,6 +10,19 @@ zombieRomi::zombieRomi() {
 
   // Initialize member variables, set up sensors, networking, etc.
 }
+/*
+zombieRomi::zombieRomi(Chassis *chassis, LineSensor *lineSensor,
+                       IRSensor *irSensorLeft, IRSensor *irSensorRight,
+                       SonarSensor *sonarSensor) {
+  // Constructor body
+  this.chassis = chassis;
+  this.lineSensor = lineSensor;
+  this.irSensorLeft = irSensorLeft;
+  this.irSensorRight = irSensorRight;
+  this.sonarSensor = sonarSensor;
+
+  // Initialize member variables, set up sensors, networking, etc.
+} */
 
 // Receive target coordinates from MQTT server
 void zombieRomi::receiveTargetCoordinates(float x, float y) {
@@ -84,4 +97,19 @@ int zombieRomi::getIntersectionCount() {
 zombieRomi::turnDirection zombieRomi::getTurnDirection() {
   // Logic to determine which direction to turn
   return zombieRomi::turnDirection::STRAIGHT;
+}
+
+void zombieRomi::stop() {
+  // Logic to stop the robot
+  chassis.setTwist(0.0f, 0.0f);
+}
+
+bool zombieRomi::survivorFound() {
+  // Logic to determine if the survivor has been found
+  return false;
+}
+
+bool zombieRomi::survivorInfected() {
+  // Logic to determine if the survivor is infected
+  return false;
 }

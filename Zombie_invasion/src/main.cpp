@@ -10,11 +10,17 @@
 #endif
 
 #ifdef Zombie
-zombieRomi romi = zombieRomi();
 PIDController wallFollowPID(4.0f, 0.0f, 0.0f);
 Romi32U4ButtonA buttonA;
-
-enum ROBOSTATE { IDLE, SEEKING, CHASING, TURNING, STOPPED };
+zombieRomi romi = zombieRomi();
+/* IRSensor leftIR;
+IRSensor rightIR;
+SonarSensor sonar;
+LineSensor lineSensor;
+Chassis chassis;
+zombieRomi romi = zombieRomi(&chassis, &lineSensor, &leftIR, &rightIR, &sonar);
+*/
+enum ROBOSTATE { IDLE, SEEKING, CHASING, STOP };
 ROBOSTATE state = IDLE;
 
 #elif defined(Runner)
@@ -22,7 +28,11 @@ IRSensor IR;
 SonarSensor sonar;
 #endif
 
-void setup() { Serial.begin(9600); }
+void setup() {
+#ifdef Zombie
+#endif
+  Serial.begin(9600);
+}
 
 void loop() {
 #ifdef Zombie
@@ -35,11 +45,21 @@ void loop() {
   case SEEKING:
     romi.followLine();
     romi.detectSurvivorPosition();
-    if (romi.getOnLastKnownPosition()) {
+    if (romi.survivorFound()) {
       state = CHASING;
     }
     break;
+  case CHASING:
+    romi.pursueSurvivor();
+    if (romi.survivorInfected()) {
+      state = STOP;
+    }
+    break;
+  case STOP:
+    romi.stop();
+    break;
   }
+
 #elif defined(Runner)
 #endif
 }

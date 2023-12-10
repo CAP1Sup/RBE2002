@@ -21,6 +21,9 @@ public:
   // Constructor with sensor, controller, and chassis pointers
   zombieRomi();
 
+  /* zombieRomi(Chassis *chassis, LineSensor *lineSensor, IRSensor
+   *irSensorLeft, IRSensor *irSensorRight, SonarSensor *sonarSensor); */
+
   // Function to receive target coordinates from MQTT server
   void receiveTargetCoordinates(float x, float y);
 
@@ -40,6 +43,12 @@ public:
 
   int getIntersectionCount();
 
+  void stop();
+
+  bool survivorFound();
+
+  bool survivorInfected();
+
 private:
   // Private member variables
   float lastKnownX;
@@ -50,6 +59,12 @@ private:
   IRSensor irSensorLeft;
   IRSensor irSensorRight;
   SonarSensor sonarSensor;
+
+  /* Chassis *chassis;
+  LineSensor *lineSensor;
+  IRSensor *irSensorLeft;
+  IRSensor *irSensorRight;
+  SonarSensor *sonarSensor; */
 
   // Private member variables
   float currentX;

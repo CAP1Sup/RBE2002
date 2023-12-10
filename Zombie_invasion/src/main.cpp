@@ -14,8 +14,6 @@
 // PIDController wallFollowPID(4.0f, 0.0f, 0.0f);
 Chassis chassis;
 Rangefinder rangefinder = Rangefinder(TRIG_PIN, ECHO_PIN);
-IRDecoder irSensorLeft = IRDecoder(LEFT_IR_PIN);
-IRDecoder irSensorRight = IRDecoder(RIGHT_IR_PIN);
 Romi32U4ButtonA buttonA;
 zombieRomi romi = zombieRomi(&chassis, &rangefinder);
 enum ROBOSTATE { IDLE, SEEKING, CHASING, STOP };

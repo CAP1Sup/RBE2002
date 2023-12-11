@@ -1,9 +1,8 @@
 #pragma once
 #include <Romi32U4.h>
 
-#define IR_PIN A0
 #define IR_TABLE_SIZE 37
-#define IR_AVG_SAMPLES 50
+#define IR_AVG_SAMPLES 10
 #define IR_MIN_SAMPLE_PERIOD 10
 
 #define ADC_MAX_VALUE 1023.0f
@@ -59,6 +58,8 @@ class IRSensor {
   uint8_t totalDistValues = 0;
   uint32_t lastDistSampleTime = 0;
 
+  uint8_t pin;
+
   /**
    * @brief Linearly interpolates the input voltage to a distance from the
    * IR sensor
@@ -73,9 +74,7 @@ class IRSensor {
    * @brief Initializes the IR sensor
    *
    */
-  void init();
-
-  void init(const uint8_t pin);
+  void init(uint8_t pin);
 
   /**
    * @brief Reads the raw voltage from the IR sensor

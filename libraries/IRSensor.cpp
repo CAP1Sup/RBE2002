@@ -1,10 +1,12 @@
 #include "IRSensor.h"
 
-void IRSensor::init() { pinMode(IR_PIN, INPUT); }
-void IRSensor::init(const uint8_t pin) { pinMode(pin, INPUT); }
+void IRSensor::init(uint8_t pin) {
+  this->pin = pin;
+  pinMode(pin, INPUT);
+}
 
 float IRSensor::getRawVoltage() {
-  return (5.0f * analogRead(IR_PIN)) / ADC_MAX_VALUE;
+  return (5.0f * analogRead(pin)) / ADC_MAX_VALUE;
 }
 
 float IRSensor::voltageToDist(float voltage) {

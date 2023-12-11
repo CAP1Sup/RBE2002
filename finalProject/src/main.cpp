@@ -19,4 +19,5 @@ void loop() {
 #elif defined(SURVIVOR)
   survivor.run();
 #endif
+  delay(20);
 }

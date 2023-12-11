@@ -17,24 +17,24 @@
 #include "SonarSensor.h"
 
 // Range finder pins
-#define TRIG_PIN 8
-#define ECHO_PIN 7
+#define TRIG_PIN 12
+#define ECHO_PIN 11
 #define LEFT_LINE_PIN A0
-#define RIGHT_LINE_PIN A1
+#define RIGHT_LINE_PIN A2
 #define LEFT_IR_PIN A4
 #define RIGHT_IR_PIN A3
 
 // Assuming necessary libraries for MQTT, networking, and sensor input are
 // included
-#define WALL_DIS_THRESHOLD 30.0  // mm
-#define SEEKING_FWD_SPEED 25     // in/s
-#define TURN_SPEED 150           // deg/s
-#define SEARCH_EFFORT 80         // Motor effort
-#define IN_CH 2.54               // Inch to Centimeter conversion
-#define LINE_P 0.2               // Line P value
+#define WALL_DIS_THRESHOLD 30.0 // mm
+#define SEEKING_FWD_SPEED 25    // in/s
+#define TURN_SPEED 150          // deg/s
+#define SEARCH_EFFORT 80        // Motor effort
+#define IN_CH 2.54              // Inch to Centimeter conversion
+#define LINE_P 0.2              // Line P value
 
 class Zombie {
- public:
+public:
   // Constructor with sensor, controller, and chassis pointers
   Zombie();
 
@@ -68,7 +68,7 @@ class Zombie {
 
   void printAllSensor();
 
- private:
+private:
   // Robot state
   enum RobotState { IDLE, SEEKING, CHASING, STOP };
   RobotState state = IDLE;
@@ -81,7 +81,6 @@ class Zombie {
   float currentY;
 
   Romi32U4ButtonA buttonA;
-
   SonarSensor sonar;
   LineSensor lineSensor = LineSensor(LEFT_LINE_PIN, RIGHT_LINE_PIN);
   IRSensor irSensorLeft;

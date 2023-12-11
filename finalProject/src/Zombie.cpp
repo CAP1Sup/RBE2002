@@ -3,42 +3,47 @@
 #ifdef ZOMBIE
 
 Chassis chassis;
+Rangefinder rangefinder(ECHO_PIN, TRIG_PIN);
+// SonarSensor sonar;
 
 Zombie::Zombie() {
   // Constructor body
   irSensorLeft.init(LEFT_IR_PIN);
   irSensorRight.init(RIGHT_IR_PIN);
-  sonar.init(TRIG_PIN, ECHO_PIN);
+  // sonar.init(TRIG_PIN, ECHO_PIN);
+  rangefinder.init();
   lineSensor = LineSensor(LEFT_LINE_PIN, RIGHT_LINE_PIN);
   lineSensor.init();
   chassis.init();
 }
 
 void Zombie::run() {
+  rangefinder.init();
+  printAllSensor();
   switch (state) {
-    case IDLE:
-      if (buttonA.getSingleDebouncedRelease()) {
-        state = SEEKING;
-      }
-      break;
-    case SEEKING:
-      receiveTargetCoordinates(0, 0);  // Add time delay here
-      moveToLastKnownLocation();
-      if (survivorFound()) {
-        state = CHASING;
-      }
-      break;
-    case CHASING:
-      pursueSurvivor();
-      if (survivorInfected()) {
-        state = STOP;
-      } else if (!survivorFound()) {
-        state = SEEKING;
-      }
-      break;
-    case STOP:
-      stop();
-      break;
+  case IDLE:
+    if (buttonA.getSingleDebouncedRelease()) {
+      state = SEEKING;
+    }
+    break;
+  case SEEKING:
+    receiveTargetCoordinates(0, 0); // Add time delay here
+    moveToLastKnownLocation();
+    if (survivorFound()) {
+      state = CHASING;
+    }
+    break;
+  case CHASING:
+    pursueSurvivor();
+    if (survivorInfected()) {
+      state = STOP;
+    } else if (!survivorFound()) {
+      state = SEEKING;
+    }
+    break;
+  case STOP:
+    stop();
+    break;
   }
 }
 
@@ -80,17 +85,17 @@ bool Zombie::onIntersection() {
 
 float Zombie::getSonarDistance() {
   // Logic to get distance from sonar sensor
-  return sonar.getDistance();
+  return rangefinder.getDistance();
 }
 
 float Zombie::getIRLeftDistance() {
   // Logic to get distance from left IR sensor
-  return irSensorLeft.getDistance();
+  return irSensorLeft.getAvgDistance();
 }
 
 float Zombie::getIRRightDistance() {
   // Logic to get distance from right IR sensor
-  return irSensorRight.getDistance();
+  return irSensorRight.getAvgDistance();
 }
 
 void Zombie::printAllSensor() {

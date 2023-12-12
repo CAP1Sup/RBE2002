@@ -10,17 +10,21 @@ Zombie::Zombie() {
   // Constructor body
   irSensorLeft.init(LEFT_IR_PIN);
   irSensorRight.init(RIGHT_IR_PIN);
-  // sonar.init(TRIG_PIN, ECHO_PIN);
   rangefinder.init();
   lineSensor = LineSensor(LEFT_LINE_PIN, RIGHT_LINE_PIN);
   lineSensor.init();
+  lineSensor.setThreshold(LINE_THRESHOLD);
   chassis.init();
+  maze = Maze(MAX_WIDTH, MAX_HEIGHT);
 }
 
 void Zombie::run() {
-  rangefinder.init();
   printAllSensor();
   switch (state) {
+  case DEBUG:
+    // Debugging code
+    recordIntersection();
+    break;
   case IDLE:
     if (buttonA.getSingleDebouncedRelease()) {
       state = SEEKING;
@@ -85,7 +89,7 @@ bool Zombie::onIntersection() {
 
 float Zombie::getSonarDistance() {
   // Logic to get distance from sonar sensor
-  return rangefinder.getDistance();
+  return rangefinder.getDistance() * 10;
 }
 
 float Zombie::getIRLeftDistance() {
@@ -110,10 +114,7 @@ void Zombie::printAllSensor() {
 
 // Additional implementation details as needed...
 void Zombie::moveToLastKnownLocation() {
-  // bool isOnIntersection = onIntersection();
-  // bool wallAhead = getSonarDistance() < 30.0f;
-  // bool wallLeft = getIRLeftDistance() < WALL_DIS_THRESHOLD;
-  // bool wallRight = getIRRightDistance() < WALL_DIS_THRESHOLD;
+
   bool onTargetX = abs(currentX - lastKnownX) > 0.5f;
   bool onTargetY = abs(currentY - lastKnownY) > 0.5f;
 
@@ -137,12 +138,12 @@ void Zombie::stop() {
   chassis.setTwist(0.0f, 0.0f);
 }
 
-bool Zombie::survivorFound() {
+bool Zombie::survivorFound() { // IMPLEMENT THIS
   // Logic to determine if the survivor has been found
   return false;
 }
 
-bool Zombie::survivorInfected() {
+bool Zombie::survivorInfected() { // IMPLEMENT THIS
   // Logic to determine if the survivor is infected
   return false;
 }
@@ -150,5 +151,77 @@ bool Zombie::survivorInfected() {
 float Zombie::getLeftLineValue() { return lineSensor.getLeftLineValue(); }
 
 float Zombie::getRightLineValue() { return lineSensor.getRightLineValue(); }
+
+void Zombie::recordIntersection() {
+  bool isOnIntersection = onIntersection();
+  bool wallAhead = getSonarDistance() < WALL_SONAR_DIS_THRESHOLD;
+  bool wallLeft = getIRLeftDistance() < WALL_IR_DIS_THRESHOLD;
+  bool wallRight = getIRRightDistance() < WALL_IR_DIS_THRESHOLD;
+
+  Serial.println("isOnIntersection: " + String(isOnIntersection));
+  Serial.println("wallAhead: " + String(wallAhead));
+  Serial.println("wallLeft: " + String(wallLeft));
+  Serial.println("wallRight: " + String(wallRight));
+
+  if (fabs(0 - currentTheta) < THETA_THESHOLD) {
+    if (isOnIntersection) {
+      if (wallAhead) {
+        maze.setWall(currentXIndex, currentYIndex, true);
+      }
+      if (wallLeft) {
+        maze.setWall(currentXIndex - 1, currentYIndex, true);
+      }
+      if (wallRight) {
+        maze.setWall(currentXIndex + 1, currentYIndex, true);
+      }
+    }
+  } else if (fabs(90 - currentTheta) < THETA_THESHOLD) {
+    if (isOnIntersection) {
+      if (wallAhead) {
+        maze.setWall(currentXIndex, currentYIndex, true);
+      }
+      if (wallLeft) {
+        maze.setWall(currentXIndex, currentYIndex - 1, true);
+      }
+      if (wallRight) {
+        maze.setWall(currentXIndex, currentYIndex + 1, true);
+      }
+    }
+  } else if (fabs(180 - currentTheta) < THETA_THESHOLD) {
+    if (isOnIntersection) {
+      if (wallAhead) {
+        maze.setWall(currentXIndex, currentYIndex, true);
+      }
+      if (wallLeft) {
+        maze.setWall(currentXIndex + 1, currentYIndex, true);
+      }
+      if (wallRight) {
+        maze.setWall(currentXIndex - 1, currentYIndex, true);
+      }
+    }
+  } else if (fabs(270 - currentTheta) < THETA_THESHOLD) {
+    if (isOnIntersection) {
+      if (wallAhead) {
+        maze.setWall(currentXIndex, currentYIndex, true);
+      }
+      if (wallLeft) {
+        maze.setWall(currentXIndex, currentYIndex + 1, true);
+      }
+      if (wallRight) {
+        maze.setWall(currentXIndex, currentYIndex - 1, true);
+      }
+    }
+  }
+
+  intersectionCount++;
+}
+
+void Zombie::getIntersectionCoordinates() {
+  // Logic to get intersection coordinates
+  currentX = 0;
+  currentY = 0;
+  currentXIndex = 0;
+  currentYIndex = 0; // IMPLEMENT
+}
 
 #endif

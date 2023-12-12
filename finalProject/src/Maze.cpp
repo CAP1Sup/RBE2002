@@ -1,27 +1,27 @@
 #include "Maze.h"
-Maze::Maze() {
-  // Initialize all intersections to have no walls
-  for (int x = 0; x < NUM_INTERSECTIONS_X; ++x) {
-    for (int y = 0; y < NUM_INTERSECTIONS_Y; ++y) {
-      intersections[x][y] = {false, false, false};
+
+Maze::Maze(int width, int height) : width(width), height(height) {
+  // Initialize all cells to false (no wall)
+  for (int x = 0; x < MAX_WIDTH; x++) {
+    for (int y = 0; y < MAX_HEIGHT; y++) {
+      grid[x][y] = false;
     }
   }
 }
 
-void Maze::setWalls(int intersectionX, int intersectionY, bool left, bool right,
-                    bool front) {
-  if (intersectionX >= 0 && intersectionX < NUM_INTERSECTIONS_X &&
-      intersectionY >= 0 && intersectionY < NUM_INTERSECTIONS_Y) {
-    intersections[intersectionX][intersectionY].wallLeft = left;
-    intersections[intersectionX][intersectionY].wallRight = right;
-    intersections[intersectionX][intersectionY].wallFront = front;
+bool Maze::isWall(int x, int y) const {
+  if (x >= 0 && x < width && y >= 0 && y < height) {
+    return grid[x][y];
+  }
+  return false; // Out of bounds
+}
+
+void Maze::setWall(int x, int y, bool hasWall) {
+  if (x >= 0 && x < width && y >= 0 && y < height) {
+    grid[x][y] = hasWall;
   }
 }
 
-Intersection Maze::getIntersectionInfo(int intersectionX, int intersectionY) {
-  if (intersectionX >= 0 && intersectionX < NUM_INTERSECTIONS_X &&
-      intersectionY >= 0 && intersectionY < NUM_INTERSECTIONS_Y) {
-    return intersections[intersectionX][intersectionY];
-  }
-  return {false, false, false}; // Return default if out of bounds
-}
+int Maze::getWidth() const { return width; }
+
+int Maze::getHeight() const { return height; }

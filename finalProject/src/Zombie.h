@@ -14,6 +14,7 @@
 
 #include "IRSensor.h"
 #include "LineSensor.h"
+#include "MazeSolver.h"
 #include "SonarSensor.h"
 
 // Range finder pins
@@ -26,12 +27,16 @@
 
 // Assuming necessary libraries for MQTT, networking, and sensor input are
 // included
-#define WALL_DIS_THRESHOLD 30.0 // mm
-#define SEEKING_FWD_SPEED 25    // in/s
-#define TURN_SPEED 150          // deg/s
-#define SEARCH_EFFORT 80        // Motor effort
-#define IN_CH 2.54              // Inch to Centimeter conversion
-#define LINE_P 0.2              // Line P value
+#define WALL_IR_DIS_THRESHOLD 30.0     // mm
+#define WALL_SONAR_DIS_THRESHOLD 200.0 // mm
+#define THETA_THESHOLD 10              // deg
+#define LINE_THRESHOLD 50              // 0-1023
+#define SEEKING_FWD_SPEED 25           // in/s
+#define TURN_SPEED 150                 // deg/s
+#define SEARCH_EFFORT 80               // Motor effort
+
+#define IN_CH 2.54 // Inch to Centimeter conversion
+#define LINE_P 0.2 // Line P value
 
 class Zombie {
 public:
@@ -70,8 +75,8 @@ public:
 
 private:
   // Robot state
-  enum RobotState { IDLE, SEEKING, CHASING, STOP };
-  RobotState state = IDLE;
+  enum RobotState { IDLE, SEEKING, CHASING, STOP, DEBUG };
+  RobotState state = DEBUG;
 
   // Private member variables
   float lastKnownX;
@@ -80,13 +85,18 @@ private:
   float currentX;
   float currentY;
 
+  int currentXIndex = 0; // Update this to the current index of the x coordinate
+  int currentYIndex = 0;
+
   Romi32U4ButtonA buttonA;
   SonarSensor sonar;
   LineSensor lineSensor = LineSensor(LEFT_LINE_PIN, RIGHT_LINE_PIN);
   IRSensor irSensorLeft;
   IRSensor irSensorRight;
 
-  float currentTheta;
+  Maze maze;
+
+  float currentTheta = 0;
 
   bool isOnLastKnownPosition = false;
 
@@ -107,7 +117,11 @@ private:
 
   bool onIntersection();
 
+  void recordIntersection();
+
   turnDirection getTurnDirection();
+
+  void getIntersectionCoordinates();
 };
 
 #endif

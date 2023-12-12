@@ -1,21 +1,24 @@
-const int NUM_INTERSECTIONS_X = 6;
-const int NUM_INTERSECTIONS_Y = 3;
+#pragma once
 
-struct Intersection {
-  bool wallLeft;
-  bool wallRight;
-  bool wallFront;
-};
+const int MAX_WIDTH = 13; // Define maximum dimensions for the maze
+const int MAX_HEIGHT = 7;
 
 class Maze {
 public:
-  Maze();
+  Maze(){};
+  Maze(int width, int height);
 
-  void setWalls(int intersectionX, int intersectionY, bool left, bool right,
-                bool front);
+  bool isWall(int x, int y) const;
+  void setWall(int x, int y, bool hasWall);
 
-  Intersection getIntersectionInfo(int intersectionX, int intersectionY);
+  int getWidth() const;
+  int getHeight() const;
+
+  int getX();
+  int getY();
 
 private:
-  Intersection intersections[NUM_INTERSECTIONS_X][NUM_INTERSECTIONS_Y];
+  bool grid[MAX_WIDTH][MAX_HEIGHT];
+  int width;
+  int height;
 };

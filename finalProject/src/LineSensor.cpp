@@ -15,8 +15,10 @@ int LineSensor::getLeftLineValue() { return analogRead(leftPin); }
 
 int LineSensor::getRightLineValue() { return analogRead(rightPin); }
 
+void LineSensor::setThreshold(int threshold) { THRESHOLD = threshold; }
+
 bool LineSensor::onCross() {
-  if (getLeftLineValue() > WHT_THRES && getRightLineValue() > WHT_THRES) {
+  if (getLeftLineValue() < THRESHOLD && getRightLineValue() < THRESHOLD) {
     return true;
   } else {
     return false;

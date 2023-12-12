@@ -1,13 +1,16 @@
 #pragma once
+
+#include <stdint.h>
+
 class Node {
 public:
-  int x, y;
+  uint8_t x, y;
   float cost;      // Cost to reach this node
   float heuristic; // Heuristic cost from this node to goal
   Node *parent;    // Parent node in the path
 
   Node();
-  Node(int x, int y);
+  Node(uint8_t x, uint8_t y);
 
   float totalCost() const;
 

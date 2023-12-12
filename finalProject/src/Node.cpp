@@ -1,6 +1,7 @@
 #include "Node.h"
 Node::Node() : x(0), y(0), cost(0), heuristic(0), parent(nullptr) {}
-Node::Node(int x, int y) : x(x), y(y), cost(0), heuristic(0), parent(nullptr) {}
+Node::Node(uint8_t x, uint8_t y)
+    : x(x), y(y), cost(0), heuristic(0), parent(nullptr) {}
 
 float Node::totalCost() const { return cost + heuristic; }
 

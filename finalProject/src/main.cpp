@@ -10,8 +10,13 @@ Survivor survivor = Survivor();
 
 void setup() {
   // No need to call init methods, constructors will do that
-  Serial.begin(115200);
-  rangefinder.init();
+  // Serial.begin(115200);
+  Serial.begin(9600);
+#ifdef ZOMBIE
+  zombie.init();
+#elif defined(SURVIVOR)
+  survivor.init();
+#endif
 }
 
 void loop() {

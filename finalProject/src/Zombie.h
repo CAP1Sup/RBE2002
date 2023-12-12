@@ -5,7 +5,6 @@
 // Only compile this class if the ZOMBIE macro is defined
 #ifdef ZOMBIE
 
-#include <Arduino.h>
 #include <Chassis.h>
 #include <IRdecoder.h>
 #include <PIDcontroller.h>
@@ -27,21 +26,21 @@
 
 // Assuming necessary libraries for MQTT, networking, and sensor input are
 // included
-#define WALL_IR_DIS_THRESHOLD 30.0     // mm
-#define WALL_SONAR_DIS_THRESHOLD 200.0 // mm
-#define THETA_THESHOLD 10              // deg
-#define LINE_THRESHOLD 50              // 0-1023
-#define SEEKING_FWD_SPEED 25           // in/s
-#define TURN_SPEED 150                 // deg/s
-#define SEARCH_EFFORT 80               // Motor effort
+#define WALL_IR_DIS_THRESHOLD 30.0    // mm
+#define WALL_SONAR_DIS_THRESHOLD 20.0 // cm
+#define THETA_THESHOLD 10             // deg
+#define LINE_THRESHOLD 50             // 0-1023
+#define SEEKING_FWD_SPEED 25          // in/s
+#define TURN_SPEED 150                // deg/s
+#define SEARCH_EFFORT 80              // Motor effort
 
 #define IN_CH 2.54 // Inch to Centimeter conversion
 #define LINE_P 0.2 // Line P value
 
 class Zombie {
 public:
-  // Constructor with sensor, controller, and chassis pointers
-  Zombie();
+  // Function to initialize the zombie Romi
+  void init();
 
   // Function to run the zombie Romi
   void run();
@@ -63,7 +62,7 @@ public:
 
   bool getOnLastKnownPosition();
 
-  int getIntersectionCount();
+  uint8_t getIntersectionCount();
 
   void stop();
 
@@ -75,17 +74,22 @@ public:
 
   void readMQTT();
 
+  void getPath(); // Make this private later
+
 private:
   // Robot state
   enum RobotState { IDLE, SEEKING, CHASING, STOP, DEBUG };
   RobotState state = DEBUG;
 
   // Private member variables
-  float lastKnownX = 6;
-  float lastKnownY = 3;
+  float lastKnownX = 1.0;
+  float lastKnownY = 1.0;
   // Private member objects
-  float currentX = 0;
-  float currentY = 0;
+  float currentX = 0.0;
+  float currentY = 0.0;
+
+  uint8_t lastClosestIntersectionIndex_X = 1;
+  uint8_t lastClosestIntersectionIndex_Y = 1;
 
   int currentXIndex = 0; // Update this to the current index of the x coordinate
   int currentYIndex = 0;
@@ -109,7 +113,7 @@ private:
 
   bool isOnLastKnownPosition = false;
 
-  int intersectionCount = 0;
+  uint8_t intersectionCount = 0;
 
   typedef enum { STRAIGHT, LEFT, RIGHT } turnDirection;
 
@@ -131,8 +135,6 @@ private:
   turnDirection getTurnDirection();
 
   void getIntersectionCoordinates();
-
-  void getPath();
 };
 
 #endif

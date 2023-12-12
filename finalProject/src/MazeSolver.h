@@ -1,6 +1,7 @@
 #pragma once
 #include "Maze.h"
 #include "Node.h"
+#include <Arduino.h>
 #include <math.h>
 
 const int MAX_NODES = MAX_HEIGHT * MAX_WIDTH;
@@ -24,5 +25,4 @@ private:
   float calculateHeuristic(const Node &a, const Node &b);
   float edgeCost(const Node &a, const Node &b);
   void reconstructPath(Node *node, Node path[], int &pathLength);
-  // Additional helper methods as needed
 };

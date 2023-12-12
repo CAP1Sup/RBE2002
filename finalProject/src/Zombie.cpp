@@ -6,7 +6,7 @@ Chassis chassis;
 Rangefinder rangefinder(ECHO_PIN, TRIG_PIN);
 // SonarSensor sonar;
 
-Zombie::Zombie() : mazeSolver(maze) {
+void Zombie::init() {
   // Constructor body
   irSensorLeft.init(LEFT_IR_PIN);
   irSensorRight.init(RIGHT_IR_PIN);
@@ -15,6 +15,7 @@ Zombie::Zombie() : mazeSolver(maze) {
   lineSensor.init();
   lineSensor.setThreshold(LINE_THRESHOLD);
   chassis.init();
+  rangefinder.init();
   maze = Maze(MAX_WIDTH, MAX_HEIGHT);
 }
 
@@ -22,9 +23,9 @@ void Zombie::run() {
   switch (state) {
   case DEBUG:
     // Debugging code
-    Serial.println("Debugging");
+    // Serial.println(F("Debugging"));
     getPath();
-    //  Serial.println("Current X: " + String(currentX));
+    //     Serial.println("Current X: " + String(currentX));
     break;
   case IDLE:
     if (buttonA.getSingleDebouncedRelease()) {
@@ -90,7 +91,7 @@ bool Zombie::onIntersection() {
 
 float Zombie::getSonarDistance() {
   // Logic to get distance from sonar sensor
-  return rangefinder.getDistance() * 10;
+  return rangefinder.getDistance();
 }
 
 float Zombie::getIRLeftDistance() {
@@ -124,7 +125,7 @@ void Zombie::moveToLastKnownLocation() {
   }
 }
 
-int Zombie::getIntersectionCount() {
+uint8_t Zombie::getIntersectionCount() {
   // Logic to get intersection count
   return intersectionCount;
 }
@@ -246,14 +247,19 @@ void Zombie::readMQTT() {
 
 void Zombie::getPath() {
   // Logic to get path
-  Node path[30];
+  Node path[91];
   int pathLength = 0;
-  Serial.println("Before findPath");
-  mazeSolver.findPath(Node(currentXIndex, currentYIndex),
-                      Node(lastKnownX, lastKnownY), path, pathLength);
-  for (int i = 0; i < pathLength; i++) {
-    Serial.println("Path: " + String(path[i].x) + ", " + String(path[i].y));
-  }
+  bool pathFound = mazeSolver.findPath(
+      Node(currentXIndex, currentYIndex),
+      Node(lastClosestIntersectionIndex_X, lastClosestIntersectionIndex_Y),
+      path, pathLength);
+  Serial.print("Path found: ");
+  Serial.println(pathFound ? "Yes" : "No");
+  // Serial.print("Path length: ");
+  // Serial.println(pathLength);
+  // for (int i = 0; i < pathLength; i++) {
+  //   Serial.println("Path: " + String(path[i].x) + ", " + String(path[i].y));
+  // }
 }
 
 #endif

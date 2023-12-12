@@ -1,7 +1,7 @@
 #pragma once
 
-const int MAX_WIDTH = 6; // Define maximum dimensions for the maze
-const int MAX_HEIGHT = 3;
+const int MAX_WIDTH = 13; // Define maximum dimensions for the maze
+const int MAX_HEIGHT = 7;
 
 class Maze {
 public:

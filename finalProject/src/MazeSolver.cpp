@@ -32,14 +32,19 @@ bool MazeSolver::findPath(Node start, Node goal, Node path[], int &pathLength) {
 
     Node neighbors[MAX_NEIGHBORS];
     int numNeighbors = getNeighbors(current, neighbors);
+    Serial.print("Num neighbors: ");
+    Serial.println(numNeighbors);
+    Serial.flush();
+    delay(10);
     for (int i = 0; i < numNeighbors; ++i) {
       Node &neighbor = neighbors[i];
-      if (!visited[neighbor.x][neighbor.y]) {
-        neighbor.cost = current.cost + edgeCost(current, neighbor);
-        neighbor.heuristic = calculateHeuristic(neighbor, goal);
-        neighbor.parent = new Node(current); // Consider memory management
-        addToOpenList(neighbor);
-      }
+      // if (!visited[neighbor.x][neighbor.y]) {
+      //   neighbor.cost = current.cost + 1;
+      //   neighbor.heuristic = calculateHeuristic(neighbor, goal);
+      //   neighbor.parent = new Node(current); // Consider memory management
+      //   addToOpenList(neighbor);
+      // }
+      delay(10);
     }
   }
 
@@ -84,31 +89,35 @@ float MazeSolver::calculateHeuristic(const Node &a, const Node &b) {
   return fabs(a.x - b.x) + fabs(a.y - b.y);
 }
 
-float MazeSolver::edgeCost(const Node &a, const Node &b) {
-  // Assuming a simple cost model - can be modified
-  return 1.0;
-}
-
 int MazeSolver::getNeighbors(const Node &node, Node neighbors[]) {
-  int count = 0;
-
+  uint8_t count = 0;
   // Check Up
   if (node.y > 0 && !maze.isWall(node.x, node.y - 1)) {
+    Serial.println("Up");
     neighbors[count++] = Node(node.x, node.y - 1);
   }
   // Check Down
   if (node.y < maze.getHeight() - 1 && !maze.isWall(node.x, node.y + 1)) {
+    Serial.println("Down");
     neighbors[count++] = Node(node.x, node.y + 1);
   }
   // Check Left
   if (node.x > 0 && !maze.isWall(node.x - 1, node.y)) {
+    Serial.println("Left");
     neighbors[count++] = Node(node.x - 1, node.y);
   }
   // Check Right
+  // Check Right
+  Serial.print("Check Right: ");
+  Serial.print("x+1 = ");
+  Serial.print(node.x + 1);
+  Serial.print(", y = ");
+  Serial.println(node.y);
+  Serial.println(node.x < maze.getWidth() - 1);
   if (node.x < maze.getWidth() - 1 && !maze.isWall(node.x + 1, node.y)) {
+    Serial.println("Right");
     neighbors[count++] = Node(node.x + 1, node.y);
   }
-
   return count; // Number of neighbors added
 }
 

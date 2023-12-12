@@ -12,12 +12,12 @@ float IRSensor::getRawVoltage() {
 float IRSensor::voltageToDist(float voltage) {
   // Loop through the table to find the correct range
   for (int i = 1; i < IR_TABLE_SIZE; i++) {
-    if (voltage > interpTable[i][VOLTAGE]) {
+    if (voltage > voltages[i]) {
       // Found the range, interpolate
-      float voltage1 = interpTable[i - 1][VOLTAGE];
-      float voltage2 = interpTable[i][VOLTAGE];
-      float dist1 = interpTable[i - 1][DIST];
-      float dist2 = interpTable[i][DIST];
+      float voltage1 = voltages[i - 1];
+      float voltage2 = voltages[i];
+      float dist1 = distances[i - 1];
+      float dist2 = distances[i];
       return dist1 +
              (dist2 - dist1) * (voltage - voltage1) / (voltage2 - voltage1);
     }

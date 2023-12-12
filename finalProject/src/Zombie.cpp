@@ -19,11 +19,12 @@ Zombie::Zombie() : mazeSolver(maze) {
 }
 
 void Zombie::run() {
-  printAllSensor();
   switch (state) {
   case DEBUG:
     // Debugging code
-    recordIntersection();
+    Serial.println("Debugging");
+    getPath();
+    //  Serial.println("Current X: " + String(currentX));
     break;
   case IDLE:
     if (buttonA.getSingleDebouncedRelease()) {
@@ -222,6 +223,37 @@ void Zombie::getIntersectionCoordinates() {
   currentY = 0;
   currentXIndex = 0;
   currentYIndex = 0; // IMPLEMENT
+}
+
+void Zombie::readMQTT() {
+  if (Serial.available() > 0) {
+    String receivedData =
+        Serial.readStringUntil('\n'); // Read the incoming data
+    int separatorIndex = receivedData.indexOf(':');
+
+    if (separatorIndex != -1) {
+      String topic = receivedData.substring(0, separatorIndex);
+      String message = receivedData.substring(separatorIndex + 1);
+
+      // Now, you have the topic and message separated
+      Serial.println("Topic: " + topic + ", Message: " + message);
+
+      // You can add further processing based on the topic and message
+      // For example, if(topic == "irDist") { ... }
+    }
+  }
+}
+
+void Zombie::getPath() {
+  // Logic to get path
+  Node path[30];
+  int pathLength = 0;
+  Serial.println("Before findPath");
+  mazeSolver.findPath(Node(currentXIndex, currentYIndex),
+                      Node(lastKnownX, lastKnownY), path, pathLength);
+  for (int i = 0; i < pathLength; i++) {
+    Serial.println("Path: " + String(path[i].x) + ", " + String(path[i].y));
+  }
 }
 
 #endif

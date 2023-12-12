@@ -26,7 +26,7 @@ bool MazeSolver::findPath(Node start, Node goal, Node path[], int &pathLength) {
     visited[current.x][current.y] = true;
 
     if (current.x == goal.x && current.y == goal.y) {
-      reconstructPath(&current, path, pathLength); // IMPLEMENT THIS
+      reconstructPath(&current, path, pathLength);
       return true;
     }
 
@@ -54,10 +54,28 @@ void MazeSolver::addToOpenList(const Node &node) {
 }
 
 Node MazeSolver::popBestNode() {
-  // Implement logic to find and remove the best node from openList
-  // This could be a simple linear search for the node with the lowest total
-  // cost Placeholder implementation - needs proper logic
-  Node bestNode = openList[0];
+  int bestIndex = 0;
+  float bestCost = openList[0].cost + openList[0].heuristic;
+
+  // Find the node with the lowest total cost
+  for (int i = 1; i < openListSize; i++) {
+    float currentCost = openList[i].cost + openList[i].heuristic;
+    if (currentCost < bestCost) {
+      bestCost = currentCost;
+      bestIndex = i;
+    }
+  }
+
+  // Save the best node
+  Node bestNode = openList[bestIndex];
+
+  // Remove the best node from the open list
+  // Shift all elements after the best node one position to the left
+  for (int i = bestIndex; i < openListSize - 1; i++) {
+    openList[i] = openList[i + 1];
+  }
+  openListSize--;
+
   return bestNode;
 }
 

@@ -73,20 +73,28 @@ public:
 
   void printAllSensor();
 
+  void readMQTT();
+
 private:
   // Robot state
   enum RobotState { IDLE, SEEKING, CHASING, STOP, DEBUG };
   RobotState state = DEBUG;
 
   // Private member variables
-  float lastKnownX;
-  float lastKnownY;
+  float lastKnownX = 6;
+  float lastKnownY = 3;
   // Private member objects
-  float currentX;
-  float currentY;
+  float currentX = 0;
+  float currentY = 0;
 
   int currentXIndex = 0; // Update this to the current index of the x coordinate
   int currentYIndex = 0;
+
+  float intersectionPoints[3][6] = {
+      {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), 0, 0},
+      {(1, 56.1), (22.5, 55.6), (52.9, 56.1), (88.2, 56.1), (1, 56.1),
+       (0, 56.1)},
+      {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), (0, 0), (0, 0)}};
 
   Romi32U4ButtonA buttonA;
   SonarSensor sonar;
@@ -123,6 +131,8 @@ private:
   turnDirection getTurnDirection();
 
   void getIntersectionCoordinates();
+
+  void getPath();
 };
 
 #endif

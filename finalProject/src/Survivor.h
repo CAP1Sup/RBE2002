@@ -13,36 +13,43 @@
 
 #include "IRSensor.h"
 #include "LineSensor.h"
+#include "PID.h"
 #include "SonarSensor.h"
 
+// Op settings
+// Wall following constants
+#define DIST_PID_UPDATE_INTERVAL 50  // ms
+#define TARGET_DISTANCE 30.0f        // mm
+#define NO_WALL_THRESHOLD 50.0f      // mm
+#define MAX_PID_OUTPUT 50.0f         // mm/s
+#define DRIVE_SPEED 75.0f            // mm/s
+#define CHASED_TIME_INTERVAL 5000    // ms
+#define RIGHT_TURN_ANGLE -75.0f      // deg
+#define RIGHT_TURN_SPEED 90.0f       // deg/s
+#define WALL_DISTANCE 175.0f         // mm
+
+// Pins
 #define IR_PIN A0
-#define TRIG_PIN 8
-#define ECHO_PIN 7
+#define TRIG_PIN 12
+#define ECHO_PIN 3
 
 class Survivor {
  public:
-  Survivor();
+  void init();
   void run();
 
  private:
-  // Wall following constants
-  const float DIST_PID_UPDATE_INTERVAL = 50;  // ms
-  const float TARGET_DISTANCE = 30.0f;        // mm
-  const float MAX_PID_OUTPUT = 50.0f;         // mm/s
-  const float DRIVE_SPEED = 75.0f;            // mm/s
-  const float CHASED_TIME_INTERVAL = 5000;    // ms
-
   // Robot state
   enum RobotState { IDLE, WANDERING, CHASED };
-  RobotState robot_state = IDLE;
+  RobotState state = IDLE;
 
-  SonarSensor sonar;
   IRSensor IR;
   Romi32U4ButtonA buttonA;
-  PIDController wallFollowPID = PIDController(4.0f, 0.0f, 0.0f);
-  PIDController chasedWallFollowPID = PIDController(3.0f, 1.0f, 0.0f);
+  PID wallFollowPID = PID(4.0f, 0.0f, 0.0f);
+  PID chasedWallFollowPID = PID(3.0f, 1.0f, 0.0f);
   uint32_t lastPIDUpdate = 0;
   uint32_t chasedTime = 0;
   uint32_t updateTime = 0;
+  bool turning = false;
 };
 #endif

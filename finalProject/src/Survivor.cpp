@@ -14,19 +14,20 @@
 #include "SonarSensor.h"
 
 Chassis chassis;
+Rangefinder rangefinder(ECHO_PIN, TRIG_PIN);
 
-Survivor::Survivor() {
+void Survivor::init() {
   IR.init(IR_PIN);
-  sonar.init(TRIG_PIN, ECHO_PIN);
   chassis.init();
+  rangefinder.init();
 }
 
 void Survivor::run() {
-  switch (robot_state) {
+  switch (state) {
     case IDLE: {
       if (buttonA.getSingleDebouncedRelease()) {
-        robot_state = WANDERING;
-        wallFollowPID.resetSum();
+        state = WANDERING;
+        wallFollowPID.reset();
         IR.resetDistAvg();
       }
       break;
@@ -39,30 +40,52 @@ void Survivor::run() {
       // Calculate the wall distance PID output if needed
       if (millis() - lastPIDUpdate >= DIST_PID_UPDATE_INTERVAL) {
         lastPIDUpdate = millis();
-        float pidOut = wallFollowPID.calcEffort(TARGET_DISTANCE - avgDist);
-        Serial.print("Avg dist: ");
+        float pidOut = wallFollowPID.calculate(TARGET_DISTANCE - avgDist);
+        Serial.print(F("Avg dist: "));
         Serial.println(avgDist);
 
         // Constrain the output
         pidOut = constrain(pidOut, -MAX_PID_OUTPUT, MAX_PID_OUTPUT);
 
         // Set the target speeds
-        chassis.setWheelSpeeds(DRIVE_SPEED + pidOut, DRIVE_SPEED - pidOut);
+        if (!turning) {
+          if (avgDist > NO_WALL_THRESHOLD) {
+            chassis.setWheelSpeeds(DRIVE_SPEED * MM_TO_CM,
+                                   DRIVE_SPEED * MM_TO_CM);
+          } else {
+            chassis.setWheelSpeeds((DRIVE_SPEED + pidOut) * MM_TO_CM,
+                                   (DRIVE_SPEED - pidOut) * MM_TO_CM);
+          }
+        }
+      }
+
+      Serial.print(F("Distance: "));
+      Serial.println(rangefinder.getDistance());
+
+      // Check if the robot has a wall in front of it
+      if (rangefinder.getDistance() < WALL_DISTANCE * MM_TO_CM) {
+        // Turn away from the wall
+        chassis.turnFor(RIGHT_TURN_ANGLE, RIGHT_TURN_SPEED);
+        turning = true;
       }
 
       // Check if the robot is being chased
       /*
       getMQTTMessages();
       if (tag.id == 0 || tag.id == 1 || tag.id == 2 || tag.id == 3) {
-        robot_state = CHASED;
+        state = CHASED;
         chasedTime = millis();
-        wallFollowPID.resetSum();
+        chasedWallFollowPID.reset();
         IR.resetDistAvg();
       }*/
 
+      if (chassis.checkMotionComplete()) {
+        turning = false;
+      }
+
       if (buttonA.getSingleDebouncedRelease()) {
         chassis.idle();
-        robot_state = IDLE;
+        state = IDLE;
       }
       break;
     }
@@ -72,8 +95,7 @@ void Survivor::run() {
       // Calculate the wall distance PID output if needed
       if (millis() - lastPIDUpdate >= DIST_PID_UPDATE_INTERVAL) {
         lastPIDUpdate = millis();
-        float pidOut =
-            chasedWallFollowPID.calcEffort(TARGET_DISTANCE - avgDist);
+        float pidOut = chasedWallFollowPID.calculate(TARGET_DISTANCE - avgDist);
         Serial.print("Avg dist: ");
         Serial.println(avgDist);
 
@@ -81,18 +103,18 @@ void Survivor::run() {
         pidOut = constrain(pidOut, -MAX_PID_OUTPUT, MAX_PID_OUTPUT);
 
         // Set the target speeds
-        chassis.setWheelSpeeds((DRIVE_SPEED + pidOut) * 1.5f,
-                               (DRIVE_SPEED - pidOut) * 1.5f);
+        chassis.setWheelSpeeds((DRIVE_SPEED + pidOut) * 1.5f * MM_TO_CM,
+                               (DRIVE_SPEED - pidOut) * 1.5f * MM_TO_CM);
       }
 
       if (millis() - updateTime >= CHASED_TIME_INTERVAL) {
-        robot_state = CHASED;
-        wallFollowPID.resetSum();
+        state = WANDERING;
+        wallFollowPID.reset();
         IR.resetDistAvg();
       }
 
       /*if (tag.w >= 100) {
-        robot_state = IDLE;
+        state = IDLE;
         chassis.idle();
         wallFollowPID.resetSum();
         IR.resetDistAvg();

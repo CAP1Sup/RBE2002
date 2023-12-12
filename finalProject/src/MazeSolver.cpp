@@ -1,9 +1,17 @@
 #include "MazeSolver.h"
+static Maze defaultMaze(MAX_WIDTH, MAX_HEIGHT); // Define a default Maze object
 
+MazeSolver::MazeSolver() : maze(defaultMaze), openListSize(0) {
+  // Constructor implementation
+  for (int i = 0; i < MAX_WIDTH; ++i) {
+    for (int j = 0; j < MAX_HEIGHT; ++j) {
+      visited[i][j] = false;
+    }
+  }
+}
 MazeSolver::MazeSolver(const Maze &maze) : openListSize(0), maze(maze) {
-  // Initialize visited array to false
-  for (int i = 0; i < MAX_WIDTH; i++) {
-    for (int j = 0; j < MAX_HEIGHT; j++) {
+  for (int i = 0; i < MAX_WIDTH; ++i) {
+    for (int j = 0; j < MAX_HEIGHT; ++j) {
       visited[i][j] = false;
     }
   }

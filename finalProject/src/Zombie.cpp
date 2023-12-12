@@ -6,7 +6,7 @@ Chassis chassis;
 Rangefinder rangefinder(ECHO_PIN, TRIG_PIN);
 // SonarSensor sonar;
 
-Zombie::Zombie() {
+Zombie::Zombie() : mazeSolver(maze) {
   // Constructor body
   irSensorLeft.init(LEFT_IR_PIN);
   irSensorRight.init(RIGHT_IR_PIN);

@@ -95,6 +95,7 @@ private:
   IRSensor irSensorRight;
 
   Maze maze;
+  MazeSolver mazeSolver;
 
   float currentTheta = 0;
 

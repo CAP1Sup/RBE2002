@@ -8,6 +8,7 @@ const int MAX_NEIGHBORS = 4; // Maximum number of neighbors
 
 class MazeSolver {
 public:
+  MazeSolver();
   MazeSolver(const Maze &maze);
   bool findPath(Node start, Node goal, Node path[], int &pathLength);
 

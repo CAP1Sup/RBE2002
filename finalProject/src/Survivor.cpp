@@ -49,9 +49,11 @@ void Survivor::run() {
 
         // Set the target speeds
         if (!turning) {
-          if (avgDist > NO_WALL_THRESHOLD) {
-            chassis.setWheelSpeeds(DRIVE_SPEED * MM_TO_CM,
-                                   DRIVE_SPEED * MM_TO_CM);
+          if (avgDist > NO_WALL_THRESHOLD && !turning) {
+            chassis.driveFor(NO_WALL_FORWARD_DIST * MM_TO_CM,
+                             DRIVE_SPEED * MM_TO_CM, true);
+            chassis.turnFor(LEFT_TURN_ANGLE, TURN_SPEED);
+            turning = true;
           } else {
             chassis.setWheelSpeeds((DRIVE_SPEED + pidOut) * MM_TO_CM,
                                    (DRIVE_SPEED - pidOut) * MM_TO_CM);
@@ -59,13 +61,13 @@ void Survivor::run() {
         }
       }
 
-      Serial.print(F("Distance: "));
-      Serial.println(rangefinder.getDistance());
+      // Serial.print(F("Distance: "));
+      // Serial.println(rangefinder.getDistance());
 
       // Check if the robot has a wall in front of it
-      if (rangefinder.getDistance() < WALL_DISTANCE * MM_TO_CM) {
+      if (rangefinder.getDistance() < WALL_DISTANCE * MM_TO_CM && !turning) {
         // Turn away from the wall
-        chassis.turnFor(RIGHT_TURN_ANGLE, RIGHT_TURN_SPEED);
+        chassis.turnFor(RIGHT_TURN_ANGLE, TURN_SPEED);
         turning = true;
       }
 
@@ -81,6 +83,7 @@ void Survivor::run() {
 
       if (chassis.checkMotionComplete()) {
         turning = false;
+        IR.resetDistAvg();
       }
 
       if (buttonA.getSingleDebouncedRelease()) {

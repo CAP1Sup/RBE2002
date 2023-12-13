@@ -23,11 +23,11 @@
 #define NO_WALL_THRESHOLD 45.0f      // mm
 #define NO_WALL_FORWARD_DIST 400.0f  // mm
 #define MAX_PID_OUTPUT 50.0f         // mm/s
-#define DRIVE_SPEED 75.0f            // mm/s
+#define DRIVE_SPEED 150.0f           // mm/s
 #define CHASED_TIME_INTERVAL 5000    // ms
 #define RIGHT_TURN_ANGLE -80.0f      // deg
 #define LEFT_TURN_ANGLE 80.0f        // deg
-#define TURN_SPEED 90.0f             // deg/s
+#define TURN_SPEED 135.0f            // deg/s
 #define WALL_DISTANCE 125.0f         // mm
 
 // Pins

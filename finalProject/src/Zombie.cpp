@@ -255,11 +255,9 @@ void Zombie::getPath() {
       path, pathLength);
   Serial.print("Path found: ");
   Serial.println(pathFound ? "Yes" : "No");
-  // Serial.print("Path length: ");
-  // Serial.println(pathLength);
-  // for (int i = 0; i < pathLength; i++) {
-  //   Serial.println("Path: " + String(path[i].x) + ", " + String(path[i].y));
-  // }
+  Serial.println();
+  mazeSolver.printPath(path, pathLength);
+  state = IDLE; // Remove this
 }
 
 #endif

@@ -1,7 +1,7 @@
 #pragma once
 // Mode of operation
-// #define ZOMBIE
-#define SURVIVOR
+#define ZOMBIE
+// #define SURVIVOR
 
 #define MM_TO_CM 0.1f
 

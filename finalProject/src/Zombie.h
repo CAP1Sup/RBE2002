@@ -88,17 +88,17 @@ private:
   float currentX = 0.0;
   float currentY = 0.0;
 
-  uint8_t lastClosestIntersectionIndex_X = 1;
-  uint8_t lastClosestIntersectionIndex_Y = 1;
+  uint8_t lastClosestIntersectionIndex_X = 3;
+  uint8_t lastClosestIntersectionIndex_Y = 2;
 
   int currentXIndex = 0; // Update this to the current index of the x coordinate
   int currentYIndex = 0;
 
-  float intersectionPoints[3][6] = {
-      {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), 0, 0},
-      {(1, 56.1), (22.5, 55.6), (52.9, 56.1), (88.2, 56.1), (1, 56.1),
-       (0, 56.1)},
-      {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), (0, 0), (0, 0)}};
+  // float intersectionPoints[3][6] = {
+  //     {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), 0, 0},
+  //     {(1, 56.1), (22.5, 55.6), (52.9, 56.1), (88.2, 56.1), (1, 56.1),
+  //      (0, 56.1)},
+  //     {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), (0, 0), (0, 0)}};
 
   Romi32U4ButtonA buttonA;
   SonarSensor sonar;

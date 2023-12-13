@@ -12,7 +12,6 @@ void setup() {
   // No need to call init methods, constructors will do that
   // Serial.begin(115200);
   Serial.begin(9600);
-  Serial.print("Starting...");
 #ifdef ZOMBIE
   zombie.init();
 #elif defined(SURVIVOR)

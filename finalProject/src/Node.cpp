@@ -21,12 +21,12 @@ bool Node::isValid() const {
 
 bool Node::isEqual(const Node &other) { return x == other.x && y == other.y; }
 bool Node::isEqual(Node &other) {
-  Serial.println("Node 1 (this): x = " + String(x) + ", y = " + String(y));
-  Serial.println("Node 2 (other): x = " + String(other.x) +
-                 ", y = " + String(other.y));
+  // Serial.println("Node 1 (this): x = " + String(x) + ", y = " + String(y));
+  // Serial.println("Node 2 (other): x = " + String(other.x) +
+  //                ", y = " + String(other.y));
 
-  bool isEqual = int(x) == int(other.x) && int(y) == int(other.y);
-  Serial.println("isEqual: " + String(isEqual ? 1 : 0));
+  bool isEqual = this->x == other.x && this->y == other.y;
+  // Serial.println("isEqual: " + String(isEqual ? 1 : 0));
 
   return isEqual;
 }

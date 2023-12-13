@@ -16,12 +16,12 @@ public:
 
 private:
   const Maze &maze;
-  Node goalNode;                       // Store the goal node
-  Node openList[MAX_NODES] = {Node()}; // Make all null Pointers to start
+  Node goalNode;                         // Store the goal node
+  Node *openList[MAX_NODES] = {nullptr}; // Make all null Pointers to start
   int openListSize;
 
-  void addToOpenList(Node node);
-  Node popBestNode(const Node &goal);
+  void addToOpenList(Node *node);
+  Node *popBestNode(const Node &goal);
   int getNeighbors(const Node &node, Node neighbors[]);
   void reconstructPath(Node &goalNode, Node path[], int &pathLength);
   float calculateHeuristic(const Node &a, const Node &b);

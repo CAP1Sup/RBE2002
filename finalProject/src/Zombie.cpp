@@ -34,9 +34,11 @@ void Zombie::run() {
   switch (state) {
   case DEBUG:
     getPath();
-
     break;
   case IDLE:
+    if (!pathUpdated) { // Precalcualte path
+      getPath();
+    }
     if (buttonA.getSingleDebouncedRelease()) {
       state = SEEKING;
     }
@@ -68,6 +70,7 @@ void Zombie::receiveTargetCoordinates(float x, float y) {
   lastKnownX = x;
   lastKnownY = y;
   isOnLastKnownPosition = false;
+  pathUpdated = false;
 }
 
 // Follow a line
@@ -132,6 +135,17 @@ void Zombie::moveToLastKnownLocation() {
   if (onTargetX && onTargetY) {
     isOnLastKnownPosition = true;
   }
+
+  if (onIntersection) {
+    recordIntersection();
+    getPath();
+    updateIntersectionIndex();
+    while (!isOffIntersection()) {
+      chassis.setTwist(SEEKING_FWD_SPEED * IN_CH, 0.0f);
+    }
+  } else {
+    followPath();
+  }
 }
 
 uint8_t Zombie::getIntersectionCount() {
@@ -173,7 +187,6 @@ void Zombie::recordIntersection() {
   Serial.println("wallAhead: " + String(wallAhead));
   Serial.println("wallLeft: " + String(wallLeft));
   Serial.println("wallRight: " + String(wallRight));
-
   if (currentHeading == UP) {
     if (isOnIntersection) {
       if (wallAhead) {
@@ -223,15 +236,8 @@ void Zombie::recordIntersection() {
       }
     }
   }
+  pathUpdated = false;
   intersectionCount++;
-}
-
-int Zombie::getIntersectionCoordinates() {
-  // Logic to get intersection coordinates
-  currentX = 0;
-  currentY = 0;
-
-  return 0;
 }
 
 void Zombie::readMQTT() {
@@ -255,17 +261,30 @@ void Zombie::readMQTT() {
 
 void Zombie::getPath() {
   // Logic to get path
-  Node path[91];
-  int pathLength = 0;
-  bool pathFound = mazeSolver.findPath(
+  pathLength = 0;
+  pathFound = mazeSolver.findPath(
       Node(currentIntersection_X, currentIntersection_Y),
       Node(lastClosestIntersectionIndex_X, lastClosestIntersectionIndex_Y),
       path, pathLength);
+  pathUpdated = pathFound;
   Serial.print("Path found: ");
   Serial.println(pathFound ? "Yes" : "No");
   Serial.println();
   mazeSolver.printPath(path, pathLength);
-  state = IDLE; // Remove this
 }
+
+bool Zombie::isOffIntersection() {
+  if (onIntersection()) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+void Zombie::followPath() {} // Needs  Implementation
+
+void Zombie::closestIntersection() {} // Needs Implementation
+
+void Zombie::updateIntersectionIndex() {} // Needs Implementation
 
 #endif

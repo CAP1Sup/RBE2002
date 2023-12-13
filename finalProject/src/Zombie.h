@@ -106,6 +106,11 @@ private:
   int currentIntersection_X = 0;
   int currentIntersection_Y = 3;
 
+  Node path[91];
+  int pathLength = 0;
+  bool pathFound = false;
+  bool pathUpdated = false;
+
   // float intersectionPoints[3][6] = {
   //     {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), 0, 0},
   //     {(1, 56.1), (22.5, 55.6), (52.9, 56.1), (88.2, 56.1), (1, 56.1),
@@ -144,9 +149,15 @@ private:
 
   headingDirection getTurnDirection();
 
-  int getIntersectionCoordinates();
-
   uint8_t getIntersectionCount();
+
+  bool isOffIntersection();
+
+  void followPath();
+
+  void closestIntersection();
+
+  void updateIntersectionIndex();
 };
 
 #endif

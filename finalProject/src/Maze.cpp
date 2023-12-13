@@ -22,6 +22,6 @@ void Maze::setWall(int x, int y, bool hasWall) {
   }
 }
 
-int Maze::getWidth() const { return width; }
+int Maze::getWidth() const { return MAX_WIDTH; }
 
-int Maze::getHeight() const { return height; }
+int Maze::getHeight() const { return MAX_HEIGHT; }

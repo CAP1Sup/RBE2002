@@ -16,7 +16,7 @@ void Zombie::init() {
   lineSensor.setThreshold(LINE_THRESHOLD);
   chassis.init();
   rangefinder.init();
-  maze = Maze(MAX_WIDTH, MAX_HEIGHT);
+  maze = Maze();
 }
 
 void Zombie::run() {

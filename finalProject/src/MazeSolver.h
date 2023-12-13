@@ -14,15 +14,14 @@ public:
   bool findPath(Node start, Node goal, Node path[], int &pathLength);
 
 private:
-  Node openList[MAX_NODES];
-  int openListSize;
-  bool visited[MAX_WIDTH][MAX_HEIGHT];
   const Maze &maze;
+  Node goalNode; // Store the goal node
+  Node *openList[MAX_NODES];
+  int openListSize;
 
-  void addToOpenList(const Node &node);
-  Node popBestNode();
+  void addToOpenList(Node *node);
+  Node *popBestNode(const Node &goal);
   int getNeighbors(const Node &node, Node neighbors[]);
+  void reconstructPath(Node *current, Node path[], int &pathLength);
   float calculateHeuristic(const Node &a, const Node &b);
-  float edgeCost(const Node &a, const Node &b);
-  void reconstructPath(Node *node, Node path[], int &pathLength);
 };

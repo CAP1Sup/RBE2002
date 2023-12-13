@@ -74,7 +74,7 @@ public:
 
   void readMQTT();
 
-  void getPath(); // Make this private later
+  void getPath(); // Make this private
 
 private:
   // Robot state

@@ -1,3 +1,13 @@
+/**
+ * @file Maze.h
+ * @author Kang Zhang
+ * @brief
+ * @version 0.1
+ * @date 2023-12-13
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
 #pragma once
 
 const int MAX_WIDTH = 6; // Define maximum dimensions for the maze

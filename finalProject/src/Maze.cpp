@@ -1,3 +1,13 @@
+/**
+ * @file Maze.cpp
+ * @author Kang Zhang
+ * @brief
+ * @version 0.1
+ * @date 2023-12-13
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
 #include "Maze.h"
 
 Maze::Maze(int width, int height) : width(width), height(height) {

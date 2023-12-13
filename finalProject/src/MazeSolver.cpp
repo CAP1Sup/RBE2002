@@ -1,3 +1,13 @@
+/**
+ * @file MazeSolver.cpp
+ * @author Kang Zhang
+ * @brief
+ * @version 0.1
+ * @date 2023-12-13
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
 #include "MazeSolver.h"
 static Maze defaultMaze(MAX_WIDTH, MAX_HEIGHT); // Define a default Maze object
 

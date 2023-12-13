@@ -1,3 +1,13 @@
+/**
+ * @file Node.cpp
+ * @author Kang Zhang
+ * @brief
+ * @version 0.1
+ * @date 2023-12-13
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
 #include "Node.h"
 #include <Arduino.h>
 Node::Node() : x(0), y(0), parent(nullptr) {}

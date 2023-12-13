@@ -1,3 +1,14 @@
+/**
+ * @file Zombie.cpp
+ * @author Kang Zhang
+ * @brief
+ * @version 0.1
+ * @date 2023-12-13
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
+
 #include "Zombie.h"
 
 #ifdef ZOMBIE
@@ -166,7 +177,7 @@ void Zombie::recordIntersection() {
   if (currentHeading == UP) {
     if (isOnIntersection) {
       if (wallAhead) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y - 1, true);
       }
       if (wallLeft) {
         maze.setWall(currentIntersection_X - 1, currentIntersection_Y, true);
@@ -178,19 +189,19 @@ void Zombie::recordIntersection() {
   } else if (currentHeading == LEFT) {
     if (isOnIntersection) {
       if (wallAhead) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y, true);
+        maze.setWall(currentIntersection_X - 1, currentIntersection_Y, true);
       }
       if (wallLeft) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y - 1, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y + 1, true);
       }
       if (wallRight) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y + 1, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y - 1, true);
       }
     }
   } else if (currentHeading == DOWN) {
     if (isOnIntersection) {
       if (wallAhead) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y + 1, true);
       }
       if (wallLeft) {
         maze.setWall(currentIntersection_X + 1, currentIntersection_Y, true);
@@ -202,23 +213,25 @@ void Zombie::recordIntersection() {
   } else if (currentHeading == RIGHT) {
     if (isOnIntersection) {
       if (wallAhead) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y, true);
+        maze.setWall(currentIntersection_X + 1, currentIntersection_Y, true);
       }
       if (wallLeft) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y + 1, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y - 1, true);
       }
       if (wallRight) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y - 1, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y + 1, true);
       }
     }
   }
   intersectionCount++;
 }
 
-void Zombie::getIntersectionCoordinates() {
+int Zombie::getIntersectionCoordinates() {
   // Logic to get intersection coordinates
   currentX = 0;
   currentY = 0;
+
+  return 0;
 }
 
 void Zombie::readMQTT() {

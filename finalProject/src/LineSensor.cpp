@@ -1,3 +1,13 @@
+/**
+ * @file LineSensor.cpp
+ * @author Kang Zhang
+ * @brief
+ * @version 0.1
+ * @date 2023-12-13
+ *
+ * @copyright Copyright (c) 2023
+ *
+ */
 #include "LineSensor.h"
 
 // Constructor implementation

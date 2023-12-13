@@ -64,7 +64,7 @@ Node *MazeSolver::popBestNode(const Node &goal) {
   return bestNode;
 }
 
-float MazeSolver::calculateHeuristic(const Node &a, const Node &b) {
+int MazeSolver::calculateHeuristic(const Node &a, const Node &b) {
   // Manhattan distance as a heuristic
   return fabs(a.x - b.x) + fabs(a.y - b.y);
 }

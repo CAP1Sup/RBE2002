@@ -4,24 +4,46 @@
 
 class Node {
 public:
-  uint8_t x, y;
-  float cost;      // Cost to reach this node
-  float heuristic; // Heuristic cost from this node to goal
-  Node *parent;    // Parent node in the path
-  // Node *neighbors[4]; // Parent node in the path
+  uint8_t x, y; //
+  Node *parent; // Parent node in the path
 
+  /**
+   * @brief Construct a new Node object
+   * Default constructor
+   *
+   */
   Node();
+  /**
+   * @brief Construct a new Node object
+   *
+   * @param x Coordinate X
+   * @param y Coordinate Y
+   */
   Node(uint8_t x, uint8_t y);
 
-  float totalCost() const;
-
-  bool operator==(const Node &other) const;
-
-  struct Comparator {
-    bool operator()(const Node *a, const Node *b);
-  };
+  /**
+   * @brief Check if the node has valid coordinates
+   *
+   * @return true
+   * @return false
+   */
   bool isValid() const; // Check if the node has valid coordinates
 
+  /**
+   * @brief Check if the node is equal to another node
+   *
+   * @param other Node to Compare to
+   * @return true
+   * @return false
+   */
   bool isEqual(Node &other);
+
+  /**
+   * @brief Check if the node is equal to another node
+   *
+   * @param other Node to Compare to (const)
+   * @return true
+   * @return false
+   */
   bool isEqual(const Node &other);
 };

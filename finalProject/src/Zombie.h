@@ -62,8 +62,6 @@ public:
 
   bool getOnLastKnownPosition();
 
-  uint8_t getIntersectionCount();
-
   void stop();
 
   bool survivorFound();
@@ -81,6 +79,10 @@ private:
   enum RobotState { IDLE, SEEKING, CHASING, STOP, DEBUG };
   RobotState state = DEBUG;
 
+  // Heading direction
+  typedef enum { UP, DOWN, LEFT, RIGHT } headingDirection;
+  headingDirection currentHeading = UP;
+
   // Private member variables
   float lastKnownX = 1.0;
   float lastKnownY = 1.0;
@@ -88,11 +90,11 @@ private:
   float currentX = 0.0;
   float currentY = 0.0;
 
-  uint8_t lastClosestIntersectionIndex_X = 3;
-  uint8_t lastClosestIntersectionIndex_Y = 2;
+  uint8_t lastClosestIntersectionIndex_X = 6;
+  uint8_t lastClosestIntersectionIndex_Y = 0;
 
-  int currentXIndex = 0; // Update this to the current index of the x coordinate
-  int currentYIndex = 0;
+  int currentIntersection_X = 0;
+  int currentIntersection_Y = 3;
 
   // float intersectionPoints[3][6] = {
   //     {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), 0, 0},
@@ -115,8 +117,6 @@ private:
 
   uint8_t intersectionCount = 0;
 
-  typedef enum { STRAIGHT, LEFT, RIGHT } turnDirection;
-
   // Private member functions
   float getSonarDistance();
 
@@ -132,9 +132,11 @@ private:
 
   void recordIntersection();
 
-  turnDirection getTurnDirection();
+  headingDirection getTurnDirection();
 
   void getIntersectionCoordinates();
+
+  uint8_t getIntersectionCount();
 };
 
 #endif

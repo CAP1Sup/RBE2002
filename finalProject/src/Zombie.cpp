@@ -22,10 +22,8 @@ void Zombie::init() {
 void Zombie::run() {
   switch (state) {
   case DEBUG:
-    // Debugging code
-    // Serial.println(F("Debugging"));
     getPath();
-    //     Serial.println("Current X: " + String(currentX));
+
     break;
   case IDLE:
     if (buttonA.getSingleDebouncedRelease()) {
@@ -130,9 +128,9 @@ uint8_t Zombie::getIntersectionCount() {
   return intersectionCount;
 }
 
-Zombie::turnDirection Zombie::getTurnDirection() {
+Zombie::headingDirection Zombie::getTurnDirection() {
   // Logic to determine which direction to turn
-  return Zombie::turnDirection::STRAIGHT;
+  return Zombie::headingDirection::UP; // IMPLEMENT
 }
 
 void Zombie::stop() {
@@ -165,56 +163,55 @@ void Zombie::recordIntersection() {
   Serial.println("wallLeft: " + String(wallLeft));
   Serial.println("wallRight: " + String(wallRight));
 
-  if (fabs(0 - currentTheta) < THETA_THESHOLD) {
+  if (currentHeading == UP) {
     if (isOnIntersection) {
       if (wallAhead) {
-        maze.setWall(currentXIndex, currentYIndex, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y, true);
       }
       if (wallLeft) {
-        maze.setWall(currentXIndex - 1, currentYIndex, true);
+        maze.setWall(currentIntersection_X - 1, currentIntersection_Y, true);
       }
       if (wallRight) {
-        maze.setWall(currentXIndex + 1, currentYIndex, true);
+        maze.setWall(currentIntersection_X + 1, currentIntersection_Y, true);
       }
     }
-  } else if (fabs(90 - currentTheta) < THETA_THESHOLD) {
+  } else if (currentHeading == LEFT) {
     if (isOnIntersection) {
       if (wallAhead) {
-        maze.setWall(currentXIndex, currentYIndex, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y, true);
       }
       if (wallLeft) {
-        maze.setWall(currentXIndex, currentYIndex - 1, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y - 1, true);
       }
       if (wallRight) {
-        maze.setWall(currentXIndex, currentYIndex + 1, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y + 1, true);
       }
     }
-  } else if (fabs(180 - currentTheta) < THETA_THESHOLD) {
+  } else if (currentHeading == DOWN) {
     if (isOnIntersection) {
       if (wallAhead) {
-        maze.setWall(currentXIndex, currentYIndex, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y, true);
       }
       if (wallLeft) {
-        maze.setWall(currentXIndex + 1, currentYIndex, true);
+        maze.setWall(currentIntersection_X + 1, currentIntersection_Y, true);
       }
       if (wallRight) {
-        maze.setWall(currentXIndex - 1, currentYIndex, true);
+        maze.setWall(currentIntersection_X - 1, currentIntersection_Y, true);
       }
     }
-  } else if (fabs(270 - currentTheta) < THETA_THESHOLD) {
+  } else if (currentHeading == RIGHT) {
     if (isOnIntersection) {
       if (wallAhead) {
-        maze.setWall(currentXIndex, currentYIndex, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y, true);
       }
       if (wallLeft) {
-        maze.setWall(currentXIndex, currentYIndex + 1, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y + 1, true);
       }
       if (wallRight) {
-        maze.setWall(currentXIndex, currentYIndex - 1, true);
+        maze.setWall(currentIntersection_X, currentIntersection_Y - 1, true);
       }
     }
   }
-
   intersectionCount++;
 }
 
@@ -222,8 +219,6 @@ void Zombie::getIntersectionCoordinates() {
   // Logic to get intersection coordinates
   currentX = 0;
   currentY = 0;
-  currentXIndex = 0;
-  currentYIndex = 0; // IMPLEMENT
 }
 
 void Zombie::readMQTT() {
@@ -250,7 +245,7 @@ void Zombie::getPath() {
   Node path[91];
   int pathLength = 0;
   bool pathFound = mazeSolver.findPath(
-      Node(currentXIndex, currentYIndex),
+      Node(currentIntersection_X, currentIntersection_Y),
       Node(lastClosestIntersectionIndex_X, lastClosestIntersectionIndex_Y),
       path, pathLength);
   Serial.print("Path found: ");

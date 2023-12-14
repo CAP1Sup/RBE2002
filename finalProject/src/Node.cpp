@@ -24,3 +24,13 @@ bool Node::isEqual(const Node &other) {
 bool Node::isEqual(Node &other) {
   return this->x == other.x && this->y == other.y;
 }
+
+void Node::setWalls(bool north, bool east, bool south, bool west) {
+  walls.up = north;
+  walls.right = east;
+  walls.down = south;
+  walls.left = west;
+}
+
+int Node::getX() const { return x; }
+int Node::getY() const { return y; }

@@ -16,6 +16,9 @@ class Node {
 public:
   uint8_t x, y; //
   Node *parent; // Parent node in the path
+  struct wall {
+    bool up = false, right = false, down = false, left = false;
+  } walls; // Walls around the node
 
   /**
    * @brief Construct a new Node object
@@ -56,4 +59,17 @@ public:
    * @return false
    */
   bool isEqual(const Node &other);
+
+  /**
+   * @brief Set the Walls object
+   *
+   * @param north
+   * @param east
+   * @param south
+   * @param west
+   */
+  void setWalls(bool north, bool east, bool south, bool west);
+
+  int getX() const;
+  int getY() const;
 };

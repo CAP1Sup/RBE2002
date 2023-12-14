@@ -10,7 +10,6 @@
  */
 #pragma once
 #include "Maze.h"
-#include "Node.h"
 #include <Arduino.h>
 #include <math.h>
 
@@ -41,7 +40,7 @@ public:
    * @return true
    * @return false
    */
-  bool findPath(Node start, Node goal, Node path[], int &pathLength);
+  bool findPath(Node *start, Node *goal, Node path[], int &pathLength);
   /**
    * @brief Print the path
    *
@@ -76,7 +75,9 @@ private:
    * @param neighbors Array of neighbors of node
    * @return int
    */
-  int getNeighbors(const Node &node, Node neighbors[]);
+
+  int getNeighbors(const Node &node, Node *neighbors[]);
+
   /**
    * @brief Reconstruct the path
    *

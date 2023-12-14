@@ -16,7 +16,6 @@
 #ifdef ZOMBIE
 
 #include <Chassis.h>
-#include <IRdecoder.h>
 #include <PIDcontroller.h>
 #include <Rangefinder.h>
 #include <Romi32U4.h>
@@ -40,12 +39,13 @@
 #define WALL_SONAR_DIS_THRESHOLD 20.0 // cm
 #define THETA_THESHOLD 10             // deg
 #define LINE_THRESHOLD 50             // 0-1023
-#define SEEKING_FWD_SPEED 25          // in/s
+#define SEEKING_FWD_SPEED 12          // in/s
+#define SEEKING_TURN_SPEED 100        // deg/s
 #define TURN_SPEED 150                // deg/s
 #define SEARCH_EFFORT 80              // Motor effort
 
 #define IN_CH 2.54 // Inch to Centimeter conversion
-#define LINE_P 0.2 // Line P value
+#define LINE_P 0.1 // Line P value
 
 class Zombie {
 public:
@@ -90,7 +90,7 @@ private:
   RobotState state = DEBUG;
 
   // Heading direction
-  typedef enum { UP, DOWN, LEFT, RIGHT } headingDirection;
+  typedef enum { UP = 90, DOWN = 270, LEFT = 180, RIGHT = 0 } headingDirection;
   headingDirection currentHeading = UP;
 
   // Private member variables
@@ -100,16 +100,17 @@ private:
   float currentX = 0.0;
   float currentY = 0.0;
 
-  uint8_t lastClosestIntersectionIndex_X = 6;
-  uint8_t lastClosestIntersectionIndex_Y = 0;
+  uint8_t lastClosestIntersectionIndex_X = 5;
+  uint8_t lastClosestIntersectionIndex_Y = 2;
 
   int currentIntersection_X = 0;
-  int currentIntersection_Y = 3;
+  int currentIntersection_Y = 0;
 
-  Node path[91];
+  Node path[MAX_HEIGHT * MAX_WIDTH];
   int pathLength = 0;
   bool pathFound = false;
   bool pathUpdated = false;
+  int currentPathIndex = 0;
 
   // float intersectionPoints[3][6] = {
   //     {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), 0, 0},
@@ -151,13 +152,15 @@ private:
 
   uint8_t getIntersectionCount();
 
-  bool isOffIntersection();
-
   void followPath();
 
   void closestIntersection();
 
   void updateIntersectionIndex();
+
+  void turnOnIntersection(headingDirection nextHeading);
+
+  void printMaze();
 };
 
 #endif

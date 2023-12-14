@@ -9,8 +9,10 @@
  *
  */
 #pragma once
+#include "Arduino.h"
+#include "Node.h"
 
-const int MAX_WIDTH = 6; // Define maximum dimensions for the maze
+const int MAX_WIDTH = 6; // Define maximum dimensions for the maze (nodes)
 const int MAX_HEIGHT = 3;
 
 class Maze {
@@ -29,41 +31,16 @@ public:
    */
   Maze(int width, int height);
 
-  /**
-   * @brief Check if there is a wall at the given coordinates
-   *
-   * @param x Coordinate x
-   * @param y Coordinate y
-   * @return true
-   * @return false
-   */
-  bool isWall(int x, int y) const;
+  void printMaze();
 
-  /**
-   * @brief Set the Wall object
-   *
-   * @param x Coordinate X
-   * @param y Coodinate Y
-   * @param hasWall
-   */
-  void setWall(int x, int y, bool hasWall);
+  void setWall(int x, int y, bool up, bool right, bool down, bool left);
 
-  /**
-   * @brief Get the Width object
-   *
-   * @return int
-   */
-  int getWidth() const;
+  Node *getNode(int x, int y);
 
-  /**
-   * @brief Get the Height object
-   *
-   * @return int
-   */
-  int getHeight() const;
+  void checkWall();
 
 private:
-  bool grid[MAX_WIDTH][MAX_HEIGHT];
+  Node grid[MAX_WIDTH][MAX_HEIGHT];
   int width;
   int height;
 };

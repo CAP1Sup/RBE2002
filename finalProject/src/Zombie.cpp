@@ -10,6 +10,7 @@
  */
 
 #include "Zombie.h"
+extern Maze defaultMaze;
 
 #ifdef ZOMBIE
 
@@ -27,15 +28,32 @@ void Zombie::init() {
   lineSensor.setThreshold(LINE_THRESHOLD);
   chassis.init();
   rangefinder.init();
-  maze = Maze();
 }
 
 void Zombie::run() {
   switch (state) {
   case DEBUG:
-    getPath();
+    delay(2000);
+    if (!pathUpdated) { // Precalcualte path
+      delay(1000);
+      Serial.println("Getting path");
+      getPath();
+    }
+
+    if (onIntersection()) {
+      recordIntersection();
+      while (onIntersection()) {
+        chassis.driveFor(10, SEEKING_FWD_SPEED, true);
+      }
+      printMaze();
+    } else {
+      followLine();
+    }
+
+    // state = IDLE;
     break;
   case IDLE:
+    Serial.println("Idle");
     if (!pathUpdated) { // Precalcualte path
       getPath();
     }
@@ -70,14 +88,14 @@ void Zombie::receiveTargetCoordinates(float x, float y) {
   lastKnownX = x;
   lastKnownY = y;
   isOnLastKnownPosition = false;
-  pathUpdated = false;
+  // pathUpdated = false;
 }
 
 // Follow a line
 void Zombie::followLine() {
   // Calculate the difference between readings from the two line sensors
   int difference =
-      lineSensor.getLeftLineValue() - lineSensor.getRightLineValue();
+      lineSensor.getRightLineValue() - lineSensor.getLeftLineValue();
   chassis.setTwist(SEEKING_FWD_SPEED * IN_CH, LINE_P * difference);
 }
 
@@ -136,15 +154,10 @@ void Zombie::moveToLastKnownLocation() {
     isOnLastKnownPosition = true;
   }
 
-  if (onIntersection) {
+  if (onIntersection()) {
     recordIntersection();
     getPath();
     updateIntersectionIndex();
-    while (!isOffIntersection()) {
-      chassis.setTwist(SEEKING_FWD_SPEED * IN_CH, 0.0f);
-    }
-  } else {
-    followPath();
   }
 }
 
@@ -155,7 +168,17 @@ uint8_t Zombie::getIntersectionCount() {
 
 Zombie::headingDirection Zombie::getTurnDirection() {
   // Logic to determine which direction to turn
-  return Zombie::headingDirection::UP; // IMPLEMENT
+  headingDirection nextHeading;
+  if (!path[currentPathIndex].y == currentIntersection_Y) {
+    nextHeading = path[currentPathIndex].y > currentIntersection_Y
+                      ? headingDirection::UP
+                      : headingDirection::DOWN;
+  } else {
+    nextHeading = path[currentPathIndex].x > currentIntersection_X
+                      ? headingDirection::RIGHT
+                      : headingDirection::LEFT;
+  }
+  return nextHeading;
 }
 
 void Zombie::stop() {
@@ -189,51 +212,23 @@ void Zombie::recordIntersection() {
   Serial.println("wallRight: " + String(wallRight));
   if (currentHeading == UP) {
     if (isOnIntersection) {
-      if (wallAhead) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y - 1, true);
-      }
-      if (wallLeft) {
-        maze.setWall(currentIntersection_X - 1, currentIntersection_Y, true);
-      }
-      if (wallRight) {
-        maze.setWall(currentIntersection_X + 1, currentIntersection_Y, true);
-      }
+      defaultMaze.setWall(currentIntersection_X, currentIntersection_Y,
+                          wallAhead, wallLeft, false, wallRight);
     }
   } else if (currentHeading == LEFT) {
     if (isOnIntersection) {
-      if (wallAhead) {
-        maze.setWall(currentIntersection_X - 1, currentIntersection_Y, true);
-      }
-      if (wallLeft) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y + 1, true);
-      }
-      if (wallRight) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y - 1, true);
-      }
+      defaultMaze.setWall(currentIntersection_X, currentIntersection_Y,
+                          wallLeft, false, wallRight, wallAhead);
     }
   } else if (currentHeading == DOWN) {
     if (isOnIntersection) {
-      if (wallAhead) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y + 1, true);
-      }
-      if (wallLeft) {
-        maze.setWall(currentIntersection_X + 1, currentIntersection_Y, true);
-      }
-      if (wallRight) {
-        maze.setWall(currentIntersection_X - 1, currentIntersection_Y, true);
-      }
+      defaultMaze.setWall(currentIntersection_X, currentIntersection_Y, false,
+                          wallRight, wallAhead, wallLeft);
     }
   } else if (currentHeading == RIGHT) {
     if (isOnIntersection) {
-      if (wallAhead) {
-        maze.setWall(currentIntersection_X + 1, currentIntersection_Y, true);
-      }
-      if (wallLeft) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y - 1, true);
-      }
-      if (wallRight) {
-        maze.setWall(currentIntersection_X, currentIntersection_Y + 1, true);
-      }
+      defaultMaze.setWall(currentIntersection_X, currentIntersection_Y,
+                          wallRight, wallAhead, wallLeft, false);
     }
   }
   pathUpdated = false;
@@ -263,28 +258,51 @@ void Zombie::getPath() {
   // Logic to get path
   pathLength = 0;
   pathFound = mazeSolver.findPath(
-      Node(currentIntersection_X, currentIntersection_Y),
-      Node(lastClosestIntersectionIndex_X, lastClosestIntersectionIndex_Y),
+      defaultMaze.getNode(currentIntersection_X, currentIntersection_Y),
+      defaultMaze.getNode(lastClosestIntersectionIndex_X,
+                          lastClosestIntersectionIndex_Y),
       path, pathLength);
-  pathUpdated = pathFound;
   Serial.print("Path found: ");
   Serial.println(pathFound ? "Yes" : "No");
+  defaultMaze.printMaze();
   Serial.println();
   mazeSolver.printPath(path, pathLength);
+  pathUpdated = true;
 }
 
-bool Zombie::isOffIntersection() {
-  if (onIntersection()) {
-    return false;
-  } else {
-    return true;
+void Zombie::followPath() {
+  if (pathUpdated && currentPathIndex < pathLength) {
+    if (onIntersection()) {
+      updateIntersectionIndex();
+      chassis.driveFor(10, SEEKING_FWD_SPEED, true);
+      headingDirection nextHeading = getTurnDirection();
+      int turnAngle = nextHeading - currentHeading;
+      chassis.turnFor(turnAngle, SEEKING_TURN_SPEED, true);
+    } else {
+      followLine();
+    }
   }
-}
-
-void Zombie::followPath() {} // Needs  Implementation
+} // Needs  Implementation
 
 void Zombie::closestIntersection() {} // Needs Implementation
 
-void Zombie::updateIntersectionIndex() {} // Needs Implementation
+void Zombie::updateIntersectionIndex() {
+  switch (currentHeading) {
+  case UP:
+    currentIntersection_Y = path[currentPathIndex].y + 1;
+    break;
+  case DOWN:
+    currentIntersection_Y = path[currentPathIndex].y - 1;
+    break;
+  case LEFT:
+    currentIntersection_X = path[currentPathIndex].x - 1;
+    break;
+  case RIGHT:
+    currentIntersection_X = path[currentPathIndex].x + 1;
+    break;
+  }
+} // Needs Implementation
+
+void Zombie::printMaze() { defaultMaze.printMaze(); }
 
 #endif

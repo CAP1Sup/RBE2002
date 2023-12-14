@@ -22,6 +22,7 @@
 
 #include "IRSensor.h"
 #include "LineSensor.h"
+#include "MQTT.h"
 #include "MazeSolver.h"
 #include "SonarSensor.h"
 
@@ -35,20 +36,20 @@
 
 // Assuming necessary libraries for MQTT, networking, and sensor input are
 // included
-#define WALL_IR_DIS_THRESHOLD 30.0    // mm
-#define WALL_SONAR_DIS_THRESHOLD 20.0 // cm
-#define THETA_THESHOLD 10             // deg
-#define LINE_THRESHOLD 50             // 0-1023
-#define SEEKING_FWD_SPEED 12          // in/s
-#define SEEKING_TURN_SPEED 100        // deg/s
-#define TURN_SPEED 150                // deg/s
-#define SEARCH_EFFORT 80              // Motor effort
+#define WALL_IR_DIS_THRESHOLD 30.0     // mm
+#define WALL_SONAR_DIS_THRESHOLD 20.0  // cm
+#define THETA_THESHOLD 10              // deg
+#define LINE_THRESHOLD 50              // 0-1023
+#define SEEKING_FWD_SPEED 12           // in/s
+#define SEEKING_TURN_SPEED 100         // deg/s
+#define TURN_SPEED 150                 // deg/s
+#define SEARCH_EFFORT 80               // Motor effort
 
-#define IN_CH 2.54 // Inch to Centimeter conversion
-#define LINE_P 0.1 // Line P value
+#define IN_CH 2.54  // Inch to Centimeter conversion
+#define LINE_P 0.1  // Line P value
 
 class Zombie {
-public:
+ public:
   // Function to initialize the zombie Romi
   void init();
 
@@ -82,9 +83,9 @@ public:
 
   void readMQTT();
 
-  void getPath(); // Make this private
+  void getPath();  // Make this private
 
-private:
+ private:
   // Robot state
   enum RobotState { IDLE, SEEKING, CHASING, STOP, DEBUG };
   RobotState state = DEBUG;
@@ -126,6 +127,7 @@ private:
 
   Maze maze;
   MazeSolver mazeSolver;
+  MQTT mqtt;
 
   float currentTheta = 0;
 

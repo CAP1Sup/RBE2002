@@ -10,12 +10,12 @@
  */
 
 #include "Zombie.h"
-extern Maze defaultMaze;
 
 #ifdef ZOMBIE
 
 Chassis chassis;
 Rangefinder rangefinder(ECHO_PIN, TRIG_PIN);
+extern Maze defaultMaze;
 // SonarSensor sonar;
 
 void Zombie::init() {
@@ -28,57 +28,62 @@ void Zombie::init() {
   lineSensor.setThreshold(LINE_THRESHOLD);
   chassis.init();
   rangefinder.init();
+  mqtt.init();
 }
 
 void Zombie::run() {
+  if (mqtt.isMessageAvailable()) {
+    Tag tag = mqtt.readMessage();
+    // Do things with the tag data
+  }
   switch (state) {
-  case DEBUG:
-    delay(2000);
-    if (!pathUpdated) { // Precalcualte path
-      delay(1000);
-      Serial.println("Getting path");
-      getPath();
-    }
-
-    if (onIntersection()) {
-      recordIntersection();
-      while (onIntersection()) {
-        chassis.driveFor(10, SEEKING_FWD_SPEED, true);
+    case DEBUG:
+      delay(2000);
+      if (!pathUpdated) {  // Precalcualte path
+        delay(1000);
+        Serial.println("Getting path");
+        getPath();
       }
-      printMaze();
-    } else {
-      followLine();
-    }
 
-    // state = IDLE;
-    break;
-  case IDLE:
-    Serial.println("Idle");
-    if (!pathUpdated) { // Precalcualte path
-      getPath();
-    }
-    if (buttonA.getSingleDebouncedRelease()) {
-      state = SEEKING;
-    }
-    break;
-  case SEEKING:
-    receiveTargetCoordinates(0, 0); // Add time delay here
-    moveToLastKnownLocation();
-    if (survivorFound()) {
-      state = CHASING;
-    }
-    break;
-  case CHASING:
-    pursueSurvivor();
-    if (survivorInfected()) {
-      state = STOP;
-    } else if (!survivorFound()) {
-      state = SEEKING;
-    }
-    break;
-  case STOP:
-    stop();
-    break;
+      if (onIntersection()) {
+        recordIntersection();
+        while (onIntersection()) {
+          chassis.driveFor(10, SEEKING_FWD_SPEED, true);
+        }
+        printMaze();
+      } else {
+        followLine();
+      }
+
+      // state = IDLE;
+      break;
+    case IDLE:
+      Serial.println("Idle");
+      if (!pathUpdated) {  // Precalcualte path
+        getPath();
+      }
+      if (buttonA.getSingleDebouncedRelease()) {
+        state = SEEKING;
+      }
+      break;
+    case SEEKING:
+      receiveTargetCoordinates(0, 0);  // Add time delay here
+      moveToLastKnownLocation();
+      if (survivorFound()) {
+        state = CHASING;
+      }
+      break;
+    case CHASING:
+      pursueSurvivor();
+      if (survivorInfected()) {
+        state = STOP;
+      } else if (!survivorFound()) {
+        state = SEEKING;
+      }
+      break;
+    case STOP:
+      stop();
+      break;
   }
 }
 
@@ -146,7 +151,6 @@ void Zombie::printAllSensor() {
 
 // Additional implementation details as needed...
 void Zombie::moveToLastKnownLocation() {
-
   bool onTargetX = abs(currentX - lastKnownX) > 0.5f;
   bool onTargetY = abs(currentY - lastKnownY) > 0.5f;
 
@@ -186,12 +190,12 @@ void Zombie::stop() {
   chassis.setTwist(0.0f, 0.0f);
 }
 
-bool Zombie::survivorFound() { // IMPLEMENT THIS
+bool Zombie::survivorFound() {  // IMPLEMENT THIS
   // Logic to determine if the survivor has been found
   return false;
 }
 
-bool Zombie::survivorInfected() { // IMPLEMENT THIS
+bool Zombie::survivorInfected() {  // IMPLEMENT THIS
   // Logic to determine if the survivor is infected
   return false;
 }
@@ -238,7 +242,7 @@ void Zombie::recordIntersection() {
 void Zombie::readMQTT() {
   if (Serial.available() > 0) {
     String receivedData =
-        Serial.readStringUntil('\n'); // Read the incoming data
+        Serial.readStringUntil('\n');  // Read the incoming data
     int separatorIndex = receivedData.indexOf(':');
 
     if (separatorIndex != -1) {
@@ -282,26 +286,26 @@ void Zombie::followPath() {
       followLine();
     }
   }
-} // Needs  Implementation
+}  // Needs  Implementation
 
-void Zombie::closestIntersection() {} // Needs Implementation
+void Zombie::closestIntersection() {}  // Needs Implementation
 
 void Zombie::updateIntersectionIndex() {
   switch (currentHeading) {
-  case UP:
-    currentIntersection_Y = path[currentPathIndex].y + 1;
-    break;
-  case DOWN:
-    currentIntersection_Y = path[currentPathIndex].y - 1;
-    break;
-  case LEFT:
-    currentIntersection_X = path[currentPathIndex].x - 1;
-    break;
-  case RIGHT:
-    currentIntersection_X = path[currentPathIndex].x + 1;
-    break;
+    case UP:
+      currentIntersection_Y = path[currentPathIndex].y + 1;
+      break;
+    case DOWN:
+      currentIntersection_Y = path[currentPathIndex].y - 1;
+      break;
+    case LEFT:
+      currentIntersection_X = path[currentPathIndex].x - 1;
+      break;
+    case RIGHT:
+      currentIntersection_X = path[currentPathIndex].x + 1;
+      break;
   }
-} // Needs Implementation
+}  // Needs Implementation
 
 void Zombie::printMaze() { defaultMaze.printMaze(); }
 

@@ -12,14 +12,16 @@
 
 #include <stdint.h>
 
+#define UP_MASK 0b0001
+#define RIGHT_MASK 0b0010
+#define DOWN_MASK 0b0100
+#define LEFT_MASK 0b1000
+
 class Node {
-public:
-  uint8_t x, y; //
-  Node *parent; // Parent node in the path
+ public:
+  uint8_t x, y;  //
+  Node *parent;  // Parent node in the path
   Node *child;
-  struct wall {
-    bool up = false, right = false, down = false, left = false;
-  } walls; // Walls around the node
 
   /**
    * @brief Construct a new Node object
@@ -41,7 +43,7 @@ public:
    * @return true
    * @return false
    */
-  bool isValid() const; // Check if the node has valid coordinates
+  bool isValid() const;  // Check if the node has valid coordinates
 
   /**
    * @brief Check if the node is equal to another node
@@ -76,8 +78,15 @@ public:
   bool getWallDown() const;
   bool getWallLeft() const;
 
+  void setWallUp(bool wall);
+  void setWallRight(bool wall);
+  void setWallDown(bool wall);
+  void setWallLeft(bool wall);
+
   void printWall();
 
   int getX() const;
   int getY() const;
+
+  uint8_t walls = 0b0000;
 };

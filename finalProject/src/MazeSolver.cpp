@@ -1,5 +1,5 @@
 #include "MazeSolver.h"
-extern Maze defaultMaze(MAX_WIDTH, MAX_HEIGHT); // Define a default Maze object
+extern Maze defaultMaze(MAX_WIDTH, MAX_HEIGHT);  // Define a default Maze object
 
 MazeSolver::MazeSolver() : maze(defaultMaze), openListSize(0) {}
 MazeSolver::MazeSolver(const Maze &maze) : maze(maze), openListSize(0) {}
@@ -8,11 +8,11 @@ bool MazeSolver::findPath(Node *start, Node *goal, Node path[],
                           int &pathLength) {
   // goalNode = &goal; // Store the goal node
 
-  openListSize = 0; // Initialize the open list
+  openListSize = 0;  // Initialize the open list
   addToOpenList(start);
   while (openListSize > 0) {
     // Serial.println("getting Current node");
-    Node *current = popBestNode(*goal); // Find the best node in the open list
+    Node *current = popBestNode(*goal);  // Find the best node in the open list
 
     // Serial.print("Current: ");
     // Serial.print(current->x);
@@ -21,7 +21,7 @@ bool MazeSolver::findPath(Node *start, Node *goal, Node path[],
     // Serial.flush();
 
     if (current->x == goal->x &&
-        current->y == goal->y) { // Check if the current node is the goal node
+        current->y == goal->y) {  // Check if the current node is the goal node
       // Serial.println(F("Goal found"));
       reconstructPath(*current, path, pathLength, start);
       return true;
@@ -30,7 +30,7 @@ bool MazeSolver::findPath(Node *start, Node *goal, Node path[],
     Node *neighborsPtr[MAX_NEIGHBORS];
     // Serial.println(F("Getting neighbors"));
     int numNeighborsPtr = getNeighbors(
-        *current, neighborsPtr); // Get the neighbors of the current node
+        *current, neighborsPtr);  // Get the neighbors of the current node
     for (int i = 0; i < numNeighborsPtr; ++i) {
       // Serial.print("Neighbors returned:");
       // Serial.print(neighborsPtr[i]->x);
@@ -52,7 +52,7 @@ bool MazeSolver::findPath(Node *start, Node *goal, Node path[],
 }
 
 void MazeSolver::addToOpenList(Node *node) {
-  if (openListSize < MAX_NODES) { // Check if there is space in the open list
+  if (openListSize < MAX_NODES) {  // Check if there is space in the open list
     openList[openListSize++] = node;
   }
 }
@@ -70,7 +70,7 @@ Node *MazeSolver::popBestNode(const Node &goal) {
     }
   }
 
-  Node *bestNode = openList[bestIndex]; // Store the best node
+  Node *bestNode = openList[bestIndex];  // Store the best node
 
   // Shift the remaining elements left
   for (int i = bestIndex; i < openListSize - 1; ++i) {
@@ -89,25 +89,25 @@ int MazeSolver::calculateHeuristic(const Node &a, const Node &b) {
 int MazeSolver::getNeighbors(const Node &node, Node *neighbors[]) {
   uint8_t count = 0;
   // Check Up
-  if (node.y < MAX_HEIGHT && !node.walls.up &&
+  if (node.y < MAX_HEIGHT && !node.getWallUp() &&
       !(node.parent == defaultMaze.getNode(node.x, node.y + 1))) {
     // Serial.println("Up");
     neighbors[count++] = defaultMaze.getNode(node.x, node.y + 1);
   }
   // Check Down
-  if (node.y > 0 && !node.walls.down &&
+  if (node.y > 0 && !node.getWallDown() &&
       !(node.parent == defaultMaze.getNode(node.x, node.y - 1))) {
     // Serial.println("Down");
     neighbors[count++] = defaultMaze.getNode(node.x, node.y - 1);
   }
   // Check Left
-  if (node.x > 0 && !node.walls.left &&
+  if (node.x > 0 && !node.getWallLeft() &&
       !(node.parent == defaultMaze.getNode(node.x - 1, node.y))) {
     // Serial.println("Left");
     neighbors[count++] = defaultMaze.getNode(node.x - 1, node.y);
   }
 
-  if (node.x < MAX_WIDTH && !node.walls.right &&
+  if (node.x < MAX_WIDTH && !node.getWallRight() &&
       !(node.parent == defaultMaze.getNode(node.x + 1, node.y))) {
     // Serial.println("Right");
     neighbors[count++] = defaultMaze.getNode(node.x + 1, node.y);
@@ -132,14 +132,14 @@ int MazeSolver::getNeighbors(const Node &node, Node *neighbors[]) {
   //   // Serial.println("Right");
   //   neighbors[count++] = defaultMaze.getNode(node.x + 1, node.y);
   // }
-  for (int i = 0; i < count; i++) {
-    // Serial.print("Neighbor: ");
-    // Serial.print(neighbors[i].x);
-    // Serial.print(", ");
-    // Serial.println(neighbors[i].y);
-    // Serial.flush();
-  }
-  return count; // Number of neighbors added
+  // for (int i = 0; i < count; i++) {
+  // Serial.print("Neighbor: ");
+  // Serial.print(neighbors[i].x);
+  // Serial.print(", ");
+  // Serial.println(neighbors[i].y);
+  // Serial.flush();
+  //}
+  return count;  // Number of neighbors added
 }
 
 void MazeSolver::reconstructPath(Node &goalNode, Node path[], int &pathLength,
@@ -158,9 +158,9 @@ void MazeSolver::reconstructPath(Node &goalNode, Node path[], int &pathLength,
     // Serial.print(", ");
     // Serial.println(currentNode->y);
     // delay(100);
-    path[pathLength++] = *currentNode; // Add the node to the path
+    path[pathLength++] = *currentNode;  // Add the node to the path
     temp = currentNode;
-    currentNode = currentNode->parent; // Move to the parent node
+    currentNode = currentNode->parent;  // Move to the parent node
     currentNode->child = temp;
   }
 

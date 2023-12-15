@@ -21,16 +21,16 @@ Maze::Maze(int width, int height) : width(width), height(height) {
 
 void Maze::setWall(int x, int y, bool up, bool right, bool down, bool left) {
   if (y < MAX_HEIGHT - 1 && up) {
-    grid[x][y + 1].walls.down = up;
+    grid[x][y + 1].setWallDown(up);
   }
   if (y > 0 && down) {
-    grid[x][y - 1].walls.up = down;
+    grid[x][y - 1].setWallUp(down);
   }
   if (x > 0 && left) {
-    grid[x - 1][y].walls.right = left;
+    grid[x - 1][y].setWallRight(left);
   }
   if (x < MAX_WIDTH - 1 && right) {
-    grid[x + 1][y].walls.left = right;
+    grid[x + 1][y].setWallLeft(right);
   }
   grid[x][y].setWalls(up, right, down, left);
 }

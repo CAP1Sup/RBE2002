@@ -19,6 +19,7 @@
 #include <PIDcontroller.h>
 #include <Rangefinder.h>
 #include <Romi32U4.h>
+#include <openmv.h>
 
 #include "IRSensor.h"
 #include "LineSensor.h"
@@ -129,6 +130,7 @@ class Zombie {
   MazeSolver mazeSolver;
   Node survivorNode = Node(0, 0);
   MQTT mqtt;
+  OpenMV camera;
 
   float currentTheta = 0;
 

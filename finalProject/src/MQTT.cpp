@@ -3,6 +3,9 @@
 void MQTT::init() {
   Serial1.begin(115200);
   memset(cArray, 0, sizeof(cArray));
+
+  // Set internal pullup on RX1 to avoid spurious signals
+  digitalWrite(0, HIGH);
 }
 
 bool MQTT::isMessageAvailable() {
@@ -76,4 +79,13 @@ Node MQTT::toNode(Tag tag) {
   }
 
   return Node(col, row);
+}
+
+/**
+ * sendMessage creates a string of the form
+ *      topic:message
+ * which is what the corresponding ESP32 code expects.
+ * */
+void MQTT::sendMessage(const String& topic, const String& message) {
+  Serial1.println(topic + String(':') + message);
 }

@@ -24,4 +24,5 @@ class MQTT {
   bool isMessageAvailable();
   Tag readTagMessage();
   Node toNode(Tag tag);
+  void sendMessage(const String& topic, const String& message);
 };

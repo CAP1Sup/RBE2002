@@ -29,6 +29,10 @@ void Zombie::init() {
   chassis.init();
   rangefinder.init();
   mqtt.init();
+
+  // Camera setup
+  Wire.begin();
+  Wire.setClock(100000ul);
 }
 
 void Zombie::run() {
@@ -41,6 +45,17 @@ void Zombie::run() {
       survivorNode = mqtt.toNode(tag);
     }
   }
+
+  // Upload any tags from the camera to the MQTT server
+  if (camera.getTagCount()) {
+    AprilTagDatum tag;
+    camera.readTag(tag);
+    mqtt.sendMessage("tag" + String(tag.id) + "/str",
+                     String(tag.cx) + "|" + String(tag.cy) + "|" +
+                         String(tag.w) + "|" + String(tag.h) + "|" +
+                         String(tag.rot) + "\n");
+  }
+
   switch (state) {
     case DEBUG:
       delay(2000);
@@ -64,7 +79,7 @@ void Zombie::run() {
       break;
     case IDLE:
       Serial.println("Idle");
-      if (!pathUpdated) {  // Precalcualte path
+      if (!pathUpdated) {  // Precalculate path
         getPath();
       }
       if (buttonA.getSingleDebouncedRelease()) {

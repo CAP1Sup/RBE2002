@@ -31,16 +31,64 @@ public:
    */
   Maze(int width, int height);
 
+  /**
+   * @brief print the maze
+   *
+   */
   void printMaze();
 
+  /**
+   * @brief Set the Wall object
+   *
+   * @param x x coordinate
+   * @param y y coordinate
+   * @param up up wall
+   * @param right right wall
+   * @param down down wall
+   * @param left  left wall
+   */
   void setWall(int x, int y, bool up, bool right, bool down, bool left);
 
+  /**
+   * @brief Get the Node object
+   *
+   * @param x x coordinate
+   * @param y y coordinate
+   * @return Node*
+   */
   Node *getNode(int x, int y);
 
+  /**
+   * @brief Print Wall Layout
+   *
+   * @param x x coordinate
+   * @param y y coordinate
+   */
+  void printWall(int x, int y);
+
+  /**
+   * @brief Create virtual environment walls
+   *
+   */
   void checkWall();
 
+  /**
+   * @brief Get the Node Child object
+   *
+   * @param x x coordinate
+   * @param y y coordinate
+   * @return Node*
+   */
+  Node *getNodeChild(int x, int y);
+
+  /**
+   * @brief reset parents of all nodes
+   *
+   */
+  void resetParents();
+
 private:
-  Node grid[MAX_WIDTH][MAX_HEIGHT];
+  Node grid[MAX_WIDTH][MAX_HEIGHT]; // Grid of nodes
   int width;
   int height;
 };

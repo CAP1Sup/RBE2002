@@ -28,72 +28,106 @@ void Zombie::init() {
   lineSensor.setThreshold(LINE_THRESHOLD);
   chassis.init();
   rangefinder.init();
+  pathLength = 2; // set to 2 to start path
   mqtt.init();
+
+  // Camera setup
+  Wire.begin();
+  Wire.setClock(100000ul);
 }
 
 void Zombie::run() {
   if (mqtt.isMessageAvailable()) {
-    Tag tag = mqtt.readMessage();
-    // Do things with the tag data
+    Tag tag = mqtt.readTagMessage();
+    if (tag.id == ZOMBIE_TOP_TAG_ID) {
+      // TODO: Update the zombie's position?
+    } else if (tag.id == SURVIVOR_TOP_TAG_ID) {
+      // Update the survivor's position
+      survivorNode = mqtt.toNode(tag);
+    }
   }
+
+  // Upload any tags from the camera to the MQTT server
+  // Serial.print("Tag count: ");
+  // Serial.println(camera.getTagCount());
+  // if (camera.getTagCount()) {
+  //  AprilTagDatum tag;
+  //  if (camera.readTag(tag)) {
+  /* mqtt.sendMessage("tag" + String(tag.id) + "/str",
+                    String(tag.cx) + "|" + String(tag.cy) + "|" +
+                        String(tag.w) + "|" + String(tag.h) + "|" +
+                        String(tag.rot) + "\n");*/
+  /*if (tag.id == SURVIVOR_SIDE_TAG_ID) {
+    // Check if the survivor is infected
+    if (tag.w > MAX_SURVIVOR_TAG_WIDTH) {
+      // Survivor is infected
+      chassis.idle();
+      state = STOP;
+    }
+  }*/
+  //}
+  //}
+
   switch (state) {
-    case DEBUG:
-      delay(2000);
-      if (!pathUpdated) {  // Precalcualte path
-        delay(1000);
-        Serial.println("Getting path");
-        getPath();
-      }
-
-      if (onIntersection()) {
-        recordIntersection();
-        while (onIntersection()) {
-          chassis.driveFor(10, SEEKING_FWD_SPEED, true);
-        }
-        printMaze();
-      } else {
-        followLine();
-      }
-
-      // state = IDLE;
-      break;
-    case IDLE:
-      Serial.println("Idle");
-      if (!pathUpdated) {  // Precalcualte path
-        getPath();
-      }
-      if (buttonA.getSingleDebouncedRelease()) {
-        state = SEEKING;
-      }
-      break;
-    case SEEKING:
-      receiveTargetCoordinates(0, 0);  // Add time delay here
-      moveToLastKnownLocation();
-      if (survivorFound()) {
-        state = CHASING;
-      }
-      break;
-    case CHASING:
-      pursueSurvivor();
-      if (survivorInfected()) {
-        state = STOP;
-      } else if (!survivorFound()) {
-        state = SEEKING;
-      }
-      break;
-    case STOP:
+  case DEBUG_PATHFIND:
+    delay(3000);
+    if (!pathUpdated) {
+      Serial.println(F("Getting path"));
+      defaultMaze.checkWall();
+      getPath();
+    }
+    break;
+  case IDLE:
+    // Serial.println("Idle");
+    if (buttonA.getSingleDebouncedRelease()) {
+      Serial.println("Button A pressed");
+      state = SEEKING;
+    }
+    break;
+  case SEEKING:
+    // Serial.println("Seeking");
+    if (onIntersection()) {
       stop();
-      break;
-  }
-}
+      recordIntersection();
+      if (currentIntersection_X == lastClosestIntersectionIndex_X &&
+          currentIntersection_Y == lastClosestIntersectionIndex_Y) {
+        state = STOP;
+        break;
+      }
+      Serial.println("Current Path Index: " + String(currentIntersection_X) +
+                     ", " + String(currentIntersection_Y));
+      if (!pathUpdated) { // Precalcualte path
+        Serial.println("Getting path");
+        defaultMaze.resetParents();
+        getPath();
+      }
+      chassis.driveFor(3, SEEKING_FWD_SPEED, true);
+      // This is the current intersection index
+      headingDirection nextHeading = getTurnDirection();
+      Serial.println("Next Path Index: " + String(nextNode_X) + ", " +
+                     String(nextNode_Y));
+      Serial.println("Check Path: " + String(path[0].x) + ", " +
+                     String(path[0].y));
 
-// Receive target coordinates from MQTT server
-void Zombie::receiveTargetCoordinates(float x, float y) {
-  // Implementation for receiving coordinates
-  lastKnownX = x;
-  lastKnownY = y;
-  isOnLastKnownPosition = false;
-  // pathUpdated = false;
+      int turnAngle = nextHeading - currentHeading;
+      // Serial.println("Turn Angle: " + String(turnAngle));
+      // Serial.println();
+      if (!pathFound || onTarget()) {
+        stop();
+      } else if (turnAngle != 0) {
+        chassis.driveFor(5, SEEKING_FWD_SPEED, true);
+        chassis.turnFor(turnAngle, SEEKING_TURN_SPEED, true);
+        currentHeading = nextHeading;
+      }
+    } else {
+      followLine();
+    }
+    break;
+  case STOP:
+    Serial.println("Stop");
+    stop();
+    break;
+  }
 }
 
 // Follow a line
@@ -101,22 +135,17 @@ void Zombie::followLine() {
   // Calculate the difference between readings from the two line sensors
   int difference =
       lineSensor.getRightLineValue() - lineSensor.getLeftLineValue();
+  getSonarDistance();
+  getIRLeftDistance();
+  getIRRightDistance();
   chassis.setTwist(SEEKING_FWD_SPEED * IN_CH, LINE_P * difference);
+  delay(10);
 }
 
-// Detect survivor's position
-void Zombie::detectSurvivorPosition() {
-  // Implementation for detecting survivor's position
-}
-
-// Pursue the survivor
-void Zombie::pursueSurvivor() {
-  // Logic to pursue survivor
-}
-
-bool Zombie::getOnLastKnownPosition() {
+bool Zombie::onTarget() {
   // Logic to determine if the robot is on target
-  return isOnLastKnownPosition;
+  return lastClosestIntersectionIndex_X == currentIntersection_X &&
+         lastClosestIntersectionIndex_Y == currentIntersection_Y;
 }
 
 bool Zombie::onIntersection() {
@@ -149,38 +178,19 @@ void Zombie::printAllSensor() {
   // Logic to print all sensor readings
 }
 
-// Additional implementation details as needed...
-void Zombie::moveToLastKnownLocation() {
-  bool onTargetX = abs(currentX - lastKnownX) > 0.5f;
-  bool onTargetY = abs(currentY - lastKnownY) > 0.5f;
-
-  if (onTargetX && onTargetY) {
-    isOnLastKnownPosition = true;
-  }
-
-  if (onIntersection()) {
-    recordIntersection();
-    getPath();
-    updateIntersectionIndex();
-  }
-}
-
-uint8_t Zombie::getIntersectionCount() {
-  // Logic to get intersection count
-  return intersectionCount;
-}
-
 Zombie::headingDirection Zombie::getTurnDirection() {
   // Logic to determine which direction to turn
   headingDirection nextHeading;
-  if (!path[currentPathIndex].y == currentIntersection_Y) {
-    nextHeading = path[currentPathIndex].y > currentIntersection_Y
-                      ? headingDirection::UP
-                      : headingDirection::DOWN;
+  Node *child =
+      defaultMaze.getNodeChild(currentIntersection_X, currentIntersection_Y);
+  nextNode_X = child->getX();
+  nextNode_Y = child->getY();
+  if (nextNode_Y != currentIntersection_Y) {
+    nextHeading = nextNode_Y > currentIntersection_Y ? headingDirection::UP
+                                                     : headingDirection::DOWN;
   } else {
-    nextHeading = path[currentPathIndex].x > currentIntersection_X
-                      ? headingDirection::RIGHT
-                      : headingDirection::LEFT;
+    nextHeading = nextNode_X > currentIntersection_X ? headingDirection::RIGHT
+                                                     : headingDirection::LEFT;
   }
   return nextHeading;
 }
@@ -188,16 +198,6 @@ Zombie::headingDirection Zombie::getTurnDirection() {
 void Zombie::stop() {
   // Logic to stop the robot
   chassis.setTwist(0.0f, 0.0f);
-}
-
-bool Zombie::survivorFound() {  // IMPLEMENT THIS
-  // Logic to determine if the survivor has been found
-  return false;
-}
-
-bool Zombie::survivorInfected() {  // IMPLEMENT THIS
-  // Logic to determine if the survivor is infected
-  return false;
 }
 
 float Zombie::getLeftLineValue() { return lineSensor.getLeftLineValue(); }
@@ -210,10 +210,10 @@ void Zombie::recordIntersection() {
   bool wallLeft = getIRLeftDistance() < WALL_IR_DIS_THRESHOLD;
   bool wallRight = getIRRightDistance() < WALL_IR_DIS_THRESHOLD;
 
-  Serial.println("isOnIntersection: " + String(isOnIntersection));
-  Serial.println("wallAhead: " + String(wallAhead));
+  Serial.println(("wallAhead: " + String(wallAhead)));
   Serial.println("wallLeft: " + String(wallLeft));
   Serial.println("wallRight: " + String(wallRight));
+  updateIntersectionIndex();
   if (currentHeading == UP) {
     if (isOnIntersection) {
       defaultMaze.setWall(currentIntersection_X, currentIntersection_Y,
@@ -235,27 +235,9 @@ void Zombie::recordIntersection() {
                           wallRight, wallAhead, wallLeft, false);
     }
   }
+  defaultMaze.printWall(currentIntersection_X, currentIntersection_Y);
   pathUpdated = false;
   intersectionCount++;
-}
-
-void Zombie::readMQTT() {
-  if (Serial.available() > 0) {
-    String receivedData =
-        Serial.readStringUntil('\n');  // Read the incoming data
-    int separatorIndex = receivedData.indexOf(':');
-
-    if (separatorIndex != -1) {
-      String topic = receivedData.substring(0, separatorIndex);
-      String message = receivedData.substring(separatorIndex + 1);
-
-      // Now, you have the topic and message separated
-      Serial.println("Topic: " + topic + ", Message: " + message);
-
-      // You can add further processing based on the topic and message
-      // For example, if(topic == "irDist") { ... }
-    }
-  }
 }
 
 void Zombie::getPath() {
@@ -263,49 +245,32 @@ void Zombie::getPath() {
   pathLength = 0;
   pathFound = mazeSolver.findPath(
       defaultMaze.getNode(currentIntersection_X, currentIntersection_Y),
-      defaultMaze.getNode(lastClosestIntersectionIndex_X,
-                          lastClosestIntersectionIndex_Y),
-      path, pathLength);
-  Serial.print("Path found: ");
-  Serial.println(pathFound ? "Yes" : "No");
-  defaultMaze.printMaze();
-  Serial.println();
+      defaultMaze.getNode(survivorNode.x, survivorNode.y), path, pathLength);
+
+  Serial.print(F("Path found: "));
+  Serial.println(pathFound ? F("Yes") : F("No"));
+
   mazeSolver.printPath(path, pathLength);
   pathUpdated = true;
 }
 
-void Zombie::followPath() {
-  if (pathUpdated && currentPathIndex < pathLength) {
-    if (onIntersection()) {
-      updateIntersectionIndex();
-      chassis.driveFor(10, SEEKING_FWD_SPEED, true);
-      headingDirection nextHeading = getTurnDirection();
-      int turnAngle = nextHeading - currentHeading;
-      chassis.turnFor(turnAngle, SEEKING_TURN_SPEED, true);
-    } else {
-      followLine();
-    }
-  }
-}  // Needs  Implementation
-
-void Zombie::closestIntersection() {}  // Needs Implementation
-
 void Zombie::updateIntersectionIndex() {
   switch (currentHeading) {
-    case UP:
-      currentIntersection_Y = path[currentPathIndex].y + 1;
-      break;
-    case DOWN:
-      currentIntersection_Y = path[currentPathIndex].y - 1;
-      break;
-    case LEFT:
-      currentIntersection_X = path[currentPathIndex].x - 1;
-      break;
-    case RIGHT:
-      currentIntersection_X = path[currentPathIndex].x + 1;
-      break;
+  case UP:
+    currentIntersection_Y = currentIntersection_Y + 1;
+    break;
+  case DOWN:
+    currentIntersection_Y = currentIntersection_Y - 1;
+    break;
+  case LEFT:
+    currentIntersection_X = currentIntersection_X - 1;
+    break;
+  case RIGHT:
+    currentIntersection_X = currentIntersection_X + 1;
+    break;
   }
-}  // Needs Implementation
+  currentPathIndex++;
+} // Needs Implementation
 
 void Zombie::printMaze() { defaultMaze.printMaze(); }
 

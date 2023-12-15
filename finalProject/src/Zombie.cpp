@@ -33,13 +33,18 @@ void Zombie::init() {
 
 void Zombie::run() {
   if (mqtt.isMessageAvailable()) {
-    Tag tag = mqtt.readMessage();
-    // Do things with the tag data
+    Tag tag = mqtt.readTagMessage();
+    if (tag.id == ZOMBIE_TOP_TAG_ID) {
+      // TODO: Update the zombie's position?
+    } else if (tag.id == SURVIVOR_TOP_TAG_ID) {
+      // Update the survivor's position
+      survivorNode = mqtt.toNode(tag);
+    }
   }
   switch (state) {
     case DEBUG:
       delay(2000);
-      if (!pathUpdated) {  // Precalcualte path
+      if (!pathUpdated) {  // Precalculated path
         delay(1000);
         Serial.println("Getting path");
         getPath();
@@ -237,25 +242,6 @@ void Zombie::recordIntersection() {
   }
   pathUpdated = false;
   intersectionCount++;
-}
-
-void Zombie::readMQTT() {
-  if (Serial.available() > 0) {
-    String receivedData =
-        Serial.readStringUntil('\n');  // Read the incoming data
-    int separatorIndex = receivedData.indexOf(':');
-
-    if (separatorIndex != -1) {
-      String topic = receivedData.substring(0, separatorIndex);
-      String message = receivedData.substring(separatorIndex + 1);
-
-      // Now, you have the topic and message separated
-      Serial.println("Topic: " + topic + ", Message: " + message);
-
-      // You can add further processing based on the topic and message
-      // For example, if(topic == "irDist") { ... }
-    }
-  }
 }
 
 void Zombie::getPath() {

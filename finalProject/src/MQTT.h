@@ -1,4 +1,5 @@
 #include "Arduino.h"
+#include "Maze.h"
 
 struct Tag {
   uint8_t id;
@@ -9,6 +10,9 @@ struct Tag {
   float angle;
 };
 
+const uint16_t xColBounds[] = {105, 210, 320, 433, 540};
+const uint16_t yRowBounds[] = {155, 278};
+
 class MQTT {
  private:
   char input;
@@ -18,5 +22,6 @@ class MQTT {
  public:
   void init();
   bool isMessageAvailable();
-  Tag readMessage();
+  Tag readTagMessage();
+  Node toNode(Tag tag);
 };

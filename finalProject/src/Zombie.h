@@ -127,6 +127,7 @@ class Zombie {
 
   Maze maze;
   MazeSolver mazeSolver;
+  Node survivorNode = Node(0, 0);
   MQTT mqtt;
 
   float currentTheta = 0;

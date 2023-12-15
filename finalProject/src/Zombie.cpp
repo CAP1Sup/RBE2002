@@ -61,36 +61,46 @@ void Zombie::run() {
   case DEBUG_PATHFIND:
     delay(3000);
     if (!pathUpdated) {
-      Serial.println("Getting path");
+      Serial.println(F("Getting path"));
       defaultMaze.checkWall();
       getPath();
     }
     break;
-  case SENSORTEST:
-    printAllSensor();
-    delay(500);
+  case IDLE:
+    // Serial.println("Idle");
+    if (buttonA.getSingleDebouncedRelease()) {
+      Serial.println("Button A pressed");
+      state = SEEKING;
+    }
     break;
-  case DEBUG:
-    if (onIntersection() && currentPathIndex < pathLength) {
+  case SEEKING:
+
+    if (onIntersection()) {
       stop();
       recordIntersection();
+      if (currentIntersection_X == lastClosestIntersectionIndex_X &&
+          currentIntersection_Y == lastClosestIntersectionIndex_Y) {
+        state = STOP;
+        break;
+      }
       Serial.println("Current Path Index: " + String(currentIntersection_X) +
                      ", " + String(currentIntersection_Y));
       if (!pathUpdated) { // Precalcualte path
         Serial.println("Getting path");
         getPath();
       }
+      chassis.driveFor(3, SEEKING_FWD_SPEED, true);
       // This is the current intersection index
       headingDirection nextHeading = getTurnDirection();
       Serial.println("Next Path Index: " + String(nextNode_X) + ", " +
                      String(nextNode_Y));
       Serial.println("Check Path: " + String(path[0].x) + ", " +
                      String(path[0].y));
-      Serial.println("Current Heading: " + String(currentHeading));
-      Serial.println("Next Heading: " + String(nextHeading));
+      // Serial.println("Current Heading: " + String(currentHeading));
+      // Serial.println("Next Heading: " + String(nextHeading));
       int turnAngle = nextHeading - currentHeading;
-      Serial.println("Turn Angle: " + String(turnAngle));
-      Serial.println();
+      // Serial.println("Turn Angle: " + String(turnAngle));
+      // Serial.println();
       if (!pathFound || onTarget()) {
         stop();
       } else if (turnAngle != 0) {
@@ -100,22 +110,6 @@ void Zombie::run() {
       }
     } else {
       followLine();
-    }
-
-    // state = IDLE;
-    break;
-  case IDLE:
-    // Serial.println("Idle");
-    if (buttonA.getSingleDebouncedRelease()) {
-      Serial.println("Button A pressed");
-      state = DEBUG;
-    }
-    break;
-  case SEEKING:
-    receiveTargetCoordinates(0, 0); // Add time delay here
-    moveToLastKnownLocation();
-    if (survivorFound()) {
-      state = CHASING;
     }
     break;
   case CHASING:
@@ -130,15 +124,6 @@ void Zombie::run() {
     stop();
     break;
   }
-}
-
-// Receive target coordinates from MQTT server
-void Zombie::receiveTargetCoordinates(float x, float y) {
-  // Implementation for receiving coordinates
-  lastKnownX = x;
-  lastKnownY = y;
-  isOnLastKnownPosition = false;
-  // pathUpdated = false;
 }
 
 // Follow a line
@@ -200,20 +185,6 @@ void Zombie::printAllSensor() {
 }
 
 // Additional implementation details as needed...
-void Zombie::moveToLastKnownLocation() {
-  bool onTargetX = abs(currentX - lastKnownX) > 0.5f;
-  bool onTargetY = abs(currentY - lastKnownY) > 0.5f;
-
-  if (onTargetX && onTargetY) {
-    isOnLastKnownPosition = true;
-  }
-
-  if (onIntersection()) {
-    recordIntersection();
-    getPath();
-    updateIntersectionIndex();
-  }
-}
 
 uint8_t Zombie::getIntersectionCount() {
   // Logic to get intersection count
@@ -271,41 +242,29 @@ void Zombie::recordIntersection() {
   bool wallLeft = getIRLeftDistance() < WALL_IR_DIS_THRESHOLD;
   bool wallRight = getIRRightDistance() < WALL_IR_DIS_THRESHOLD;
 
-  Serial.println("wallAhead: " + String(wallAhead));
+  Serial.println(("wallAhead: " + String(wallAhead)));
   Serial.println("wallLeft: " + String(wallLeft));
   Serial.println("wallRight: " + String(wallRight));
   updateIntersectionIndex();
   if (currentHeading == UP) {
     if (isOnIntersection) {
-      defaultMaze.setWall(
-          currentIntersection_X, currentIntersection_Y, wallAhead, wallLeft,
-          defaultMaze.getNode(currentIntersection_X, currentIntersection_Y)
-              ->getWallDown(),
-          wallRight);
+      defaultMaze.setWall(currentIntersection_X, currentIntersection_Y,
+                          wallAhead, wallLeft, false, wallRight);
     }
   } else if (currentHeading == LEFT) {
     if (isOnIntersection) {
-      defaultMaze.setWall(
-          currentIntersection_X, currentIntersection_Y, wallLeft,
-          defaultMaze.getNode(currentIntersection_X, currentIntersection_Y)
-              ->getWallRight(),
-          wallRight, wallAhead);
+      defaultMaze.setWall(currentIntersection_X, currentIntersection_Y,
+                          wallLeft, false, wallRight, wallAhead);
     }
   } else if (currentHeading == DOWN) {
     if (isOnIntersection) {
-      defaultMaze.setWall(
-          currentIntersection_X, currentIntersection_Y,
-          defaultMaze.getNode(currentIntersection_X, currentIntersection_Y)
-              ->getWallUp(),
-          wallRight, wallAhead, wallLeft);
+      defaultMaze.setWall(currentIntersection_X, currentIntersection_Y, false,
+                          wallRight, wallAhead, wallLeft);
     }
   } else if (currentHeading == RIGHT) {
     if (isOnIntersection) {
-      defaultMaze.setWall(
-          currentIntersection_X, currentIntersection_Y, wallRight, wallAhead,
-          wallLeft,
-          defaultMaze.getNode(currentIntersection_X, currentIntersection_Y)
-              ->getWallLeft());
+      defaultMaze.setWall(currentIntersection_X, currentIntersection_Y,
+                          wallRight, wallAhead, wallLeft, false);
     }
   }
   defaultMaze.printWall(currentIntersection_X, currentIntersection_Y);
@@ -340,8 +299,8 @@ void Zombie::getPath() {
       defaultMaze.getNode(lastClosestIntersectionIndex_X,
                           lastClosestIntersectionIndex_Y),
       path, pathLength);
-  Serial.print("Path found: ");
-  Serial.println(pathFound ? "Yes" : "No");
+  Serial.print(F("Path found: "));
+  Serial.println(pathFound ? F("Yes") : F("No"));
 
   mazeSolver.printPath(path, pathLength);
   pathUpdated = true;

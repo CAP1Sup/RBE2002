@@ -16,7 +16,6 @@
 #ifdef ZOMBIE
 
 #include <Chassis.h>
-#include <PIDcontroller.h>
 #include <Rangefinder.h>
 #include <Romi32U4.h>
 #include <openmv.h>
@@ -25,7 +24,6 @@
 #include "LineSensor.h"
 #include "MQTT.h"
 #include "MazeSolver.h"
-#include "SonarSensor.h"
 
 // Range finder pins
 #define TRIG_PIN 12
@@ -69,9 +67,6 @@ public:
   // Function to pursue the survivor
   void pursueSurvivor();
 
-  // Function to move to the last known survivor's location
-  void moveToLastKnownLocation();
-
   bool onTarget();
 
   void stop();
@@ -88,16 +83,8 @@ public:
 
 private:
   // Robot state
-  enum RobotState {
-    IDLE,
-    SEEKING,
-    CHASING,
-    STOP,
-    DEBUG,
-    SENSORTEST,
-    DEBUG_PATHFIND
-  };
-  RobotState state = DEBUG_PATHFIND;
+  enum RobotState { IDLE, SEEKING, CHASING, STOP, DEBUG_PATHFIND };
+  RobotState state = IDLE;
 
   // Heading direction
   // typedef enum { UP = 90, DOWN = 270, LEFT = 180, RIGHT = 0 }
@@ -105,18 +92,11 @@ private:
   typedef enum { UP = 0, DOWN = 180, LEFT = -90, RIGHT = 90 } headingDirection;
   headingDirection currentHeading = UP;
 
-  // Private member variables
-  float lastKnownX = 1.0;
-  float lastKnownY = 1.0;
-  // Private member objects
-  float currentX = 0.0;
-  float currentY = 0.0;
-
   uint8_t lastClosestIntersectionIndex_X = 5;
   uint8_t lastClosestIntersectionIndex_Y = 2;
 
-  int currentIntersection_X = 1;
-  int currentIntersection_Y = 2;
+  int currentIntersection_X = 0;
+  int currentIntersection_Y = 0;
 
   Node path[MAX_HEIGHT * MAX_WIDTH];
   int pathLength = 0;
@@ -127,14 +107,7 @@ private:
   int nextNode_X = 0;
   int nextNode_Y = 0;
 
-  // float intersectionPoints[3][6] = {
-  //     {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), 0, 0},
-  //     {(1, 56.1), (22.5, 55.6), (52.9, 56.1), (88.2, 56.1), (1, 56.1),
-  //      (0, 56.1)},
-  //     {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), (0, 0), (0, 0)}};
-
   Romi32U4ButtonA buttonA;
-  SonarSensor sonar;
   LineSensor lineSensor = LineSensor(LEFT_LINE_PIN, RIGHT_LINE_PIN);
   IRSensor irSensorLeft;
   IRSensor irSensorRight;

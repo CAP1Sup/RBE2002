@@ -20,6 +20,7 @@ void Survivor::init() {
   IR.init(IR_PIN);
   chassis.init();
   rangefinder.init();
+  mqtt.init();
 }
 
 void Survivor::run() {
@@ -29,6 +30,7 @@ void Survivor::run() {
         state = WANDERING;
         wallFollowPID.reset();
         IR.resetDistAvg();
+        Serial1.flush();
       }
       break;
     }
@@ -61,9 +63,6 @@ void Survivor::run() {
         }
       }
 
-      // Serial.print(F("Distance: "));
-      // Serial.println(rangefinder.getDistance());
-
       // Check if the robot has a wall in front of it
       if (rangefinder.getDistance() < WALL_DISTANCE * MM_TO_CM && !turning) {
         // Turn away from the wall
@@ -71,19 +70,20 @@ void Survivor::run() {
         turning = true;
       }
 
-      // Check if the robot is being chased
-      /*
-      getMQTTMessages();
-      if (tag.id == 0 || tag.id == 1 || tag.id == 2 || tag.id == 3) {
-        state = CHASED;
-        chasedTime = millis();
-        chasedWallFollowPID.reset();
-        IR.resetDistAvg();
-      }*/
-
       if (chassis.checkMotionComplete()) {
         turning = false;
         IR.resetDistAvg();
+      }
+
+      // Check if the robot is being chased
+      if (mqtt.isMessageAvailable()) {
+        Tag tag = mqtt.readTagMessage();
+        if (tag.id == SURVIVOR_SIDE_TAG_ID) {
+          state = CHASED;
+          lastChasedTime = millis();
+          chasedWallFollowPID.reset();
+          IR.resetDistAvg();
+        }
       }
 
       if (buttonA.getSingleDebouncedRelease()) {
@@ -93,6 +93,22 @@ void Survivor::run() {
       break;
     }
     case CHASED: {
+      // Get the MQTT message
+      if (mqtt.isMessageAvailable()) {
+        Tag tag = mqtt.readTagMessage();
+        if (tag.id == SURVIVOR_SIDE_TAG_ID) {
+          // Set the last chased time
+          lastChasedTime = millis();
+
+          // Check if the Zombie is close enough to infect
+          if (tag.w >= MAX_SURVIVOR_TAG_WIDTH) {
+            state = IDLE;
+            chassis.idle();
+          }
+        }
+      }
+
+      // Get the average distance
       float avgDist = IR.getAvgDistance();
 
       // Calculate the wall distance PID output if needed
@@ -110,7 +126,7 @@ void Survivor::run() {
                                (DRIVE_SPEED - pidOut) * 1.5f * MM_TO_CM);
       }
 
-      if (millis() - updateTime >= CHASED_TIME_INTERVAL) {
+      if (millis() - lastChasedTime >= CHASED_TIME_INTERVAL) {
         state = WANDERING;
         wallFollowPID.reset();
         IR.resetDistAvg();

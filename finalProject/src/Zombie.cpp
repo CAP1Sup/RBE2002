@@ -10,12 +10,12 @@
  */
 
 #include "Zombie.h"
-extern Maze defaultMaze;
 
 #ifdef ZOMBIE
 
 Chassis chassis;
 Rangefinder rangefinder(ECHO_PIN, TRIG_PIN);
+extern Maze defaultMaze;
 // SonarSensor sonar;
 
 void Zombie::init() {
@@ -29,9 +29,34 @@ void Zombie::init() {
   chassis.init();
   rangefinder.init();
   pathLength = 2; // set to 2 to start path
+  mqtt.init();
+
+  // Camera setup
+  Wire.begin();
+  Wire.setClock(100000ul);
 }
 
 void Zombie::run() {
+  if (mqtt.isMessageAvailable()) {
+    Tag tag = mqtt.readTagMessage();
+    if (tag.id == ZOMBIE_TOP_TAG_ID) {
+      // TODO: Update the zombie's position?
+    } else if (tag.id == SURVIVOR_TOP_TAG_ID) {
+      // Update the survivor's position
+      survivorNode = mqtt.toNode(tag);
+    }
+  }
+
+  // Upload any tags from the camera to the MQTT server
+  if (camera.getTagCount()) {
+    AprilTagDatum tag;
+    camera.readTag(tag);
+    mqtt.sendMessage("tag" + String(tag.id) + "/str",
+                     String(tag.cx) + "|" + String(tag.cy) + "|" +
+                         String(tag.w) + "|" + String(tag.h) + "|" +
+                         String(tag.rot) + "\n");
+  }
+
   switch (state) {
   case DEBUG_PATHFIND:
     delay(3000);
@@ -176,7 +201,6 @@ void Zombie::printAllSensor() {
 
 // Additional implementation details as needed...
 void Zombie::moveToLastKnownLocation() {
-
   bool onTargetX = abs(currentX - lastKnownX) > 0.5f;
   bool onTargetY = abs(currentY - lastKnownY) > 0.5f;
 
@@ -286,6 +310,7 @@ void Zombie::recordIntersection() {
   }
   defaultMaze.printWall(currentIntersection_X, currentIntersection_Y);
   pathUpdated = false;
+  intersectionCount++;
 }
 
 void Zombie::readMQTT() {

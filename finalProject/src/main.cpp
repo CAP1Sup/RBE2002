@@ -9,8 +9,6 @@ Survivor survivor = Survivor();
 #endif
 
 void setup() {
-  // No need to call init methods, constructors will do that
-  // Serial.begin(115200);
   Serial.begin(9600);
 #ifdef ZOMBIE
   zombie.init();
@@ -25,5 +23,5 @@ void loop() {
 #elif defined(SURVIVOR)
   survivor.run();
 #endif
-  delay(20);
+  // delay(20);
 }

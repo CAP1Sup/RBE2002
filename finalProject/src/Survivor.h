@@ -13,6 +13,7 @@
 
 #include "IRSensor.h"
 #include "LineSensor.h"
+#include "MQTT.h"
 #include "PID.h"
 #include "SonarSensor.h"
 
@@ -24,7 +25,7 @@
 #define NO_WALL_FORWARD_DIST 400.0f  // mm
 #define MAX_PID_OUTPUT 50.0f         // mm/s
 #define DRIVE_SPEED 150.0f           // mm/s
-#define CHASED_TIME_INTERVAL 5000    // ms
+#define CHASED_TIME_INTERVAL 3000    // ms
 #define RIGHT_TURN_ANGLE -80.0f      // deg
 #define LEFT_TURN_ANGLE 80.0f        // deg
 #define TURN_SPEED 135.0f            // deg/s
@@ -49,8 +50,10 @@ class Survivor {
   Romi32U4ButtonA buttonA;
   PID wallFollowPID = PID(4.0f, 0.0f, 0.0f);
   PID chasedWallFollowPID = PID(3.0f, 1.0f, 0.0f);
+  MQTT mqtt;
+
   uint32_t lastPIDUpdate = 0;
-  uint32_t chasedTime = 0;
+  uint32_t lastChasedTime = 0;
   uint32_t updateTime = 0;
   bool turning = false;
 };

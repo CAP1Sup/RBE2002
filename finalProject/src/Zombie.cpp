@@ -108,8 +108,7 @@ void Zombie::run() {
                      String(nextNode_Y));
       Serial.println("Check Path: " + String(path[0].x) + ", " +
                      String(path[0].y));
-      // Serial.println("Current Heading: " + String(currentHeading));
-      // Serial.println("Next Heading: " + String(nextHeading));
+
       int turnAngle = nextHeading - currentHeading;
       // Serial.println("Turn Angle: " + String(turnAngle));
       // Serial.println();
@@ -122,15 +121,6 @@ void Zombie::run() {
       }
     } else {
       followLine();
-    }
-    break;
-  case CHASING:
-    Serial.println("Chasing");
-    pursueSurvivor();
-    if (survivorInfected()) {
-      state = STOP;
-    } else if (!survivorFound()) {
-      state = SEEKING;
     }
     break;
   case STOP:
@@ -150,16 +140,6 @@ void Zombie::followLine() {
   getIRRightDistance();
   chassis.setTwist(SEEKING_FWD_SPEED * IN_CH, LINE_P * difference);
   delay(10);
-}
-
-// Detect survivor's position
-void Zombie::detectSurvivorPosition() {
-  // Implementation for detecting survivor's position
-}
-
-// Pursue the survivor
-void Zombie::pursueSurvivor() {
-  // Logic to pursue survivor
 }
 
 bool Zombie::onTarget() {
@@ -198,13 +178,6 @@ void Zombie::printAllSensor() {
   // Logic to print all sensor readings
 }
 
-// Additional implementation details as needed...
-
-uint8_t Zombie::getIntersectionCount() {
-  // Logic to get intersection count
-  return intersectionCount;
-}
-
 Zombie::headingDirection Zombie::getTurnDirection() {
   // Logic to determine which direction to turn
   headingDirection nextHeading;
@@ -212,15 +185,6 @@ Zombie::headingDirection Zombie::getTurnDirection() {
       defaultMaze.getNodeChild(currentIntersection_X, currentIntersection_Y);
   nextNode_X = child->getX();
   nextNode_Y = child->getY();
-  /* if (path[currentPathIndex].y != currentIntersection_Y) {
-    nextHeading = path[currentPathIndex].y > currentIntersection_Y
-                      ? headingDirection::UP
-                      : headingDirection::DOWN;
-  } else {
-    nextHeading = path[currentPathIndex].x > currentIntersection_X
-                      ? headingDirection::RIGHT
-                      : headingDirection::LEFT;
-  } */
   if (nextNode_Y != currentIntersection_Y) {
     nextHeading = nextNode_Y > currentIntersection_Y ? headingDirection::UP
                                                      : headingDirection::DOWN;
@@ -234,16 +198,6 @@ Zombie::headingDirection Zombie::getTurnDirection() {
 void Zombie::stop() {
   // Logic to stop the robot
   chassis.setTwist(0.0f, 0.0f);
-}
-
-bool Zombie::survivorFound() { // IMPLEMENT THIS
-  // Logic to determine if the survivor has been found
-  return false;
-}
-
-bool Zombie::survivorInfected() { // IMPLEMENT THIS
-  // Logic to determine if the survivor is infected
-  return false;
 }
 
 float Zombie::getLeftLineValue() { return lineSensor.getLeftLineValue(); }
@@ -286,25 +240,6 @@ void Zombie::recordIntersection() {
   intersectionCount++;
 }
 
-void Zombie::readMQTT() {
-  if (Serial.available() > 0) {
-    String receivedData =
-        Serial.readStringUntil('\n'); // Read the incoming data
-    int separatorIndex = receivedData.indexOf(':');
-
-    if (separatorIndex != -1) {
-      String topic = receivedData.substring(0, separatorIndex);
-      String message = receivedData.substring(separatorIndex + 1);
-
-      // Now, you have the topic and message separated
-      Serial.println("Topic: " + topic + ", Message: " + message);
-
-      // You can add further processing based on the topic and message
-      // For example, if(topic == "irDist") { ... }
-    }
-  }
-}
-
 void Zombie::getPath() {
   // Logic to get path
   pathLength = 0;
@@ -318,8 +253,6 @@ void Zombie::getPath() {
   mazeSolver.printPath(path, pathLength);
   pathUpdated = true;
 }
-
-void Zombie::closestIntersection() {} // Needs Implementation
 
 void Zombie::updateIntersectionIndex() {
   switch (currentHeading) {

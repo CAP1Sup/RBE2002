@@ -18,9 +18,9 @@
 #define LEFT_MASK 0b1000
 
 class Node {
- public:
-  uint8_t x, y;  //
-  Node *parent;  // Parent node in the path
+public:
+  uint8_t x, y; //
+  Node *parent; // Parent node in the path
   Node *child;
 
   /**
@@ -43,7 +43,7 @@ class Node {
    * @return true
    * @return false
    */
-  bool isValid() const;  // Check if the node has valid coordinates
+  bool isValid() const; // Check if the node has valid coordinates
 
   /**
    * @brief Check if the node is equal to another node
@@ -73,19 +73,77 @@ class Node {
    */
   void setWalls(bool north, bool east, bool south, bool west);
 
+  /**
+   * @brief Get the Wall Up object
+   *
+   * @return true
+   * @return false
+   */
   bool getWallUp() const;
+  /**
+   * @brief Get the Wall Right object
+   *
+   * @return true
+   * @return false
+   */
   bool getWallRight() const;
+  /**
+   * @brief Get the Wall Down object
+   *
+   * @return true
+   * @return false
+   */
   bool getWallDown() const;
+  /**
+   * @brief Get the Wall Left object
+   *
+   * @return true
+   * @return false
+   */
   bool getWallLeft() const;
 
+  /**
+   * @brief Set the Wall Up object
+   *
+   * @param wall
+   */
   void setWallUp(bool wall);
+  /**
+   * @brief Set the Wall Right object
+   *
+   * @param wall
+   */
   void setWallRight(bool wall);
+  /**
+   * @brief Set the Wall Down object
+   *
+   * @param wall
+   */
   void setWallDown(bool wall);
+  /**
+   * @brief Set the Wall Left object
+   *
+   * @param wall
+   */
   void setWallLeft(bool wall);
 
+  /**
+   * @brief Print the wall layout
+   *
+   */
   void printWall();
 
+  /**
+   * @brief Get the X object
+   *
+   * @return int
+   */
   int getX() const;
+  /**
+   * @brief Get the Y object
+   *
+   * @return int
+   */
   int getY() const;
 
   uint8_t walls = 0b0000;

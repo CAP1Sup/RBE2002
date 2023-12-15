@@ -50,62 +50,72 @@
 class Zombie {
 public:
   // Function to initialize the zombie Romi
+  /**
+   * @brief init the zombie Romi
+   *
+   */
   void init();
 
-  // Function to run the zombie Romi
+  /**
+   * @brief runs zombie Romi
+   *
+   */
   void run();
 
-  // Function to receive target coordinates from MQTT server
-  void receiveTargetCoordinates(float x, float y);
-
-  // Function to follow a line
+  /**
+   * @brief follow line function
+   *
+   */
   void followLine();
 
-  // Function to detect survivor's position (left, right, stationary)
-  void detectSurvivorPosition();
-
-  // Function to pursue the survivor
-  void pursueSurvivor();
-
+  /**
+   * @brief Check if on target
+   *
+   * @return true
+   * @return false
+   */
   bool onTarget();
 
+  /**
+   * @brief Stops the Romi
+   *
+   */
   void stop();
 
-  bool survivorFound();
-
-  bool survivorInfected();
-
+  /**
+   * @brief Gets sensor readings
+   *
+   */
   void printAllSensor();
 
-  void readMQTT();
-
+  /**
+   * @brief Get the Path object
+   *
+   */
   void getPath(); // Make this private
 
 private:
   // Robot state
-  enum RobotState { IDLE, SEEKING, CHASING, STOP, DEBUG_PATHFIND };
+  enum RobotState { IDLE, SEEKING, STOP, DEBUG_PATHFIND };
   RobotState state = IDLE;
 
-  // Heading direction
-  // typedef enum { UP = 90, DOWN = 270, LEFT = 180, RIGHT = 0 }
-  // headingDirection;
   typedef enum { UP = 0, DOWN = 180, LEFT = -90, RIGHT = 90 } headingDirection;
   headingDirection currentHeading = UP;
 
-  uint8_t lastClosestIntersectionIndex_X = 5;
-  uint8_t lastClosestIntersectionIndex_Y = 2;
+  uint8_t lastClosestIntersectionIndex_X = 5; // target node
+  uint8_t lastClosestIntersectionIndex_Y = 2; // target node
 
-  int currentIntersection_X = 0;
-  int currentIntersection_Y = 0;
+  int currentIntersection_X = 0; // current node
+  int currentIntersection_Y = 0; //  current node
 
-  Node path[MAX_HEIGHT * MAX_WIDTH];
-  int pathLength = 0;
-  bool pathFound = false;
-  bool pathUpdated = false;
-  int currentPathIndex = 0;
+  Node path[MAX_HEIGHT * MAX_WIDTH]; // path to target node
+  int pathLength = 0;                // length of path to target node
+  bool pathFound = false;            // flag for path found
+  bool pathUpdated = false;          // flag for path updated
+  int currentPathIndex = 0;          // current index in path
 
-  int nextNode_X = 0;
-  int nextNode_Y = 0;
+  int nextNode_X = 0; // next node
+  int nextNode_Y = 0; // next node
 
   Romi32U4ButtonA buttonA;
   LineSensor lineSensor = LineSensor(LEFT_LINE_PIN, RIGHT_LINE_PIN);
@@ -125,6 +135,8 @@ private:
   uint8_t intersectionCount = 0;
 
   // Private member functions
+
+  // get Sensor Values
   float getSonarDistance();
 
   float getIRLeftDistance();
@@ -135,21 +147,17 @@ private:
 
   float getRightLineValue();
 
+  // Check if on intersection
   bool onIntersection();
 
+  // Update current intersection index and state of robot
   void recordIntersection();
 
+  // Gets the next heading direction for the robot
   headingDirection getTurnDirection();
 
-  uint8_t getIntersectionCount();
-
-  void followPath();
-
-  void closestIntersection();
-
+  // Update the current heading direction
   void updateIntersectionIndex();
-
-  void turnOnIntersection(headingDirection nextHeading);
 
   void printMaze();
 };

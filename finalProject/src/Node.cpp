@@ -17,7 +17,7 @@ Node::Node(uint8_t x, uint8_t y) : x(x), y(y), parent(nullptr) {}
 
 bool Node::isValid() const {
   return x >= 0 &&
-         y >= 0;  // Adjust the condition based on your coordinate system
+         y >= 0; // Adjust the condition based on your coordinate system
 }
 
 bool Node::isEqual(const Node &other) {

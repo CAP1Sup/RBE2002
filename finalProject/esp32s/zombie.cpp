@@ -67,7 +67,7 @@ bool publishMQTT(String& str) {
    */
   mqtt_reconnect();
 
-  String topic = String("team") + String(teamNumber) + String('/') +
+  String topic = String("theIlluminati/") +
                  str.substring(0, iColon);
   String message = str.substring(iColon + 1);
 

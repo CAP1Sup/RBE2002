@@ -35,10 +35,10 @@
 
 // Assuming necessary libraries for MQTT, networking, and sensor input are
 // included
-#define WALL_IR_DIS_THRESHOLD 30.0    // mm
-#define WALL_SONAR_DIS_THRESHOLD 20.0 // cm
+#define WALL_IR_DIS_THRESHOLD 20.0    // mm
+#define WALL_SONAR_DIS_THRESHOLD 24.0 // cm
 #define THETA_THESHOLD 10             // deg
-#define LINE_THRESHOLD 50             // 0-1023
+#define LINE_THRESHOLD 100            // 0-1023
 #define SEEKING_FWD_SPEED 12          // in/s
 #define SEEKING_TURN_SPEED 100        // deg/s
 #define TURN_SPEED 150                // deg/s
@@ -70,7 +70,7 @@ public:
   // Function to move to the last known survivor's location
   void moveToLastKnownLocation();
 
-  bool getOnLastKnownPosition();
+  bool onTarget();
 
   void stop();
 
@@ -86,11 +86,21 @@ public:
 
 private:
   // Robot state
-  enum RobotState { IDLE, SEEKING, CHASING, STOP, DEBUG };
-  RobotState state = DEBUG;
+  enum RobotState {
+    IDLE,
+    SEEKING,
+    CHASING,
+    STOP,
+    DEBUG,
+    SENSORTEST,
+    DEBUG_PATHFIND
+  };
+  RobotState state = DEBUG_PATHFIND;
 
   // Heading direction
-  typedef enum { UP = 90, DOWN = 270, LEFT = 180, RIGHT = 0 } headingDirection;
+  // typedef enum { UP = 90, DOWN = 270, LEFT = 180, RIGHT = 0 }
+  // headingDirection;
+  typedef enum { UP = 0, DOWN = 180, LEFT = -90, RIGHT = 90 } headingDirection;
   headingDirection currentHeading = UP;
 
   // Private member variables
@@ -103,14 +113,17 @@ private:
   uint8_t lastClosestIntersectionIndex_X = 5;
   uint8_t lastClosestIntersectionIndex_Y = 2;
 
-  int currentIntersection_X = 0;
-  int currentIntersection_Y = 0;
+  int currentIntersection_X = 1;
+  int currentIntersection_Y = 2;
 
   Node path[MAX_HEIGHT * MAX_WIDTH];
   int pathLength = 0;
   bool pathFound = false;
   bool pathUpdated = false;
   int currentPathIndex = 0;
+
+  int nextNode_X = 0;
+  int nextNode_Y = 0;
 
   // float intersectionPoints[3][6] = {
   //     {(0, 0), (22.5, 0), (52.9, 0), (88.2, 0), 0, 0},

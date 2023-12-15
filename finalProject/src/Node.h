@@ -16,6 +16,7 @@ class Node {
 public:
   uint8_t x, y; //
   Node *parent; // Parent node in the path
+  Node *child;
   struct wall {
     bool up = false, right = false, down = false, left = false;
   } walls; // Walls around the node
@@ -69,6 +70,13 @@ public:
    * @param west
    */
   void setWalls(bool north, bool east, bool south, bool west);
+
+  bool getWallUp() const;
+  bool getWallRight() const;
+  bool getWallDown() const;
+  bool getWallLeft() const;
+
+  void printWall();
 
   int getX() const;
   int getY() const;

@@ -37,7 +37,11 @@ public:
 
   Node *getNode(int x, int y);
 
+  void printWall(int x, int y);
+
   void checkWall();
+
+  Node *getNodeChild(int x, int y);
 
 private:
   Node grid[MAX_WIDTH][MAX_HEIGHT];

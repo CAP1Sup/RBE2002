@@ -32,5 +32,28 @@ void Node::setWalls(bool north, bool east, bool south, bool west) {
   walls.left = west;
 }
 
+void Node::printWall() {
+  Serial.print("Node (");
+  Serial.print(x);
+  Serial.print(",");
+  Serial.print(y);
+  Serial.print(") ");
+  Serial.print("Walls: ");
+  Serial.print("Up: ");
+  Serial.print(walls.up);
+  Serial.print(" Right: ");
+  Serial.print(walls.right);
+  Serial.print(" Down: ");
+  Serial.print(walls.down);
+  Serial.print(" Left: ");
+  Serial.print(walls.left);
+  Serial.println();
+}
+
 int Node::getX() const { return x; }
 int Node::getY() const { return y; }
+
+bool Node::getWallDown() const { return walls.down; }
+bool Node::getWallUp() const { return walls.up; }
+bool Node::getWallLeft() const { return walls.left; }
+bool Node::getWallRight() const { return walls.right; }

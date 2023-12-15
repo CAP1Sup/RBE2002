@@ -85,7 +85,8 @@ private:
    * @param path Array of nodes
    * @param pathLength Length of the path
    */
-  void reconstructPath(Node &goalNode, Node path[], int &pathLength);
+  void reconstructPath(Node &goalNode, Node path[], int &pathLength,
+                       Node *startNode);
   /**
    * @brief Calculate the heuristic
    *

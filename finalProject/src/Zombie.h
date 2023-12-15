@@ -114,7 +114,7 @@ private:
 
   Maze maze;
   MazeSolver mazeSolver;
-  Node survivorNode = Node(0, 0);
+  Node survivorNode = Node(5, 2);
   MQTT mqtt;
   OpenMV camera;
 

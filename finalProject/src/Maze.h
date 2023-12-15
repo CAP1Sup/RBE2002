@@ -43,6 +43,8 @@ public:
 
   Node *getNodeChild(int x, int y);
 
+  void resetParents();
+
 private:
   Node grid[MAX_WIDTH][MAX_HEIGHT];
   int width;

@@ -4,7 +4,7 @@
 // #define SURVIVOR
 
 // Tag IDs
-#define ZOMBIE_TOP_TAG_ID 0  // TODO: FIX
+#define ZOMBIE_TOP_TAG_ID 1
 #define SURVIVOR_TOP_TAG_ID 0
 #define SURVIVOR_SIDE_TAG_ID 4
 

@@ -69,7 +69,7 @@ Node MQTT::toNode(Tag tag) {
   // Flip the column
   // X = 0 is on the right side of the map
   // Subtract from the length minus 1 because the array is indexed from 0
-  col = sizeof(xColBounds) / sizeof(xColBounds[0]) - col - 1;
+  col = sizeof(xColBounds) / sizeof(xColBounds[0]) - col;
 
   // Find the row
   for (uint8_t i = 0; i < sizeof(yRowBounds) / sizeof(yRowBounds[0]); i++) {
@@ -77,6 +77,9 @@ Node MQTT::toNode(Tag tag) {
       row++;
     }
   }
+
+  // Flip the row
+  row = sizeof(yRowBounds) / sizeof(yRowBounds[0]) - row;
 
   return Node(col, row);
 }
@@ -86,6 +89,6 @@ Node MQTT::toNode(Tag tag) {
  *      topic:message
  * which is what the corresponding ESP32 code expects.
  * */
-void MQTT::sendMessage(const String& topic, const String& message) {
+void MQTT::sendMessage(const String &topic, const String &message) {
   Serial1.println(topic + String(':') + message);
 }

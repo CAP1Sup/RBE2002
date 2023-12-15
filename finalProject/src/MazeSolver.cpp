@@ -42,6 +42,7 @@ bool MazeSolver::findPath(Node *start, Node *goal, Node path[],
         neighborsPtr[i]->parent = current;
         addToOpenList(neighborsPtr[i]);
       }
+      Serial.println();
       // delay(100);
     }
     // delay(10);

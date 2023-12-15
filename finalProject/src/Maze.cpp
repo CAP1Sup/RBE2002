@@ -54,6 +54,14 @@ void Maze::printMaze() {
 
 void Maze::printWall(int x, int y) { grid[x][y].printWall(); }
 
+void Maze::resetParents() {
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      grid[x][y].parent = nullptr;
+    }
+  }
+}
+
 void Maze::checkWall() {
   // Check for walls
   setWall(0, 0, false, true, false, true);

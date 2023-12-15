@@ -4,9 +4,9 @@
 // #define SURVIVOR
 
 // Tag IDs
-#define ZOMBIE_TOP_TAG_ID 0
-#define SURVIVOR_TOP_TAG_ID 1
-#define SURVIVOR_SIDE_TAG_ID 2
+#define ZOMBIE_TOP_TAG_ID 0  // TODO: FIX
+#define SURVIVOR_TOP_TAG_ID 0
+#define SURVIVOR_SIDE_TAG_ID 4
 
 // Tag sizing
 #define MAX_SURVIVOR_TAG_WIDTH 100
